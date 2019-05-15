@@ -7,7 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace Oxygen.Common
+namespace Oxygen.CommonTool
 {
     public static class TypeExtension
     {

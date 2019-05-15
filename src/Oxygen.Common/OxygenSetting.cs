@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 
-namespace Oxygen.Common
+namespace Oxygen.CommonTool
 {
     public static class OxygenSetting
     {

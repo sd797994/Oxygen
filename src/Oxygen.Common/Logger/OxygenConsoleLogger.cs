@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging.Console;
 using System;
 
-namespace Oxygen.Common.Logger
+namespace Oxygen.CommonTool.Logger
 {
     public class OxygenConsoleLogger: IOxygenLogger
     {

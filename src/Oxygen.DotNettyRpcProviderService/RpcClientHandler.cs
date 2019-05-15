@@ -1,6 +1,6 @@
 ﻿using DotNetty.Buffers;
 using DotNetty.Transport.Channels;
-using Oxygen.Common.Logger;
+using Oxygen.CommonTool.Logger;
 using System;
 
 namespace Oxygen.DotNettyRpcProviderService

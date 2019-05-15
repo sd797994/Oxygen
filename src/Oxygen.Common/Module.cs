@@ -1,6 +1,6 @@
 ﻿using Autofac;
 
-namespace Oxygen.Common
+namespace Oxygen.CommonTool
 {
     public class Module : Autofac.Module
     {

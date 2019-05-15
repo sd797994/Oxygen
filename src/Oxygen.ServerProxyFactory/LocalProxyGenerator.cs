@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using Oxygen.Common.Logger;
+using Oxygen.CommonTool.Logger;
 using Oxygen.ISerializeService;
 using Oxygen.IServerProxyFactory;
 using System;

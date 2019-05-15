@@ -38,7 +38,7 @@ namespace Oxygen.ProxyClientBuilder
                         content.AppendLine($"using {x};");
                     });
                     content.AppendLine("using MediatR;");
-                    content.AppendLine("using Oxygen.Common;");
+                    content.AppendLine("using Oxygen.CommonTool;");
                     content.AppendLine("using System.Threading;");
                     content.AppendLine("using System.Threading.Tasks;");
                     content.AppendLine($"namespace Oxygen.MediatRProxyClientBuilder.ProxyInstance");

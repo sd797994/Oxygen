@@ -2,7 +2,7 @@
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Oxygen.Common;
+using Oxygen.CommonTool;
 
 namespace Oxygen
 {
@@ -21,7 +21,7 @@ namespace Oxygen
             //注入服务发现
             builder.RegisterModule(new ConsulRegisterService.Module());
             //注入通用服务
-            builder.RegisterModule(new Common.Module());
+            builder.RegisterModule(new CommonTool.Module());
             return builder;
         }
 

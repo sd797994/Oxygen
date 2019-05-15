@@ -1,5 +1,5 @@
 ﻿using Autofac;
-using Oxygen.Common.Logger;
+using Oxygen.CommonTool.Logger;
 using Oxygen.IServerProxyFactory;
 using System;
 using System.Collections.Concurrent;

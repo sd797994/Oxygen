@@ -1,5 +1,5 @@
 ﻿using Consul;
-using Oxygen.Common;
+using Oxygen.CommonTool;
 using Oxygen.IMicroRegisterService;
 using System;
 using System.Collections.Generic;

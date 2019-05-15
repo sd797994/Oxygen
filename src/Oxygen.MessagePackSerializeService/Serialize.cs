@@ -1,6 +1,6 @@
 ﻿using MessagePack;
 using MessagePack.Resolvers;
-using Oxygen.Common.Logger;
+using Oxygen.CommonTool.Logger;
 using Oxygen.ISerializeService;
 using System;
 using System.Linq;

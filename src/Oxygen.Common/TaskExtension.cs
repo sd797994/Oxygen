@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace Oxygen.Common
+namespace Oxygen.CommonTool
 {
     public static class TaskExtension
     {

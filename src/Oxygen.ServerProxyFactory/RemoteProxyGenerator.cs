@@ -1,4 +1,4 @@
-﻿using Oxygen.Common.Logger;
+﻿using Oxygen.CommonTool.Logger;
 using Oxygen.IMicroRegisterService;
 using Oxygen.IRpcProviderService;
 using Oxygen.IServerProxyFactory;

@@ -1,4 +1,4 @@
-﻿namespace Oxygen.Common.Logger
+﻿namespace Oxygen.CommonTool.Logger
 {
     public interface IOxygenLogger
     {

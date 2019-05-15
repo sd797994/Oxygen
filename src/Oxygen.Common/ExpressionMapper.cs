@@ -6,7 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Oxygen.Common
+namespace Oxygen.CommonTool
 {
     public static class Mapper<TSource, TTarget> where TSource : class where TTarget : class
     {

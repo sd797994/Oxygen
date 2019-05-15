@@ -1,11 +1,11 @@
-﻿using Oxygen.Common.Logger;
+﻿using Oxygen.CommonTool.Logger;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.NetworkInformation;
 
-namespace Oxygen.Common
+namespace Oxygen.CommonTool
 {
     public interface IGlobalCommon
     {
