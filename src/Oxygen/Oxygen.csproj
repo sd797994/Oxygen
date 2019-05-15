@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyVersion>0.0.0.1</AssemblyVersion>
+    <FileVersion>0.0.0.1</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac.Configuration" Version="4.1.0" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="6.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Oxygen.ConsulRegisterService\Oxygen.ConsulRegisterService.csproj" />
+    <ProjectReference Include="..\Oxygen.DotNettyRpcProviderService\Oxygen.DotNettyRpcProviderService.csproj" />
+    <ProjectReference Include="..\Oxygen.ICsharpClientAgent\Oxygen.CsharpClientAgent.csproj" />
+    <ProjectReference Include="..\Oxygen.IMicroRegisterService\Oxygen.IMicroRegisterService.csproj" />
+    <ProjectReference Include="..\Oxygen.IRpcProviderService\Oxygen.IRpcProviderService.csproj" />
+    <ProjectReference Include="..\Oxygen.ISerializeService\Oxygen.ISerializeService.csproj" />
+    <ProjectReference Include="..\Oxygen.IServerProxyFactory\Oxygen.IServerProxyFactory.csproj" />
+    <ProjectReference Include="..\Oxygen.MediatRProxyClientBuilder\Oxygen.ProxyClientBuilder.csproj" />
+    <ProjectReference Include="..\Oxygen.MessagePackSerializeService\Oxygen.MessagePackSerializeService.csproj" />
+    <ProjectReference Include="..\Oxygen.Common\Oxygen.Common.csproj" />
+    <ProjectReference Include="..\Oxygen.ServerProxyFactory\Oxygen.ServerProxyFactory.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Microsoft.Extensions.Hosting.Abstractions">
+      <HintPath>C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.hosting.abstractions\2.2.0\lib\netstandard2.0\Microsoft.Extensions.Hosting.Abstractions.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

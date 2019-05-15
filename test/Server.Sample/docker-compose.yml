@@ -1,0 +1,12 @@
+version: '3.4'
+
+services: 
+  serversample:
+    image: serversample:latest
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: serversample
+    ports:
+     - "8501:80"

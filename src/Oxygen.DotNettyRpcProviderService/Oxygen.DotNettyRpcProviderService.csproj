@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyVersion>0.0.0.1</AssemblyVersion>
+    <FileVersion>0.0.0.1</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="autofac.configuration" Version="4.1.0" />
+    <PackageReference Include="DotNetty.Handlers" Version="0.6.0" />
+    <PackageReference Include="DotNetty.Transport.Libuv" Version="0.6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Oxygen.IMicroRegisterService\Oxygen.IMicroRegisterService.csproj" />
+    <ProjectReference Include="..\Oxygen.IRpcProviderService\Oxygen.IRpcProviderService.csproj" />
+    <ProjectReference Include="..\Oxygen.ISerializeService\Oxygen.ISerializeService.csproj" />
+    <ProjectReference Include="..\Oxygen.Common\Oxygen.Common.csproj" />
+    <ProjectReference Include="..\Oxygen.IServerProxyFactory\Oxygen.IServerProxyFactory.csproj" />
+  </ItemGroup>
+
+</Project>

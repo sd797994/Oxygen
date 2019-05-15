@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyVersion>0.0.0.1</AssemblyVersion>
+    <FileVersion>0.0.0.1</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="4.9.2" />
+    <PackageReference Include="MediatR" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Oxygen.Common\Oxygen.Common.csproj" />
+    <ProjectReference Include="..\Oxygen.IMicroRegisterService\Oxygen.IMicroRegisterService.csproj" />
+    <ProjectReference Include="..\Oxygen.IRpcProviderService\Oxygen.IRpcProviderService.csproj" />
+    <ProjectReference Include="..\Oxygen.ISerializeService\Oxygen.ISerializeService.csproj" />
+    <ProjectReference Include="..\Oxygen.IServerProxyFactory\Oxygen.IServerProxyFactory.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp">
+      <HintPath>C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.netcore.app\2.2.0\ref\netcoreapp2.2\Microsoft.CSharp.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
