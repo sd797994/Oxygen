@@ -14,16 +14,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Oxygen.Common\Oxygen.CommonTool.csproj" />
     <ProjectReference Include="..\Oxygen.ConsulRegisterService\Oxygen.ConsulRegisterService.csproj" />
+    <ProjectReference Include="..\Oxygen.CsharpClientAgent\Oxygen.CsharpClientAgent.csproj" />
     <ProjectReference Include="..\Oxygen.DotNettyRpcProviderService\Oxygen.DotNettyRpcProviderService.csproj" />
-    <ProjectReference Include="..\Oxygen.ICsharpClientAgent\Oxygen.CsharpClientAgent.csproj" />
     <ProjectReference Include="..\Oxygen.IMicroRegisterService\Oxygen.IMicroRegisterService.csproj" />
     <ProjectReference Include="..\Oxygen.IRpcProviderService\Oxygen.IRpcProviderService.csproj" />
     <ProjectReference Include="..\Oxygen.ISerializeService\Oxygen.ISerializeService.csproj" />
     <ProjectReference Include="..\Oxygen.IServerProxyFactory\Oxygen.IServerProxyFactory.csproj" />
     <ProjectReference Include="..\Oxygen.MediatRProxyClientBuilder\Oxygen.ProxyClientBuilder.csproj" />
     <ProjectReference Include="..\Oxygen.MessagePackSerializeService\Oxygen.MessagePackSerializeService.csproj" />
-    <ProjectReference Include="..\Oxygen.Common\Oxygen.Common.csproj" />
     <ProjectReference Include="..\Oxygen.ServerProxyFactory\Oxygen.ServerProxyFactory.csproj" />
   </ItemGroup>
 </Project>

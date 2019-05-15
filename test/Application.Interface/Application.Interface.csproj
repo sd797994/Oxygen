@@ -5,8 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Oxygen.ConsulRegisterService\Oxygen.ConsulRegisterService.csproj" />
-    <ProjectReference Include="..\..\src\Oxygen.ICsharpClientAgent\Oxygen.CsharpClientAgent.csproj" />
+    <ProjectReference Include="..\..\src\Oxygen.CsharpClientAgent\Oxygen.CsharpClientAgent.csproj" />
   </ItemGroup>
 
 </Project>

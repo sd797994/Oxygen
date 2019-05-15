@@ -9,7 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{BC08F669-3
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oxygen.DotNettyRpcProviderService", "src\Oxygen.DotNettyRpcProviderService\Oxygen.DotNettyRpcProviderService.csproj", "{6C8E9658-82D0-400E-AFAE-606B237F521D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oxygen.CsharpClientAgent", "src\Oxygen.ICsharpClientAgent\Oxygen.CsharpClientAgent.csproj", "{7CAB5C8E-DC76-422F-9C4F-F02FC155526B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oxygen.CsharpClientAgent", "src\Oxygen.CsharpClientAgent\Oxygen.CsharpClientAgent.csproj", "{7CAB5C8E-DC76-422F-9C4F-F02FC155526B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oxygen.IRpcProviderService", "src\Oxygen.IRpcProviderService\Oxygen.IRpcProviderService.csproj", "{342CDFFB-A85F-4081-8B50-88A34243DFAD}"
 EndProject
@@ -27,7 +27,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Server.Sample", "test\Serve
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Client.Sample", "test\Client.Sample\Client.Sample.csproj", "{A0949859-0220-43ED-B6BD-5AA5CC92931D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oxygen.Common", "src\Oxygen.Common\Oxygen.Common.csproj", "{7BC01184-5F31-40E5-AE3E-65C007E9DC31}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oxygen.CommonTool", "src\Oxygen.Common\Oxygen.CommonTool.csproj", "{7BC01184-5F31-40E5-AE3E-65C007E9DC31}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oxygen.IMicroRegisterService", "src\Oxygen.IMicroRegisterService\Oxygen.IMicroRegisterService.csproj", "{0D2C4605-6C30-42B5-B615-B4BB819A5688}"
 EndProject

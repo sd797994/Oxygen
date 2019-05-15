@@ -13,9 +13,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Oxygen.ICsharpClientAgent\Oxygen.CsharpClientAgent.csproj" />
+    <ProjectReference Include="..\Oxygen.Common\Oxygen.CommonTool.csproj" />
+    <ProjectReference Include="..\Oxygen.CsharpClientAgent\Oxygen.CsharpClientAgent.csproj" />
     <ProjectReference Include="..\Oxygen.ISerializeService\Oxygen.ISerializeService.csproj" />
-    <ProjectReference Include="..\Oxygen.Common\Oxygen.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>
