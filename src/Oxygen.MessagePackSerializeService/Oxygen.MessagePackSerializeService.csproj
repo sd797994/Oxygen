@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Oxygen.Common\Oxygen.CommonTool.csproj" />
+    <ProjectReference Include="..\Oxygen.CommonTool\Oxygen.CommonTool.csproj" />
     <ProjectReference Include="..\Oxygen.ISerializeService\Oxygen.ISerializeService.csproj" />
   </ItemGroup>
 

@@ -27,7 +27,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Server.Sample", "test\Serve
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Client.Sample", "test\Client.Sample\Client.Sample.csproj", "{A0949859-0220-43ED-B6BD-5AA5CC92931D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oxygen.CommonTool", "src\Oxygen.Common\Oxygen.CommonTool.csproj", "{7BC01184-5F31-40E5-AE3E-65C007E9DC31}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oxygen.CommonTool", "src\Oxygen.CommonTool\Oxygen.CommonTool.csproj", "{7BC01184-5F31-40E5-AE3E-65C007E9DC31}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oxygen.IMicroRegisterService", "src\Oxygen.IMicroRegisterService\Oxygen.IMicroRegisterService.csproj", "{0D2C4605-6C30-42B5-B615-B4BB819A5688}"
 EndProject
