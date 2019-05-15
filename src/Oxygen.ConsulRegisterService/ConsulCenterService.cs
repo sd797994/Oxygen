@@ -1,14 +1,11 @@
-﻿using System;
+﻿using Consul;
+using Oxygen.Common;
+using Oxygen.IMicroRegisterService;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
-using Consul;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
-using Oxygen.Common;
-using Oxygen.IMicroRegisterService;
 
 namespace Oxygen.ConsulRegisterService
 {

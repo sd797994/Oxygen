@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Autofac;
 using System.Linq;
-using System.Text;
-using Autofac;
 
 namespace Oxygen.ProxyClientBuilder
 {

@@ -1,12 +1,12 @@
 ﻿using MediatR;
 using Oxygen.Common.Logger;
+using Oxygen.ISerializeService;
+using Oxygen.IServerProxyFactory;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Oxygen.ISerializeService;
-using Oxygen.IServerProxyFactory;
 
 namespace Oxygen.MediatRProxyClientBuilder
 {

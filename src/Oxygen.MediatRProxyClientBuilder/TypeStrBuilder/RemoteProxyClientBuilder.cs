@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Oxygen.CsharpClientAgent;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Oxygen.CsharpClientAgent;
 
 namespace Oxygen.ProxyClientBuilder
 {

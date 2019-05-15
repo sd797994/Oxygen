@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Microsoft.Extensions.Hosting;
+using Oxygen.IRpcProviderService;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
-using Oxygen.Common;
-using Oxygen.IRpcProviderService;
 
 namespace Oxygen
 {

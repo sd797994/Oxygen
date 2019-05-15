@@ -1,10 +1,9 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using MessagePack;
+﻿using MessagePack;
 using MessagePack.Resolvers;
 using Oxygen.Common.Logger;
 using Oxygen.ISerializeService;
+using System;
+using System.Linq;
 
 namespace Oxygen.MessagePackSerializeService
 {

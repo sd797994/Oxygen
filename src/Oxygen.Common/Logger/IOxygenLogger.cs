@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Oxygen.Common.Logger
+﻿namespace Oxygen.Common.Logger
 {
     public interface IOxygenLogger
     {

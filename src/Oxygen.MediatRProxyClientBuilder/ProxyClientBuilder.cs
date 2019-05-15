@@ -1,12 +1,11 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyModel;
+using Oxygen.Common;
+using Oxygen.CsharpClientAgent;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
-using System.Text;
-using Microsoft.Extensions.DependencyModel;
-using Oxygen.Common;
-using Oxygen.CsharpClientAgent;
 
 namespace Oxygen.ProxyClientBuilder
 {

@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using Oxygen.Common.Logger;
+﻿using Oxygen.Common.Logger;
 using Oxygen.IMicroRegisterService;
 using Oxygen.IRpcProviderService;
 using Oxygen.IServerProxyFactory;
+using System;
+using System.Threading.Tasks;
 
 namespace Oxygen.ServerProxyFactory
 {
