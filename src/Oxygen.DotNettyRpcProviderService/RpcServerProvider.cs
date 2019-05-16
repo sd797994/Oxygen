@@ -59,9 +59,9 @@ namespace Oxygen.DotNettyRpcProviderService
                     pipeline.AddLast(new LengthFieldBasedFrameDecoder(int.MaxValue, 0, 4, 0, 4));
                     pipeline.AddLast(new RpcServerHandler(_logger, _localProxyGenerator));
                 }));
-            var localIp =IPAddress.Parse("192.168.0.173"); //_common.GetMachineIp();
+            var localIp = _common.GetMachineIp();
             var port = _common.GetFreePort();
-            boundChannel = await _bootstrap.BindAsync(localIp, port);
+            boundChannel = await _bootstrap.BindAsync(port);
             if (await _registerCenterService.RegisterService(localIp, port, OxygenSetting.ConsulServerName))
             {
                 _logger.LogInfo($"Now TCP listening on: tcp://{localIp}:{port}");

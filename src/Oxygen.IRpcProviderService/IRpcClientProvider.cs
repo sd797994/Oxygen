@@ -13,7 +13,7 @@ namespace Oxygen.IRpcProviderService
         /// </summary>
         /// <param name="endPoint"></param>
         /// <returns></returns>
-        Task CreateClient(EndPoint endPoint);
+        Task CreateClient(IPEndPoint endPoint);
 
         /// <summary>
         /// 发送消息

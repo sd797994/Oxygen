@@ -26,8 +26,8 @@ namespace Client.Sample
             //    sw.Start();
             //    for (int i = 0; i < 10000; i++)
             //    {
-            //var userserver = await _proxyFactory.CreateProxy<IUserLoginUseCase>();
-            //var result1 = await userserver.Register(new RegisterInput() { UserName = "admin" });
+            var userserver = await _proxyFactory.CreateProxy<IUserLoginUseCase>();
+            var result1 = await userserver.Register(new RegisterInput() { UserName = "admin" });
             //var result2 = await userserver.Login(new LoginInput() { UserName = "admin" });
 
             //var registerServer = await _proxyFactory.CreateProxy("/api/UserService/UserLoginUseCase/Register");

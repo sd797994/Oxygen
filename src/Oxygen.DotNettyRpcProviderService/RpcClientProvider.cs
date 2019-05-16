@@ -59,7 +59,7 @@ namespace Oxygen.DotNettyRpcProviderService
         /// </summary>
         /// <param name="endPoint"></param>
         /// <returns></returns>
-        public async Task CreateClient(EndPoint endPoint)
+        public async Task CreateClient(IPEndPoint endPoint)
         {
             await CreateChannel(endPoint);
         }
@@ -146,7 +146,7 @@ namespace Oxygen.DotNettyRpcProviderService
         /// 创建通道
         /// </summary>
         /// <returns></returns>
-        async Task CreateChannel(EndPoint endPoint)
+        async Task CreateChannel(IPEndPoint endPoint)
         {
             if (Channels.TryGetValue(endPoint, out var channel))
             {
@@ -158,7 +158,7 @@ namespace Oxygen.DotNettyRpcProviderService
             }
             else
             {
-                var newChannel = await _bootstrap.ConnectAsync(endPoint);
+                var newChannel = await _bootstrap.ConnectAsync("127.0.0.1", endPoint.Port);
                 if (newChannel.Active)
                 {
                     Channels.TryAdd(endPoint, newChannel);
