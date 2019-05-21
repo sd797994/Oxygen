@@ -24,7 +24,6 @@ namespace Client.Sample
             .ConfigureAppConfiguration((hostContext, config) =>
             {
                 config.SetBasePath(Directory.GetCurrentDirectory());
-                config.AddJsonFile("oxygen.json");
                 Configuration = config.Build();
             })
             .ConfigureContainer<ContainerBuilder>(builder =>

@@ -18,24 +18,9 @@ namespace Oxygen
             builder.RegisterModule(new MessagePackSerializeService.Module());
             //注入代理工厂
             builder.RegisterModule(new ServerProxyFactory.Module());
-            //注入服务发现
-            builder.RegisterModule(new ConsulRegisterService.Module());
             //注入通用服务
             builder.RegisterModule(new CommonTool.Module());
             return builder;
-        }
-
-        /// <summary>
-        /// 注册成为客户端
-        /// </summary>
-        /// <param name="service"></param>
-        /// <param name="configuration"></param>
-        /// <returns></returns>
-        public static IServiceCollection AddOxygenClient(this IServiceCollection service, IConfiguration configuration)
-        {
-            //注入全局配置节
-            OxygenSetting.Init(configuration);
-            return service;
         }
         /// <summary>
         /// 注册成为服务器
@@ -45,8 +30,6 @@ namespace Oxygen
         /// <returns></returns>
         public static IServiceCollection AddOxygenServer(this IServiceCollection service, IConfiguration configuration)
         {
-            //注入全局配置节
-            OxygenSetting.Init(configuration);
             //注入MediatR
             service.AddMediatR();
             //注入默认启动类

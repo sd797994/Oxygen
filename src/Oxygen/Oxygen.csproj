@@ -15,10 +15,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Oxygen.CommonTool\Oxygen.CommonTool.csproj" />
-    <ProjectReference Include="..\Oxygen.ConsulRegisterService\Oxygen.ConsulRegisterService.csproj" />
     <ProjectReference Include="..\Oxygen.CsharpClientAgent\Oxygen.CsharpClientAgent.csproj" />
     <ProjectReference Include="..\Oxygen.DotNettyRpcProviderService\Oxygen.DotNettyRpcProviderService.csproj" />
-    <ProjectReference Include="..\Oxygen.IMicroRegisterService\Oxygen.IMicroRegisterService.csproj" />
     <ProjectReference Include="..\Oxygen.IRpcProviderService\Oxygen.IRpcProviderService.csproj" />
     <ProjectReference Include="..\Oxygen.ISerializeService\Oxygen.ISerializeService.csproj" />
     <ProjectReference Include="..\Oxygen.IServerProxyFactory\Oxygen.IServerProxyFactory.csproj" />

@@ -1,5 +1,4 @@
 ﻿using Oxygen.CommonTool.Logger;
-using Oxygen.IMicroRegisterService;
 using Oxygen.IRpcProviderService;
 using Oxygen.IServerProxyFactory;
 using System;
@@ -9,12 +8,10 @@ namespace Oxygen.ServerProxyFactory
 {
     public class RemoteProxyGenerator: IRemoteProxyGenerator
     {
-        private readonly IRegisterCenterService _registerCenterService;
         private readonly IRpcClientProvider _clientProvider;
         private readonly IOxygenLogger _oxygenLogger;
-        public RemoteProxyGenerator(IRegisterCenterService registerCenterService, IRpcClientProvider clientProvider, IOxygenLogger oxygenLogger)
+        public RemoteProxyGenerator(IRpcClientProvider clientProvider, IOxygenLogger oxygenLogger)
         {
-            _registerCenterService = registerCenterService;
             _clientProvider = clientProvider;
             _oxygenLogger = oxygenLogger;
         }
@@ -30,22 +27,14 @@ namespace Oxygen.ServerProxyFactory
         /// <returns></returns>
         public async Task<TOut> SendAsync<TIn, TOut>(TIn input, string serviceName, string pathName)
         {
-            var remoteAddr = await _registerCenterService.GetServieByName(serviceName);
-            if (remoteAddr == null)
+            try
             {
-                _oxygenLogger.LogError($"注册中心没有找到有效的远程服务器[{serviceName}],调用失败");
+                await _clientProvider.CreateClient(serviceName);
+                return await _clientProvider.SendMessage<TOut>(serviceName, pathName, input);
             }
-            else
+            catch (Exception e)
             {
-                try
-                {
-                    await _clientProvider.CreateClient(remoteAddr);
-                    return await _clientProvider.SendMessage<TOut>(remoteAddr, pathName, input);
-                }
-                catch (Exception e)
-                {
-                    _oxygenLogger.LogError($"远程调用失败{e.Message}");
-                }
+                _oxygenLogger.LogError($"远程调用失败{e.Message}");
             }
             return await Task.FromResult(default(TOut));
         }

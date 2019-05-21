@@ -28,7 +28,7 @@ namespace Oxygen.DotNettyRpcProviderService
             new ConcurrentDictionary<Guid, TaskCompletionSource<byte[]>>();
         #region dotnetty相关
         static Bootstrap _bootstrap;
-        static readonly ConcurrentDictionary<EndPoint, IChannel> Channels = new ConcurrentDictionary<EndPoint, IChannel>();
+        static readonly ConcurrentDictionary<string, IChannel> Channels = new ConcurrentDictionary<string, IChannel>();
         #endregion
 
         public RpcClientProvider(IOxygenLogger logger, ISerialize serialize)
@@ -53,29 +53,29 @@ namespace Oxygen.DotNettyRpcProviderService
                     pipeline.AddLast(new RpcClientHandler(_logger, ReceiveMessage));
                 }));
         }
-
+        
         /// <summary>
-        /// 创建客户端连接
+        /// 创建客户端实例
         /// </summary>
-        /// <param name="endPoint"></param>
+        /// <param name="serverName"></param>
+        /// <param name="port"></param>
         /// <returns></returns>
-        public async Task CreateClient(IPEndPoint endPoint)
+        public async Task CreateClient(string serverName)
         {
-            await CreateChannel(endPoint);
+            await CreateChannel(serverName);
         }
-
         /// <summary>
         /// 发送消息
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="endPoint"></param>
+        /// <param name="serverName"></param>
         /// <param name="path"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        public async Task<T> SendMessage<T>(EndPoint endPoint, string path, object message)
+        public async Task<T> SendMessage<T>(string serverName, string path, object message)
         {
             T result = default(T);
-            if (Channels.TryGetValue(endPoint, out var _channel))
+            if (Channels.TryGetValue(serverName, out var _channel))
             {
                 var taskId = Guid.NewGuid();
                 var sendMessage = new RpcGlobalMessageBase<object>
@@ -106,14 +106,14 @@ namespace Oxygen.DotNettyRpcProviderService
         /// <summary>
         /// 发送消息
         /// </summary>
-        /// <param name="endPoint"></param>
+        /// <param name="serverName"></param>
         /// <param name="path"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        public async Task<object> SendMessage(EndPoint endPoint, string path, object message)
+        public async Task<object> SendMessage(string serverName, string path, object message)
         {
             object result = default(object);
-            if (Channels.TryGetValue(endPoint, out var _channel))
+            if (Channels.TryGetValue(serverName, out var _channel))
             {
                 var taskId = Guid.NewGuid();
                 var sendMessage = new RpcGlobalMessageBase<object>
@@ -145,28 +145,30 @@ namespace Oxygen.DotNettyRpcProviderService
         /// <summary>
         /// 创建通道
         /// </summary>
+        /// <param name="serverName"></param>
+        /// <param name="port"></param>
         /// <returns></returns>
-        async Task CreateChannel(IPEndPoint endPoint)
+        async Task CreateChannel(string serverName)
         {
-            if (Channels.TryGetValue(endPoint, out var channel))
+            if (Channels.TryGetValue(serverName, out var channel))
             {
                 if (!channel.Active)
                 {
                     await CloseChannel(channel);
-                    Channels.TryRemove(endPoint, out channel);
+                    Channels.TryRemove(serverName, out channel);
                 }
             }
             else
             {
-                var newChannel = await _bootstrap.ConnectAsync("127.0.0.1", endPoint.Port);
+                var newChannel = await _bootstrap.ConnectAsync(serverName, 80);
                 if (newChannel.Active)
                 {
-                    Channels.TryAdd(endPoint, newChannel);
+                    Channels.TryAdd(serverName, newChannel);
                 }
                 else
                 {
                     await CloseChannel(channel);
-                    Channels.TryRemove(endPoint, out channel);
+                    Channels.TryRemove(serverName, out channel);
                 }
             }
         }

@@ -5,7 +5,6 @@ using DotNetty.Transport.Channels;
 using DotNetty.Transport.Libuv;
 using Oxygen.CommonTool;
 using Oxygen.CommonTool.Logger;
-using Oxygen.IMicroRegisterService;
 using Oxygen.IRpcProviderService;
 using Oxygen.IServerProxyFactory;
 using System;
@@ -22,7 +21,6 @@ namespace Oxygen.DotNettyRpcProviderService
         private readonly IOxygenLogger _logger;
         private readonly IGlobalCommon _common;
         private readonly ILocalProxyGenerator _localProxyGenerator;
-        private readonly IRegisterCenterService _registerCenterService;
         #region dotnetty相关
         IEventLoopGroup _bossGroup;
         IEventLoopGroup _workerGroup;
@@ -30,12 +28,11 @@ namespace Oxygen.DotNettyRpcProviderService
         IChannel boundChannel;
         #endregion
 
-        public RpcServerProvider(IOxygenLogger logger, IGlobalCommon common, ILocalProxyGenerator localProxyGenerator, IRegisterCenterService registerCenterService)
+        public RpcServerProvider(IOxygenLogger logger, IGlobalCommon common, ILocalProxyGenerator localProxyGenerator)
         {
             _common = common;
             _logger = logger;
             _localProxyGenerator = localProxyGenerator;
-            _registerCenterService = registerCenterService;
         }
 
         /// <summary>
@@ -59,14 +56,9 @@ namespace Oxygen.DotNettyRpcProviderService
                     pipeline.AddLast(new LengthFieldBasedFrameDecoder(int.MaxValue, 0, 4, 0, 4));
                     pipeline.AddLast(new RpcServerHandler(_logger, _localProxyGenerator));
                 }));
-            var localIp = _common.GetMachineIp();
-            var port = _common.GetFreePort();
+            var port = 80;// _common.GetFreePort();
             boundChannel = await _bootstrap.BindAsync(port);
-            if (await _registerCenterService.RegisterService(localIp, port, OxygenSetting.ConsulServerName))
-            {
-                _logger.LogInfo($"Now TCP listening on: tcp://{localIp}:{port}");
-            }
-            ;
+            _logger.LogInfo($"bind tcp 0.0.0.0:{port} to listen");
         }
         /// <summary>
         /// 关闭tcp服务
@@ -75,7 +67,6 @@ namespace Oxygen.DotNettyRpcProviderService
         public async Task CloseServer()
         {
             await boundChannel.CloseAsync();
-            await _registerCenterService.UnRegisterService();
             await _bossGroup.ShutdownGracefullyAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(1));
             await _workerGroup.ShutdownGracefullyAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(1));
         }

@@ -16,10 +16,4 @@
     <ProjectReference Include="..\test\Application.Interface\Application.Interface.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Content Update="oxygen.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
 </Project>

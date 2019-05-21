@@ -23,7 +23,6 @@ namespace ApiGateWay
                 .ConfigureAppConfiguration((hostContext, config) =>
                 {
                     config.SetBasePath(Directory.GetCurrentDirectory());
-                    config.AddJsonFile("oxygen.json");
                 })
                 .UseStartup<Startup>()
                 .ConfigureServices(services => services.AddAutofac());
