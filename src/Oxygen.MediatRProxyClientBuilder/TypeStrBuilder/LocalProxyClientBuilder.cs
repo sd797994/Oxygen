@@ -5,8 +5,16 @@ using System.Text;
 
 namespace Oxygen.ProxyClientBuilder
 {
+    /// <summary>
+    /// 本地代理构造类
+    /// </summary>
     public static class LocalProxyClientBuilder
     {
+        /// <summary>
+        /// 预编译类型
+        /// </summary>
+        /// <param name="types"></param>
+        /// <returns></returns>
         public static List<StringBuilder> GetBodyFromType(Type[] types)
         {
             var bodyType = new List<StringBuilder>();

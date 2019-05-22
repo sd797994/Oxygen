@@ -1,14 +1,15 @@
-﻿using MediatR;
-using Oxygen.CommonTool.Logger;
-using Oxygen.ISerializeService;
-using Oxygen.IServerProxyFactory;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using MediatR;
+using Oxygen.CommonTool.Logger;
+using Oxygen.IRpcProviderService;
+using Oxygen.ISerializeService;
+using Oxygen.IServerProxyFactory;
 
-namespace Oxygen.MediatRProxyClientBuilder
+namespace Oxygen.ServerProxyFactory
 {
     /// <summary>
     /// 本地代理消息分发处理类

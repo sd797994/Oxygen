@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Oxygen
 {
+    /// <summary>
+    /// OxygenHost服务
+    /// </summary>
     public class OxygenClientService : IHostedService
     {
         private readonly IRpcServerProvider _rpcServerProvider;

@@ -19,6 +19,11 @@ namespace Oxygen.DotNettyRpcProviderService
             _logger = logger;
             _localProxyGenerator = localProxyGenerator;
         }
+        /// <summary>
+        /// 从tcp管道接受消息
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="message"></param>
         public override async void ChannelRead(IChannelHandlerContext context, object message)
         {
             try
@@ -41,11 +46,16 @@ namespace Oxygen.DotNettyRpcProviderService
         }
 
         /// <summary>
-        /// tcp消息回调
+        /// tcp消息回发
         /// </summary>
         /// <param name="context"></param>
         public override void ChannelReadComplete(IChannelHandlerContext context) => context.Flush();
 
+        /// <summary>
+        /// tcp管道异常处理
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="exception"></param>
         public override void ExceptionCaught(IChannelHandlerContext context, Exception exception)
         {
             _logger.LogError("服务端消息处理异常: " + exception.Message);

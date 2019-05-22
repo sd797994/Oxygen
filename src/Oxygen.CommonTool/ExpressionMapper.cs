@@ -8,6 +8,11 @@ using System.Reflection;
 
 namespace Oxygen.CommonTool
 {
+    /// <summary>
+    /// 基于表达式树的类型转换扩展
+    /// </summary>
+    /// <typeparam name="TSource"></typeparam>
+    /// <typeparam name="TTarget"></typeparam>
     public static class Mapper<TSource, TTarget> where TSource : class where TTarget : class
     {
         private static Func<TSource, TTarget> MapFunc { get; set; }

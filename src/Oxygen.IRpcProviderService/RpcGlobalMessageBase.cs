@@ -3,7 +3,7 @@
 namespace Oxygen.IRpcProviderService
 {
     /// <summary>
-    /// RPC通用通信父类
+    /// RPC通用消息父类
     /// </summary>
     public class RpcGlobalMessageBase<T>
     {

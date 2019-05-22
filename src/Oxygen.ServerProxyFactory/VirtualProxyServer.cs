@@ -3,6 +3,9 @@ using System.Threading.Tasks;
 
 namespace Oxygen.ServerProxyFactory
 {
+    /// <summary>
+    /// 虚拟代理类
+    /// </summary>
     public class VirtualProxyServer: IVirtualProxyServer
     {
         private readonly IRemoteProxyGenerator _proxyGenerator;

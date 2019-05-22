@@ -37,7 +37,10 @@ namespace Oxygen.DotNettyRpcProviderService
             _serialize = serialize;
             _bootstrap = CreateBootStrap();
         }
-
+        /// <summary>
+        /// 创建Bootstrap
+        /// </summary>
+        /// <returns></returns>
         Bootstrap CreateBootStrap()
         {
             return new Bootstrap()

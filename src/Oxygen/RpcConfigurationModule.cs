@@ -6,8 +6,16 @@ using Oxygen.CommonTool;
 
 namespace Oxygen
 {
+    /// <summary>
+    /// 配置中心
+    /// </summary>
     public static class RpcConfigurationModule
     {
+        /// <summary>
+        /// 依赖注入Oxygen服务
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <returns></returns>
         public static ContainerBuilder RegisterOxygen(this ContainerBuilder builder)
         {
             //注入rpc服务
@@ -23,7 +31,7 @@ namespace Oxygen
             return builder;
         }
         /// <summary>
-        /// 注册成为服务器
+        /// 注册成为Oxygen服务节点
         /// </summary>
         /// <param name="service"></param>
         /// <param name="configuration"></param>

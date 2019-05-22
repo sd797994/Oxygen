@@ -9,6 +9,9 @@ using System.Text;
 
 namespace Oxygen.CommonTool
 {
+    /// <summary>
+    /// type类型扩展
+    /// </summary>
     public static class TypeExtension
     {
         /// <summary>

@@ -14,6 +14,11 @@ namespace Oxygen.ProxyClientBuilder
     /// </summary>
     public class ProxyClientBuilder
     {
+        /// <summary>
+        /// 获取需要预编译的类型
+        /// </summary>
+        /// <param name="isLocal"></param>
+        /// <returns></returns>
         private static Type[] GetTypes(bool isLocal)
         {
             var assemblys = GetAllAssemblies();
@@ -27,6 +32,10 @@ namespace Oxygen.ProxyClientBuilder
                 return interfaceType.Except(assemblys.SelectMany(x => x.GetTypes().Where(t => t.GetInterfaces().Any() && interfaceType.Contains(t.GetInterfaces().FirstOrDefault()))).Select(x=>x.GetInterfaces().FirstOrDefault()).ToArray()).ToArray();
             }
         }
+        /// <summary>
+        /// 获取当前程序集
+        /// </summary>
+        /// <returns></returns>
         public static List<Assembly> GetAllAssemblies()
         {
             var list = new List<Assembly>();

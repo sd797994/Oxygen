@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Oxygen.ServerProxyFactory
 {
+    /// <summary>
+    /// 远程代理服务生成器
+    /// </summary>
     public class RemoteProxyGenerator: IRemoteProxyGenerator
     {
         private readonly IRpcClientProvider _clientProvider;

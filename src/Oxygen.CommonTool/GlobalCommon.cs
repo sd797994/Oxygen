@@ -7,25 +7,12 @@ using System.Net.NetworkInformation;
 
 namespace Oxygen.CommonTool
 {
-    public interface IGlobalCommon
-    {
-        /// <summary>
-        /// 获取可用端口号
-        /// </summary>
-        /// <returns></returns>
-        int GetFreePort();
-        /// <summary>
-        /// 获取本机在局域网内的ip
-        /// </summary>
-        /// <returns></returns>
-        IPAddress GetMachineIp();
-    }
     /// <summary>
-    /// 一些通用的帮助类
+    /// 全局通用工具类
     /// </summary>
     public class GlobalCommon: IGlobalCommon
     {
-        private IOxygenLogger _logger;
+        private readonly IOxygenLogger _logger;
         public GlobalCommon(IOxygenLogger logger)
         {
             _logger = logger;
@@ -89,7 +76,10 @@ namespace Oxygen.CommonTool
             _logger.LogError("没有找到可用端口号");
             return -1;
         }
-
+        /// <summary>
+        /// 获取本机在局域网内的ip
+        /// </summary>
+        /// <returns></returns>
         public IPAddress GetMachineIp()
         {
             IPAddress result = default(IPAddress);

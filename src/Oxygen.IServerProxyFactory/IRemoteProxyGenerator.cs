@@ -2,6 +2,9 @@
 
 namespace Oxygen.IServerProxyFactory
 {
+    /// <summary>
+    /// 远程代理服务生成器
+    /// </summary>
     public interface IRemoteProxyGenerator
     {
         /// <summary>
