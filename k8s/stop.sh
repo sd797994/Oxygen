@@ -1,2 +1,1 @@
-kubectl delete -f ApiGateway.yaml
-kubectl delete -f ServerSample.yaml
+kubectl delete -f k8sSample.yaml

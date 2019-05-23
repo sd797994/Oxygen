@@ -1,0 +1,1 @@
+istioctl kube-inject -f k8sSample.yaml | kubectl apply -f -

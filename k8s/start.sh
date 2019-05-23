@@ -1,2 +1,1 @@
-kubectl create -f ApiGateway.yaml
-kubectl create -f ServerSample.yaml
+kubectl create -f k8sSample.yaml
