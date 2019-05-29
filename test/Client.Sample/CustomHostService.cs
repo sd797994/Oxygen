@@ -1,11 +1,7 @@
-﻿using Application.Interface;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Oxygen.IServerProxyFactory;
-using System;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using Application.Interface.UseCase.Dto;
 
 namespace Client.Sample
 {
@@ -26,8 +22,8 @@ namespace Client.Sample
             //    sw.Start();
             //    for (int i = 0; i < 10000; i++)
             //    {
-            var userserver = await _proxyFactory.CreateProxy<IUserLoginUseCase>();
-            var result1 = await userserver.Register(new RegisterInput() { UserName = "admin" });
+            //var userserver = await _proxyFactory.CreateProxy<IUserLoginUseCase>();
+            //var result1 = await userserver.Register(new RegisterInput() { UserName = "admin" });
             //var result2 = await userserver.Login(new LoginInput() { UserName = "admin" });
 
             //var registerServer = await _proxyFactory.CreateProxy("/api/UserService/UserLoginUseCase/Register");
@@ -44,7 +40,6 @@ namespace Client.Sample
             //    }
             //}
         }
-
         public async Task StopAsync(CancellationToken cancellationToken)
         {
             await Task.CompletedTask;
