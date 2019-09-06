@@ -1,0 +1,14 @@
+{
+  "Oxygen": {
+    "Consul": {
+      "Address": "127.0.0.1",
+      "Port": 8500,
+      "ServerName": "UserService",
+      "ServerPort": null
+    },
+    "Redis": {
+      "Address": "127.0.0.1",
+      "Port": 6379
+    }
+  }
+}

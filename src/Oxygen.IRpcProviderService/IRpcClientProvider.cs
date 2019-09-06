@@ -11,19 +11,23 @@ namespace Oxygen.IRpcProviderService
         /// <summary>
         /// 创建客户端实例
         /// </summary>
+        /// <param name="endPoint"></param>
         /// <param name="serverName"></param>
+        /// <param name="path"></param>
         /// <returns></returns>
-        Task CreateClient(string serverName);
+        Task<string> CreateClient(IPEndPoint endPoint, string serverName, string path);
 
         /// <summary>
         /// 发送消息
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="serverName"></param>
+        /// <param name="channelKey"></param>
+        /// <param name="endPoint"></param>
+        /// <param name="key"></param>
         /// <param name="path"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        Task<T> SendMessage<T>(string serverName, string path, object message);
+        Task<T> SendMessage<T>(string channelKey, IPEndPoint endPoint, string key, string path, object message) where T : class;
 
 
         /// <summary>
@@ -33,6 +37,6 @@ namespace Oxygen.IRpcProviderService
         /// <param name="path"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        Task<object> SendMessage(string serverName, string path, object message);
+        Task<object> SendMessage(string channelKey, IPEndPoint endPoint, string key, string path, object message);
     }
 }

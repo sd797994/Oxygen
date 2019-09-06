@@ -21,5 +21,11 @@
     <ProjectReference Include="..\Application.Interface\Application.Interface.csproj" />
   </ItemGroup>
   
+  <ItemGroup>
+    <None Update="oxygen.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  
   <ProjectExtensions><VisualStudio><UserProperties oxygen_1json__JSONSchema="http://json.schemastore.org/2.0.0-csd.2.beta.2018-10-10.json" /></VisualStudio></ProjectExtensions>
 </Project>

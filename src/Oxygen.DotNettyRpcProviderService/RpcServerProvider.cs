@@ -39,7 +39,7 @@ namespace Oxygen.DotNettyRpcProviderService
         /// 启动tcp服务
         /// </summary>
         /// <returns></returns>
-        public async Task OpenServer()
+        public async Task<IPEndPoint> OpenServer()
         {
             var dispatcher = new DispatcherEventLoopGroup();
             _bossGroup = dispatcher;
@@ -56,9 +56,10 @@ namespace Oxygen.DotNettyRpcProviderService
                     pipeline.AddLast(new LengthFieldBasedFrameDecoder(int.MaxValue, 0, 4, 0, 4));
                     pipeline.AddLast(new RpcServerHandler(_logger, _localProxyGenerator));
                 }));
-            var port = 80;// _common.GetFreePort();
+            var port = OxygenSetting.ServerPort ?? _common.GetFreePort();
             boundChannel = await _bootstrap.BindAsync(port);
             _logger.LogInfo($"bind tcp 0.0.0.0:{port} to listen");
+            return new IPEndPoint(_common.GetMachineIp(), port);
         }
         /// <summary>
         /// 关闭tcp服务

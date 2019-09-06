@@ -1,5 +1,8 @@
 ﻿using Microsoft.Extensions.Hosting;
+using Oxygen.CommonTool;
 using Oxygen.IRpcProviderService;
+using Oxygen.IServerFlowControl;
+using Oxygen.IServerRegisterManage;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,14 +12,18 @@ namespace Oxygen
     /// <summary>
     /// OxygenHost服务
     /// </summary>
-    public class OxygenClientService : IHostedService
+    public class OxygenHostService : IHostedService
     {
         private readonly IRpcServerProvider _rpcServerProvider;
         private static bool _stopFlag = false;
+        private readonly IRegisterCenter _registerCenter;
+        private readonly IRemoteFlowContolConfiugreManage _configureManage;
 
-        public OxygenClientService(IRpcServerProvider rpcServerProvider)
+        public OxygenHostService(IRpcServerProvider rpcServerProvider, IRegisterCenter registerCenter, IRemoteFlowContolConfiugreManage configureManage)
         {
             _rpcServerProvider = rpcServerProvider;
+            _registerCenter = registerCenter;
+            _configureManage = configureManage;
             AppDomain.CurrentDomain.ProcessExit += ProcessExit;
         }
 
@@ -29,13 +36,18 @@ namespace Oxygen
             {
                 await _executingTask;
             }
-            await _rpcServerProvider.OpenServer();
-            await Task.CompletedTask;
+            var rpcEndPoint = await _rpcServerProvider.OpenServer();
+            if (await _registerCenter.RegisterService(OxygenSetting.ServerName, rpcEndPoint))
+            {
+                await Task.CompletedTask;
+            }
+            _configureManage.SetCacheFromServices();
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
             await _rpcServerProvider.CloseServer();
+            await _registerCenter.UnRegisterService();
             await Task.WhenAny(_executingTask, Task.Delay(Timeout.Infinite, cancellationToken));
             _stopFlag = true;
         }
@@ -45,6 +57,7 @@ namespace Oxygen
             if (!_stopFlag)
             {
                 await _rpcServerProvider.CloseServer();
+                await _registerCenter.UnRegisterService();
                 await Task.WhenAny(_executingTask, Task.Delay(Timeout.Infinite));
             }
         }

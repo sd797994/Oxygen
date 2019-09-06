@@ -69,9 +69,10 @@ namespace Oxygen.ProxyClientBuilder
                         returnType = returnType.GenericTypeArguments.FirstOrDefault();
                     }
                     var pathName = $"{type.Name.Substring(1, type.Name.Length - 1)}_{parameterType.Name}";
+                    var flowControlCfgKey = $"{type.Name.Substring(1, type.Name.Length - 1)}{method.Name}";
                     content.AppendLine($"        public async Task<{returnType.Name}> {method.Name}({parameterType.Name} input)");
                     content.AppendLine("        {");
-                    content.AppendLine($"            return await _proxyGenerator.SendAsync<{parameterType.Name}, {returnType.Name}>(input,\"{serviceName}\",\"{pathName}\");");
+                    content.AppendLine($"            return await _proxyGenerator.SendAsync<{parameterType.Name}, {returnType.Name}>(input,\"{serviceName}\",\"{flowControlCfgKey}\",\"{pathName}\");");
                     content.AppendLine("        }");
                 });
                 content.AppendLine("    }");

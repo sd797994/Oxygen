@@ -6,6 +6,7 @@ using Autofac;
 using Autofac.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,12 +28,16 @@ namespace ApiGateWay
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //添加oxygen管道
+            services.AddOxygenClient(Configuration);
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         }
 
 
         public void ConfigureContainer(ContainerBuilder builder)
         {
+            //注入oxygen服务
             builder.RegisterOxygen();
             builder.RegisterModule(new ConfigurationModule(Configuration));
         }

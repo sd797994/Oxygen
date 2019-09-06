@@ -1,7 +1,10 @@
-﻿using Oxygen.CommonTool.Logger;
+﻿using Oxygen.CommonTool;
+using Oxygen.CommonTool.Logger;
 using Oxygen.IRpcProviderService;
+using Oxygen.IServerFlowControl;
 using Oxygen.IServerProxyFactory;
 using System;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Oxygen.ServerProxyFactory
@@ -13,10 +16,14 @@ namespace Oxygen.ServerProxyFactory
     {
         private readonly IRpcClientProvider _clientProvider;
         private readonly IOxygenLogger _oxygenLogger;
-        public RemoteProxyGenerator(IRpcClientProvider clientProvider, IOxygenLogger oxygenLogger)
+        private readonly IFlowControlCenter _flowControlCenter;
+        private CustomerIp _customerIp;
+        public RemoteProxyGenerator(IRpcClientProvider clientProvider, IOxygenLogger oxygenLogger, IFlowControlCenter flowControlCenter, CustomerIp customerIp)
         {
             _clientProvider = clientProvider;
             _oxygenLogger = oxygenLogger;
+            _flowControlCenter = flowControlCenter;
+            _customerIp = customerIp;
         }
 
         /// <summary>
@@ -26,18 +33,31 @@ namespace Oxygen.ServerProxyFactory
         /// <typeparam name="TOut"></typeparam>
         /// <param name="input"></param>
         /// <param name="serviceName"></param>
+        /// <param name="FlowControlCfgKey"></param>
         /// <param name="pathName"></param>
         /// <returns></returns>
-        public async Task<TOut> SendAsync<TIn, TOut>(TIn input, string serviceName, string pathName)
+        public async Task<TOut> SendAsync<TIn, TOut>(TIn input, string serviceName, string flowControlCfgKey, string pathName) where TOut : class
         {
             try
             {
-                await _clientProvider.CreateClient(serviceName);
-                return await _clientProvider.SendMessage<TOut>(serviceName, pathName, input);
+                //流量控制
+                var ipendpoint = await _flowControlCenter.GetFlowControlEndPointByServicePath(serviceName, flowControlCfgKey, _customerIp.Ip);
+                if (ipendpoint != null)
+                {
+                    var channelKey = await _clientProvider.CreateClient(ipendpoint, serviceName, pathName);
+                    if (channelKey != null)
+                    {
+                        return await _clientProvider.SendMessage<TOut>(channelKey, ipendpoint, serviceName, pathName, input);
+                    }
+                    else
+                    {
+                        throw new Exception("创建通道失败");
+                    }
+                }
             }
             catch (Exception e)
             {
-                _oxygenLogger.LogError($"远程调用失败{e.Message}");
+                _oxygenLogger.LogError($"远程调用失败:{e.Message}");
             }
             return await Task.FromResult(default(TOut));
         }

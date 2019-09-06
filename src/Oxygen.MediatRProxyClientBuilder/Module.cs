@@ -23,7 +23,6 @@ namespace Oxygen.ProxyClientBuilder
             {
                 builder.RegisterTypes(remote.ToArray()).AsImplementedInterfaces().InstancePerLifetimeScope();
             }
-            
         }
     }
 }

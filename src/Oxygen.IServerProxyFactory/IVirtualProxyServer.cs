@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Net;
+using System.Threading.Tasks;
 
 namespace Oxygen.IServerProxyFactory
 {
@@ -7,6 +8,13 @@ namespace Oxygen.IServerProxyFactory
     /// </summary>
     public interface IVirtualProxyServer
     {
+        /// <summary>
+        /// 初始化代理
+        /// </summary>
+        /// <param name="serverName"></param>
+        /// <param name="pathName"></param>
+        /// <param name="flowControlCfgKey"></param>
+        void Init(string serverName, string pathName, string flowControlCfgKey);
         /// <summary>
         /// 通过虚拟代理发送请求
         /// </summary>

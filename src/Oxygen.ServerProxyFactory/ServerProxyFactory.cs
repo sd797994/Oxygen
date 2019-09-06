@@ -78,9 +78,7 @@ namespace Oxygen.ServerProxyFactory
                                     var type = GetProxtClient(className);
                                     if (type != null)
                                     {
-                                        vitual.ServerName = names[1];
-                                        var pathName = $"{names[2]}_{type.GetMethod(names[3])?.GetParameters().FirstOrDefault()?.ParameterType.Name}";
-                                        vitual.PathName = pathName;
+                                        vitual.Init(names[1], $"{names[2]}_{type.GetMethod(names[3])?.GetParameters().FirstOrDefault()?.ParameterType.Name}", $"{names[2]}{names[3]}");
                                     }
                                 }
                             }

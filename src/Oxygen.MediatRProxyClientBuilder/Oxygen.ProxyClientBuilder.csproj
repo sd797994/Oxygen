@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ImpromptuInterface" Version="7.0.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="2.1.0" />
     <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
   </ItemGroup>
@@ -15,7 +16,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Oxygen.CommonTool\Oxygen.CommonTool.csproj" />
     <ProjectReference Include="..\Oxygen.CsharpClientAgent\Oxygen.CsharpClientAgent.csproj" />
+    <ProjectReference Include="..\Oxygen.ICache\Oxygen.ICache.csproj" />
     <ProjectReference Include="..\Oxygen.ISerializeService\Oxygen.ISerializeService.csproj" />
+    <ProjectReference Include="..\Oxygen.IServerProxyFactory\Oxygen.IServerProxyFactory.csproj" />
   </ItemGroup>
 
   <ItemGroup>

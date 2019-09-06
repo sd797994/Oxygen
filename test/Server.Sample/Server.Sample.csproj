@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -21,5 +21,13 @@
     <ProjectReference Include="..\Application.Interface\Application.Interface.csproj" />
     <ProjectReference Include="..\Application.Service\Application.Service.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Update="oxygen.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ProjectExtensions><VisualStudio><UserProperties oxygen_1json__JsonSchema="http://json.schemastore.org/appsscript" /></VisualStudio></ProjectExtensions>
 
 </Project>

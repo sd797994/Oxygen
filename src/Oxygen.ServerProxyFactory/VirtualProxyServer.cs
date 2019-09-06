@@ -1,4 +1,5 @@
 ﻿using Oxygen.IServerProxyFactory;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Oxygen.ServerProxyFactory
@@ -14,8 +15,21 @@ namespace Oxygen.ServerProxyFactory
         {
             _proxyGenerator = proxyGenerator;
         }
+        /// <summary>
+        /// 初始化代理
+        /// </summary>
+        /// <param name="serverName"></param>
+        /// <param name="pathName"></param>
+        /// <param name="flowControlCfgKey"></param>
+        public void Init(string serverName, string pathName, string flowControlCfgKey)
+        {
+            ServerName = serverName;
+            PathName = pathName;
+            FlowControlCfgKey = flowControlCfgKey;
+        }
         public string ServerName { get; set; }
         public string PathName { get; set; }
+        public string FlowControlCfgKey { get; set; }
 
         /// <summary>
         /// 通过虚拟代理发送请求
@@ -24,7 +38,7 @@ namespace Oxygen.ServerProxyFactory
         /// <returns></returns>
         public async Task<object> SendAsync(object input)
         {
-            return await _proxyGenerator.SendAsync<object, object>(input, ServerName, PathName);
+            return await _proxyGenerator.SendAsync<object, object>(input, ServerName, FlowControlCfgKey, PathName);
         }
     }
 }

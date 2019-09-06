@@ -4,9 +4,10 @@ using System.Threading.Tasks;
 
 namespace Application.Interface
 {
-    [RemoteService("userservice")]
+    [RemoteService("ServerSample")]
     public interface IUserLoginUseCase
     {
+        [FlowControl("Login")]
         Task<ApplicationBaseResult> Login(LoginInput input);
         Task<ApplicationBaseResult> Register(RegisterInput input);
     }

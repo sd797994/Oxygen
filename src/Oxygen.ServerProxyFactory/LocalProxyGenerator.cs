@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using MediatR;
+using Oxygen.CommonTool;
 using Oxygen.CommonTool.Logger;
 using Oxygen.IRpcProviderService;
 using Oxygen.ISerializeService;
@@ -22,11 +23,13 @@ namespace Oxygen.ServerProxyFactory
         private static readonly ConcurrentDictionary<string, Type> InstanceDictionary = new ConcurrentDictionary<string, Type>();
         private readonly IOxygenLogger _logger;
         private readonly ISerialize _serialize;
-        public LocalProxyGenerator(IMediator mediator, IOxygenLogger logger, ISerialize serialize)
+        private CustomerIp _customerIp;
+        public LocalProxyGenerator(IMediator mediator, IOxygenLogger logger, ISerialize serialize, CustomerIp customerIp)
         {
             _mediator = mediator;
             _logger = logger;
             _serialize = serialize;
+            _customerIp = customerIp;
         }
 
         /// <summary>
@@ -46,6 +49,7 @@ namespace Oxygen.ServerProxyFactory
                 var messageBody = _serialize.Deserializes<RpcGlobalMessageBase<object>>(message);
                 if (!InstanceDictionary.TryGetValue(messageBody.Path, out var messageType))
                 {
+                    _customerIp.Ip = messageBody.CustomerIp;
                     messageType = MediatRAssembly.GetType($"Oxygen.MediatRProxyClientBuilder.ProxyInstance.{messageBody.Path}");
                     if (messageType != null)
                     {

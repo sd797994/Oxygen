@@ -24,6 +24,8 @@ namespace Client.Sample
             .ConfigureAppConfiguration((hostContext, config) =>
             {
                 config.SetBasePath(Directory.GetCurrentDirectory());
+                //获取oxygen配置节
+                config.AddJsonFile("oxygen.json");
                 Configuration = config.Build();
             })
             .ConfigureContainer<ContainerBuilder>(builder =>

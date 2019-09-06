@@ -25,18 +25,18 @@ namespace Oxygen.ProxyClientBuilder
             var interfaceType = assemblys.SelectMany(a => a.GetTypes().Where(t => t.GetCustomAttributes(typeof(RemoteServiceAttribute)).Any() && t.IsInterface)).ToArray();
             if (isLocal)
             {
-              return assemblys.SelectMany(x=>x.GetTypes().Where(t=> t.GetInterfaces().Any() && interfaceType.Contains(t.GetInterfaces().FirstOrDefault()))).ToArray();
+                return assemblys.SelectMany(x => x.GetTypes().Where(t => t.GetInterfaces().Any() && interfaceType.Contains(t.GetInterfaces().FirstOrDefault()))).ToArray();
             }
             else
             {
-                return interfaceType.Except(assemblys.SelectMany(x => x.GetTypes().Where(t => t.GetInterfaces().Any() && interfaceType.Contains(t.GetInterfaces().FirstOrDefault()))).Select(x=>x.GetInterfaces().FirstOrDefault()).ToArray()).ToArray();
+                return interfaceType.Except(assemblys.SelectMany(x => x.GetTypes().Where(t => t.GetInterfaces().Any() && interfaceType.Contains(t.GetInterfaces().FirstOrDefault()))).Select(x => x.GetInterfaces().FirstOrDefault()).ToArray()).ToArray();
             }
         }
         /// <summary>
         /// 获取当前程序集
         /// </summary>
         /// <returns></returns>
-        public static List<Assembly> GetAllAssemblies()
+        private static List<Assembly> GetAllAssemblies()
         {
             var list = new List<Assembly>();
             var deps = DependencyContext.Default;

@@ -20,8 +20,12 @@
     <ProjectReference Include="..\Oxygen.IRpcProviderService\Oxygen.IRpcProviderService.csproj" />
     <ProjectReference Include="..\Oxygen.ISerializeService\Oxygen.ISerializeService.csproj" />
     <ProjectReference Include="..\Oxygen.IServerProxyFactory\Oxygen.IServerProxyFactory.csproj" />
+    <ProjectReference Include="..\Oxygen.IServerRegisterManage\Oxygen.IServerRegisterManage.csproj" />
     <ProjectReference Include="..\Oxygen.MediatRProxyClientBuilder\Oxygen.ProxyClientBuilder.csproj" />
     <ProjectReference Include="..\Oxygen.MessagePackSerializeService\Oxygen.MessagePackSerializeService.csproj" />
+    <ProjectReference Include="..\Oxygen.RedisCache\Oxygen.RedisCache.csproj" />
+    <ProjectReference Include="..\Oxygen.ServerFlowControl\Oxygen.ServerFlowControl.csproj" />
     <ProjectReference Include="..\Oxygen.ServerProxyFactory\Oxygen.ServerProxyFactory.csproj" />
+    <ProjectReference Include="..\Oxygen.ServerRegisterManage\Oxygen.ConsulServerRegisterManage.csproj" />
   </ItemGroup>
 </Project>
