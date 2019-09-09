@@ -36,7 +36,7 @@ namespace Client.Sample
             .ConfigureServices(services =>
             {
                 //添加oxygen管道
-                services.AddOxygenServer(Configuration);
+                services.AddOxygenClient(Configuration);
                 services.AddLogging(configure =>
                 {
                     configure.AddConsole();

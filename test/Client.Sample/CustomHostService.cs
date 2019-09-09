@@ -38,7 +38,7 @@ namespace Client.Sample
                     //var result2 = await loginServer.SendAsync(new LoginInput() { UserName = "admin" });
                 }
                 sw.Stop();
-                Console.WriteLine($"一万次调用IUserLoginUseCase，耗时{sw.ElapsedMilliseconds}ms");
+                Console.WriteLine($"RPC调用{10}次，耗时{sw.ElapsedMilliseconds}ms");
                 Console.WriteLine("按任意键继续按q退出....");
                 if (Console.ReadLine() == "q")
                 {
