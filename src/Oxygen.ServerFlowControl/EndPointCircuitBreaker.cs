@@ -42,7 +42,6 @@ namespace Oxygen.ServerFlowControl
                 //负载均衡有效地址
                 addr = _endPointConfigure.GetServieByLoadBalane(useAddr, clientEndPoint, LoadBalanceType.IPHash);
                 //初始化令牌桶并判断是否限流
-                serviceInfo.EndPoints = useAddr;
                 _tokenBucket.InitTokenBucket(serviceInfo.DefCapacity, serviceInfo.DefRateLimit);
                 return _tokenBucket.Grant(key, serviceInfo);
             }

@@ -15,6 +15,9 @@ namespace Oxygen.MessagePackSerializeService
         private readonly IOxygenLogger _logger;
         public Serialize(IOxygenLogger logger)
         {
+            CompositeResolver.RegisterAndSetAsDefault(
+               NativeDateTimeResolver.Instance,
+               ContractlessStandardResolverAllowPrivate.Instance);
             _logger = logger;
         }
         /// <summary>
@@ -29,7 +32,7 @@ namespace Oxygen.MessagePackSerializeService
                 return default(byte[]);
             try
             {
-                return MessagePackSerializer.Serialize(input, ContractlessStandardResolver.Instance);
+                return MessagePackSerializer.Serialize(input);
             }
             catch (Exception e)
             {
@@ -69,13 +72,33 @@ namespace Oxygen.MessagePackSerializeService
                 return default(T);
             try
             {
-                return MessagePackSerializer.Deserialize<T>(input, ContractlessStandardResolver.Instance);
+                return MessagePackSerializer.Deserialize<T>(input);
             }
             catch (Exception e)
             {
                 _logger.LogError($"反序化对象失败：{e.Message}");
             }
             return default(T);
+        }
+        /// <summary>
+        /// 序列化
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public byte[] Serializes(Type type, object input)
+        {
+            if (input == null)
+                return default(byte[]);
+            try
+            {
+                return MessagePackSerializer.NonGeneric.Serialize(type, input);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"序列化对象失败：{e.Message}");
+            }
+            return default(byte[]);
         }
 
         public object Deserializes(Type type, byte[] input)
@@ -84,7 +107,7 @@ namespace Oxygen.MessagePackSerializeService
                 return null;
             try
             {
-                return MessagePackSerializer.NonGeneric.Deserialize(type, input, ContractlessStandardResolver.Instance);
+                return MessagePackSerializer.NonGeneric.Deserialize(type, input);
             }
             catch (Exception e)
             {

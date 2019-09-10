@@ -1,5 +1,6 @@
 ﻿using DotNetty.Buffers;
 using DotNetty.Transport.Channels;
+using Oxygen.CommonTool;
 using Oxygen.CommonTool.Logger;
 using Oxygen.IServerProxyFactory;
 using System;
@@ -14,10 +15,12 @@ namespace Oxygen.DotNettyRpcProviderService
     {
         private readonly IOxygenLogger _logger;
         private readonly ILocalProxyGenerator _localProxyGenerator;
-        public RpcServerHandler(IOxygenLogger logger, ILocalProxyGenerator localProxyGenerator)
+        private readonly IGlobalCommon _globalCommon;
+        public RpcServerHandler(IOxygenLogger logger, ILocalProxyGenerator localProxyGenerator, IGlobalCommon globalCommon)
         {
             _logger = logger;
             _localProxyGenerator = localProxyGenerator;
+            _globalCommon = globalCommon;
         }
         /// <summary>
         /// 从tcp管道接受消息
@@ -32,10 +35,10 @@ namespace Oxygen.DotNettyRpcProviderService
                 {
                     var data = new byte[buffer.ReadableBytes];
                     buffer.ReadBytes(data);
-                    var localHanderResult = await _localProxyGenerator.Invoke(data);
+                    var localHanderResult = await _localProxyGenerator.Invoke(_globalCommon.RsaDecrypt(data));
                     if (localHanderResult != null && localHanderResult.Any())
                     {
-                        await context.WriteAsync(Unpooled.WrappedBuffer(localHanderResult));
+                        await context.WriteAsync(Unpooled.WrappedBuffer(_globalCommon.RsaEncryp(localHanderResult)));
                     }
                 }
             }

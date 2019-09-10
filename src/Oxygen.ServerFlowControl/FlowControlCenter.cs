@@ -35,10 +35,10 @@ namespace Oxygen.ServerFlowControl
         /// 根据服务名返回IP地址
         /// </summary>
         /// <param name="serviceName"></param>
-        /// <param name="path"></param>
+        /// <param name="key"></param>
         /// <param name="clientIp"></param>
         /// <returns></returns>
-        public async Task<IPEndPoint> GetFlowControlEndPointByServicePath(string serviceName, string key, IPEndPoint clientIp)
+        public async Task<(IPEndPoint endPoint,ServiceConfigureInfo configureInfo)> GetFlowControlEndPointByServicePath(string serviceName, string key, IPEndPoint clientIp)
         {
             //根据服务返回健康地址
             var healthNode = await _registerCenter.GetServieByName(serviceName);
@@ -49,7 +49,7 @@ namespace Oxygen.ServerFlowControl
                 if (flowcontrolSetting == null)
                 {
                     //如果当前服务并未配置流控，则直接负载均衡返回节点
-                    return _endPointConfigure.GetServieByLoadBalane(healthNode, clientIp, LoadBalanceType.IPHash);
+                    return (_endPointConfigure.GetServieByLoadBalane(healthNode, clientIp, LoadBalanceType.IPHash), null);
                 }
                 else
                 {
@@ -61,7 +61,7 @@ namespace Oxygen.ServerFlowControl
                         //将有效地址的熔断数据清空
                         _endPointConfigure.CleanBreakTimes(flowcontrolSetting);
                         _endPointConfigure.UpdateBreakerConfigure(key, flowcontrolSetting);
-                        return point;
+                        return (point, flowcontrolSetting);
                     }
                 }
             }
@@ -75,7 +75,7 @@ namespace Oxygen.ServerFlowControl
                 }
                 _logger.LogError($"没有找到健康的服务节点：{serviceName}");
             }
-            return null;
+            return (null, flowcontrolSetting);
         }
 
         /// <summary>
@@ -87,10 +87,9 @@ namespace Oxygen.ServerFlowControl
         /// <param name="endPoint"></param>
         /// <param name="func"></param>
         /// <returns></returns>
-        public async Task<T> ExcuteAsync<T>(string key, IPEndPoint endPoint, Func<Task<T>> func) where T :class
+        public async Task<T> ExcuteAsync<T>(string key, IPEndPoint endPoint, string flowControlCfgKey, ServiceConfigureInfo configureInfo, Func<Task<T>> func) where T :class
         {
-            var flowcontrolSetting = _endPointConfigure.GetOrAddBreakerConfigure(key);
-            if (flowcontrolSetting == null)
+            if (configureInfo == null)
             {
                 //如果当前服务并未配置流控，则直接执行函数
                 return await func.Invoke();
@@ -98,7 +97,7 @@ namespace Oxygen.ServerFlowControl
             else
             {
                 //构造断路策略
-                var policy = _policyProvider.BuildPolicy<T>(key, flowcontrolSetting, endPoint);
+                var policy = _policyProvider.BuildPolicy<T>(key, configureInfo, endPoint);
                 //启动polly进行调用检查
                 try
                 {
@@ -109,9 +108,10 @@ namespace Oxygen.ServerFlowControl
                         //更新请求时间(用于限流)
                         _policyProvider.PushTimeInReq(key, endPoint);
                         //更新连接数(用于负载均衡)
-                        _endPointConfigure.ChangeConnectCount(flowcontrolSetting.EndPoints, endPoint, false);
+                        _endPointConfigure.ChangeConnectCount(configureInfo.EndPoints, endPoint, false);
                         //更新缓存（用于缓存降级）
-                        flowcontrolSetting.ReflushCache(endPoint, result);
+                        configureInfo.ReflushCache(result);
+                        _endPointConfigure.UpdateBreakerConfigure(flowControlCfgKey, configureInfo);
                         return result;
                     }) as T;
                 }

@@ -4,14 +4,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.NetworkInformation;
-using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Oxygen.CommonTool
 {
     /// <summary>
     /// 全局通用工具类
     /// </summary>
-    public class GlobalCommon: IGlobalCommon
+    public class GlobalCommon : IGlobalCommon
     {
         private readonly IOxygenLogger _logger;
         public GlobalCommon(IOxygenLogger logger)
@@ -101,6 +102,29 @@ namespace Oxygen.CommonTool
                 }
             }
             return result;
+        }
+
+
+
+        /// <summary>
+        /// Rsa加密
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public byte[] RsaEncryp(byte[] data)
+        {
+            var provider = RsaEncrypFactory.CreateEncrypProvider();
+            return provider.Encrypt(data, RSAEncryptionPadding.Pkcs1);
+        }
+        /// <summary>
+        /// Rsa解密
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public byte[] RsaDecrypt(byte[] data)
+        {
+            var provider = RsaEncrypFactory.CreateDecryptProvider();
+            return provider.Decrypt(data, RSAEncryptionPadding.Pkcs1);
         }
     }
 }

@@ -22,6 +22,14 @@ namespace Oxygen.IServerFlowControl
         void UpdateBreakerConfigure(string pathName, ServiceConfigureInfo servcieInfo);
 
         /// <summary>
+        /// 强制熔断无法连通的EndPoint
+        /// </summary>
+        /// <param name="pathName"></param>
+        /// <param name="servcieInfo"></param>
+        /// <param name="breakEndPoint"></param>
+        void ForcedCircuitBreakEndPoint(string pathName, ServiceConfigureInfo servcieInfo, IPEndPoint breakEndPoint);
+
+        /// <summary>
         /// 更新熔断结束的配置文件
         /// </summary>
         /// <param name="servcieInfo"></param>

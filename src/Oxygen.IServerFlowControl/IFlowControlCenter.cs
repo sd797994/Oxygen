@@ -17,7 +17,7 @@ namespace Oxygen.IServerFlowControl
         /// <param name="serviceName"></param>
         /// <param name="path"></param>
         /// <returns></returns>
-        Task<IPEndPoint> GetFlowControlEndPointByServicePath(string serviceName, string key, IPEndPoint clientIp);
+        Task<(IPEndPoint endPoint, ServiceConfigureInfo configureInfo)> GetFlowControlEndPointByServicePath(string serviceName, string key, IPEndPoint clientIp);
 
         /// <summary>
         /// 根据断路策略
@@ -28,6 +28,6 @@ namespace Oxygen.IServerFlowControl
         /// <param name="endPoint"></param>
         /// <param name="func"></param>
         /// <returns></returns>
-        Task<T> ExcuteAsync<T>(string key, IPEndPoint endPoint, Func<Task<T>> func) where T : class;
+        Task<T> ExcuteAsync<T>(string key, IPEndPoint endPoint, string flowControlCfgKey, ServiceConfigureInfo configureInfo, Func<Task<T>> func) where T : class;
     }
 }

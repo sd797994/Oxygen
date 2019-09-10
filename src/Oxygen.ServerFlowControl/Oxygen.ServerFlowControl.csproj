@@ -2,6 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyVersion>0.0.1.0</AssemblyVersion>
+    <FileVersion>0.0.1.0</FileVersion>
+    <Version>0.0.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +17,7 @@
     <ProjectReference Include="..\Oxygen.CommonTool\Oxygen.CommonTool.csproj" />
     <ProjectReference Include="..\Oxygen.CsharpClientAgent\Oxygen.CsharpClientAgent.csproj" />
     <ProjectReference Include="..\Oxygen.ICache\Oxygen.ICache.csproj" />
+    <ProjectReference Include="..\Oxygen.ISerializeService\Oxygen.ISerializeService.csproj" />
     <ProjectReference Include="..\Oxygen.IServerFlowControl\Oxygen.IServerFlowControl.csproj" />
     <ProjectReference Include="..\Oxygen.IServerRegisterManage\Oxygen.IServerRegisterManage.csproj" />
   </ItemGroup>

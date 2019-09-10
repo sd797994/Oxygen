@@ -21,5 +21,17 @@ namespace Oxygen.CommonTool
         /// </summary>
         /// <returns></returns>
         IPAddress GetMachineIp();
+        /// <summary>
+        /// Rsa加密
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        byte[] RsaEncryp(byte[] data);
+        /// <summary>
+        /// Rsa解密
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        byte[] RsaDecrypt(byte[] data);
     }
 }

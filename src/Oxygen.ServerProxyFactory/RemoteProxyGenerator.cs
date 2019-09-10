@@ -17,13 +17,16 @@ namespace Oxygen.ServerProxyFactory
         private readonly IRpcClientProvider _clientProvider;
         private readonly IOxygenLogger _oxygenLogger;
         private readonly IFlowControlCenter _flowControlCenter;
+        private readonly IEndPointConfigureManager _configureManager;
         private CustomerIp _customerIp;
-        public RemoteProxyGenerator(IRpcClientProvider clientProvider, IOxygenLogger oxygenLogger, IFlowControlCenter flowControlCenter, CustomerIp customerIp)
+        public RemoteProxyGenerator(IRpcClientProvider clientProvider, IOxygenLogger oxygenLogger
+            , IFlowControlCenter flowControlCenter, IEndPointConfigureManager configureManager, CustomerIp customerIp)
         {
             _clientProvider = clientProvider;
             _oxygenLogger = oxygenLogger;
             _flowControlCenter = flowControlCenter;
             _customerIp = customerIp;
+            _configureManager = configureManager;
         }
 
         /// <summary>
@@ -42,16 +45,19 @@ namespace Oxygen.ServerProxyFactory
             {
                 //流量控制
                 var ipendpoint = await _flowControlCenter.GetFlowControlEndPointByServicePath(serviceName, flowControlCfgKey, _customerIp.Ip);
-                if (ipendpoint != null)
+                if (ipendpoint.endPoint != null)
                 {
-                    var channelKey = await _clientProvider.CreateClient(ipendpoint, serviceName, pathName);
+                    var channelKey = await _clientProvider.CreateClient(ipendpoint.endPoint, serviceName, pathName);
                     if (channelKey != null)
                     {
-                        return await _clientProvider.SendMessage<TOut>(channelKey, ipendpoint, serviceName, pathName, input);
+                        return await _clientProvider.SendMessage<TOut>(channelKey, ipendpoint.endPoint, flowControlCfgKey, ipendpoint.configureInfo, serviceName, pathName, input);
                     }
                     else
                     {
-                        throw new Exception("创建通道失败");
+                        //强制熔断当前节点
+                        if (ipendpoint.configureInfo != null)
+                            _configureManager.ForcedCircuitBreakEndPoint(flowControlCfgKey, ipendpoint.configureInfo, ipendpoint.endPoint);
+                        throw new Exception($"创建通道失败:{ipendpoint.ToString()}");
                     }
                 }
             }

@@ -29,6 +29,14 @@ namespace Oxygen.ISerializeService
         /// <returns></returns>
         T Deserializes<T>(byte[] input);
 
+
+        /// <summary>
+        /// 序列化
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        byte[] Serializes(Type type, object input);
         /// <summary>
         /// 反序列化
         /// </summary>

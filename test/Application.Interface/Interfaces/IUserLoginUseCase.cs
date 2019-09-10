@@ -9,6 +9,7 @@ namespace Application.Interface
     {
         [FlowControl("Login")]
         Task<ApplicationBaseResult> Login(LoginInput input);
+        [FlowControl("Register")]
         Task<ApplicationBaseResult> Register(RegisterInput input);
     }
 }

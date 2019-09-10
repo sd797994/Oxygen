@@ -54,7 +54,7 @@ namespace Oxygen.DotNettyRpcProviderService
                     IChannelPipeline pipeline = channel.Pipeline;
                     pipeline.AddLast(new LengthFieldPrepender(4));
                     pipeline.AddLast(new LengthFieldBasedFrameDecoder(int.MaxValue, 0, 4, 0, 4));
-                    pipeline.AddLast(new RpcServerHandler(_logger, _localProxyGenerator));
+                    pipeline.AddLast(new RpcServerHandler(_logger, _localProxyGenerator, _common));
                 }));
             var port = OxygenSetting.ServerPort ?? _common.GetFreePort();
             boundChannel = await _bootstrap.BindAsync(port);

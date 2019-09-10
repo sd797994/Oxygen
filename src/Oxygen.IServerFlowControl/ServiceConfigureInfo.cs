@@ -51,7 +51,7 @@ namespace Oxygen.IServerFlowControl
         /// <summary>
         /// 默认熔断后再次请求重试时间(秒)
         /// </summary>
-        public int DefBreakerRetryTimeSec { get; set; } = 30;
+        public int DefBreakerRetryTimeSec { get; set; } = 300;
 
         /// <summary>
         /// 熔断默认超时时间(秒)
@@ -67,15 +67,11 @@ namespace Oxygen.IServerFlowControl
         /// </summary>
         /// <param name="point"></param>
         /// <param name="data"></param>
-        public void ReflushCache(IPEndPoint point, object data)
+        public void ReflushCache(object data)
         {
-            if (EndPoints.Count() > 0 && DefOpenCache)
+            if (DefOpenCache)
             {
-                var target = EndPoints.FirstOrDefault(x => x.GetEndPoint().Equals(point));
-                if (target != null)
-                {
-                    DefCacheData = data;
-                }
+                DefCacheData = data;
             }
         }
     }

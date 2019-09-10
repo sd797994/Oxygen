@@ -90,7 +90,7 @@ namespace Oxygen.ServerFlowControl
             {
                 time.Add(DateTime.Now);
                 tmpReqTime.TryRemove(tmpRetKey, out List<DateTime> old);
-                tmpReqTime.TryAdd(tmpRetKey, time.Where(x => x.AddSeconds(10) > DateTime.Now).ToList());//丢弃10秒以前的数据保证字典不会过大
+                tmpReqTime.TryAdd(tmpRetKey, time.Where(x => x.AddSeconds(2) > DateTime.Now).ToList());//丢弃2秒以前的数据保证字典不会过大
             }
             else
             {

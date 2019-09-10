@@ -41,6 +41,21 @@ namespace Oxygen.ServerFlowControl
             _cacheService.SetHashCache(OxygenSetting.BreakerSettingKey, pathName, servcieInfo);
         }
         /// <summary>
+        /// 强制熔断无法连通的EndPoint
+        /// </summary>
+        /// <param name="pathName"></param>
+        /// <param name="servcieInfo"></param>
+        /// <param name="breakEndPoint"></param>
+        public void ForcedCircuitBreakEndPoint(string pathName, ServiceConfigureInfo servcieInfo, IPEndPoint breakEndPoint)
+        {
+            var addr = servcieInfo.EndPoints.FirstOrDefault(x => x.GetEndPoint().Equals(breakEndPoint));
+            if (addr != null)
+            {
+                addr.BreakerTime = DateTime.Now;
+                UpdateBreakerConfigure(pathName, servcieInfo);
+            }
+        }
+        /// <summary>
         /// 更新熔断结束的配置文件
         /// </summary>
         /// <param name="servcieInfo"></param>
@@ -51,8 +66,8 @@ namespace Oxygen.ServerFlowControl
                 if ((x.BreakerTime != null && x.BreakerTime.Value.AddSeconds(servcieInfo.DefBreakerRetryTimeSec) <= DateTime.Now))
                 {
                     x.ThresholdBreakeTimes = 0;
+                    x.BreakerTime = null;
                 }
-                x.BreakerTime = null;
             });
         }
 

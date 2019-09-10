@@ -26,6 +26,8 @@ namespace Oxygen.CommonTool
             }
             RedisAddress = $"{configuration["Oxygen:Redis:Address"]}:{configuration["Oxygen:Redis:Port"]}";
             RedisAddressEndPoint = new IPEndPoint(IPAddress.Parse(configuration["Oxygen:Redis:Address"]), int.Parse(configuration["Oxygen:Redis:Port"]));
+            RsaPublicKey = configuration["Oxygen:Secret:PubKey"];
+            RsaPrivateKey = configuration["Oxygen:Secret:PrvKey"];
         }
         #region 注册中心相关
         /// <summary>
@@ -47,6 +49,10 @@ namespace Oxygen.CommonTool
         /// </summary>
         public static string RedisAddress;
         public static IPEndPoint RedisAddressEndPoint;
+        #endregion
+        #region 传输安全相关
+        public static string RsaPublicKey;
+        public static string RsaPrivateKey;
         #endregion
     }
 }

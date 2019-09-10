@@ -27,6 +27,7 @@ namespace Oxygen.DotNettyRpcProviderService
         private readonly IOxygenLogger _logger;
         private readonly ISerialize _serialize;
         private readonly IFlowControlCenter _flowControlCenter;
+        private readonly IGlobalCommon _globalCommon;
         private CustomerIp _customerIp;
         public static readonly ConcurrentDictionary<Guid, TaskCompletionSource<byte[]>> TaskHookInfos =
             new ConcurrentDictionary<Guid, TaskCompletionSource<byte[]>>();
@@ -35,13 +36,14 @@ namespace Oxygen.DotNettyRpcProviderService
         static readonly ConcurrentDictionary<string, IChannel> Channels = new ConcurrentDictionary<string, IChannel>();
         #endregion
 
-        public RpcClientProvider(IOxygenLogger logger, ISerialize serialize, IFlowControlCenter flowControlCenter, CustomerIp customerIp)
+        public RpcClientProvider(IOxygenLogger logger, ISerialize serialize, IFlowControlCenter flowControlCenter, IGlobalCommon globalCommon, CustomerIp customerIp)
         {
             _logger = logger;
             _serialize = serialize;
             _flowControlCenter = flowControlCenter;
             _bootstrap = CreateBootStrap();
             _customerIp = customerIp;
+            _globalCommon = globalCommon;
         }
         /// <summary>
         /// 创建Bootstrap
@@ -83,14 +85,14 @@ namespace Oxygen.DotNettyRpcProviderService
         /// <param name="path"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        public async Task<T> SendMessage<T>(string channelKey, IPEndPoint endPoint, string key, string path, object message) where T : class
+        public async Task<T> SendMessage<T>(string channelKey, IPEndPoint endPoint, string flowControlCfgKey, object configureInfo, string key, string path, object message) where T : class
         {
             T result = default(T);
             if (Channels.TryGetValue(channelKey, out var _channel))
             {
                 try
                 {
-                    result = await _flowControlCenter.ExcuteAsync(key, endPoint, async () =>
+                    result = await _flowControlCenter.ExcuteAsync(key, endPoint, flowControlCfgKey,(ServiceConfigureInfo)configureInfo, async () =>
                     {
                         var taskId = Guid.NewGuid();
                         var sendMessage = new RpcGlobalMessageBase<object>
@@ -101,7 +103,7 @@ namespace Oxygen.DotNettyRpcProviderService
                             Message = message is string ? _serialize.Deserializes<object>(_serialize.SerializesJsonString((string)message)) : message
                         };
                         var resultTask = RegisterResultCallbackAsync(taskId);
-                        var buffer = Unpooled.WrappedBuffer(_serialize.Serializes(sendMessage));
+                        var buffer = Unpooled.WrappedBuffer(_globalCommon.RsaEncryp(_serialize.Serializes(sendMessage)));
                         await _channel.WriteAndFlushAsync(buffer);
                         var resultBt = await resultTask;
                         if (resultBt != null && resultBt.Any())
@@ -111,49 +113,7 @@ namespace Oxygen.DotNettyRpcProviderService
                         return default;
                     });
                 }
-                catch (Exception)
-                {
-                    //ignore异常，等待polly处理
-                }
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// 发送消息
-        /// </summary>
-        /// <param name="serverName"></param>
-        /// <param name="path"></param>
-        /// <param name="message"></param>
-        /// <returns></returns>
-        public async Task<object> SendMessage(string channelKey, IPEndPoint endPoint, string key, string path, object message)
-        {
-            object result = default(object);
-            if (Channels.TryGetValue(channelKey, out var _channel))
-            {
-                try
-                {
-                    result = await _flowControlCenter.ExcuteAsync(key, endPoint, async () =>
-                    {
-                        var taskId = Guid.NewGuid();
-                        var sendMessage = new RpcGlobalMessageBase<object>
-                        {
-                            TaskId = taskId,
-                            Path = path,
-                            Message = message
-                        };
-                        var resultTask = RegisterResultCallbackAsync(taskId);
-                        var buffer = Unpooled.WrappedBuffer(_serialize.Serializes(sendMessage));
-                        await _channel.WriteAndFlushAsync(buffer);
-                        var resultBt = await resultTask;
-                        if (resultBt != null && resultBt.Any())
-                        {
-                            return _serialize.Deserializes<object>(resultBt);
-                        }
-                        return null;
-                    });
-                }
-                catch (Exception)
+                catch (Exception e)
                 {
                     //ignore异常，等待polly处理
                 }
@@ -170,32 +130,39 @@ namespace Oxygen.DotNettyRpcProviderService
         /// <returns></returns>
         async Task<string> CreateChannel(IPEndPoint endpoint, string serviceName, string path)
         {
-            var channelKey = $"{endpoint.Address}{endpoint.Port}{serviceName}{path}";
-            if (Channels.TryGetValue(channelKey, out var channel))
+            try
             {
-                if (!channel.Active)
+                var channelKey = $"{endpoint.Address}{endpoint.Port}{serviceName}{path}";
+                if (Channels.TryGetValue(channelKey, out var channel))
                 {
-                    await CloseChannel(channel);
-                    Channels.TryRemove(channelKey, out channel);
+                    if (!channel.Active)
+                    {
+                        await CloseChannel(channel);
+                        Channels.TryRemove(channelKey, out channel);
+                    }
+                    else
+                    {
+                        return channelKey;
+                    }
                 }
                 else
                 {
-                    return channelKey;
+                    var newChannel = await _bootstrap.ConnectAsync(endpoint);
+                    if (newChannel.Active)
+                    {
+                        Channels.TryAdd(channelKey, newChannel);
+                        return channelKey;
+                    }
+                    else
+                    {
+                        await CloseChannel(channel);
+                        Channels.TryRemove(channelKey, out channel);
+                    }
                 }
             }
-            else
+            catch(Exception)
             {
-                var newChannel = await _bootstrap.ConnectAsync(endpoint);
-                if (newChannel.Active)
-                {
-                    Channels.TryAdd(channelKey, newChannel);
-                    return channelKey;
-                }
-                else
-                {
-                    await CloseChannel(channel);
-                    Channels.TryRemove(channelKey, out channel);
-                }
+                return null;
             }
             return null;
         }
@@ -207,7 +174,7 @@ namespace Oxygen.DotNettyRpcProviderService
         {
             if (input != null || input.Any())
             {
-                var message = _serialize.Deserializes<RpcGlobalMessageBase<object>>(input);
+                var message = _serialize.Deserializes<RpcGlobalMessageBase<object>>(_globalCommon.RsaDecrypt(input));
                 var task = GetHook(message.TaskId);
                 task?.TrySetResult(_serialize.Serializes(message.Message));
             }
