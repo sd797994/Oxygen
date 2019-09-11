@@ -28,7 +28,7 @@ namespace Oxygen.DotNettyRpcProviderService
         private readonly ISerialize _serialize;
         private readonly IFlowControlCenter _flowControlCenter;
         private readonly IGlobalCommon _globalCommon;
-        private readonly CustomerIp _customerIp;
+        private readonly CustomerInfo _customerInfo;
         public static readonly ConcurrentDictionary<Guid, TaskCompletionSource<byte[]>> TaskHookInfos =
             new ConcurrentDictionary<Guid, TaskCompletionSource<byte[]>>();
         #region dotnetty相关
@@ -36,13 +36,13 @@ namespace Oxygen.DotNettyRpcProviderService
         static readonly ConcurrentDictionary<string, IChannel> Channels = new ConcurrentDictionary<string, IChannel>();
         #endregion
 
-        public RpcClientProvider(IOxygenLogger logger, ISerialize serialize, IFlowControlCenter flowControlCenter, IGlobalCommon globalCommon, CustomerIp customerIp)
+        public RpcClientProvider(IOxygenLogger logger, ISerialize serialize, IFlowControlCenter flowControlCenter, IGlobalCommon globalCommon, CustomerInfo customerInfo)
         {
             _logger = logger;
             _serialize = serialize;
             _flowControlCenter = flowControlCenter;
             _bootstrap = CreateBootStrap();
-            _customerIp = customerIp;
+            _customerInfo = customerInfo;
             _globalCommon = globalCommon;
         }
         /// <summary>
@@ -97,7 +97,7 @@ namespace Oxygen.DotNettyRpcProviderService
                         var taskId = Guid.NewGuid();
                         var sendMessage = new RpcGlobalMessageBase<object>
                         {
-                            CustomerIp = _customerIp.Ip,
+                            CustomerIp = _customerInfo.Ip,
                             TaskId = taskId,
                             Path = path,
                             Message = message is string ? _serialize.Deserializes<object>(_serialize.SerializesJsonString((string)message)) : message

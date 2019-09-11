@@ -17,14 +17,14 @@ namespace Oxygen.ServerProxyFactory
         private readonly IOxygenLogger _oxygenLogger;
         private readonly IFlowControlCenter _flowControlCenter;
         private readonly IEndPointConfigureManager _configureManager;
-        private readonly CustomerIp _customerIp;
+        private readonly CustomerInfo _customerInfo;
         public RemoteProxyGenerator(IRpcClientProvider clientProvider, IOxygenLogger oxygenLogger
-            , IFlowControlCenter flowControlCenter, IEndPointConfigureManager configureManager, CustomerIp customerIp)
+            , IFlowControlCenter flowControlCenter, IEndPointConfigureManager configureManager, CustomerInfo customerInfo)
         {
             _clientProvider = clientProvider;
             _oxygenLogger = oxygenLogger;
             _flowControlCenter = flowControlCenter;
-            _customerIp = customerIp;
+            _customerInfo = customerInfo;
             _configureManager = configureManager;
         }
 
@@ -43,7 +43,7 @@ namespace Oxygen.ServerProxyFactory
             try
             {
                 //流量控制
-                var ipendpoint = await _flowControlCenter.GetFlowControlEndPointByServicePath(serviceName, flowControlCfgKey, _customerIp.Ip);
+                var ipendpoint = await _flowControlCenter.GetFlowControlEndPointByServicePath(serviceName, flowControlCfgKey, _customerInfo.Ip);
                 if (ipendpoint.endPoint != null)
                 {
                     var channelKey = await _clientProvider.CreateClient(ipendpoint.endPoint, serviceName, pathName);

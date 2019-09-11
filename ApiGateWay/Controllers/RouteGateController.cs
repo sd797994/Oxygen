@@ -20,13 +20,13 @@ namespace ApiGateWay.Controllers
         private readonly IServerProxyFactory _serverProxyFactory;
         private readonly ISerialize _serialize;
         private IHttpContextAccessor _accessor;
-        private CustomerIp _customerIp;
-        public RouteGateController(IServerProxyFactory serverProxyFactory, ISerialize serialize, IHttpContextAccessor accessor, CustomerIp customerIp)
+        private CustomerInfo _customerInfo;
+        public RouteGateController(IServerProxyFactory serverProxyFactory, ISerialize serialize, IHttpContextAccessor accessor, CustomerInfo customerInfo)
         {
             _serverProxyFactory = serverProxyFactory;
             _serialize = serialize;
             _accessor = accessor;
-            _customerIp = customerIp;
+            _customerInfo = customerInfo;
         }
         // GET api/values
         [HttpPost]
@@ -37,7 +37,7 @@ namespace ApiGateWay.Controllers
                 var remoteProxy = await _serverProxyFactory.CreateProxy(Request.Path);
                 if (remoteProxy != null)
                 {
-                    _customerIp.Ip = new System.Net.IPEndPoint(_accessor.HttpContext.Connection.RemoteIpAddress, _accessor.HttpContext.Connection.RemotePort);
+                    _customerInfo.Ip = new System.Net.IPEndPoint(_accessor.HttpContext.Connection.RemoteIpAddress, _accessor.HttpContext.Connection.RemotePort);
                     var rempteResult = await remoteProxy.SendAsync(input.ToString());
                     if (rempteResult != null)
                     {

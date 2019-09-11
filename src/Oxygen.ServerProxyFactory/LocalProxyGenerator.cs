@@ -23,13 +23,13 @@ namespace Oxygen.ServerProxyFactory
         private static readonly ConcurrentDictionary<string, Type> InstanceDictionary = new ConcurrentDictionary<string, Type>();
         private readonly IOxygenLogger _logger;
         private readonly ISerialize _serialize;
-        private readonly CustomerIp _customerIp;
-        public LocalProxyGenerator(IMediator mediator, IOxygenLogger logger, ISerialize serialize, CustomerIp customerIp)
+        private readonly CustomerInfo _customerInfo;
+        public LocalProxyGenerator(IMediator mediator, IOxygenLogger logger, ISerialize serialize, CustomerInfo customerInfo)
         {
             _mediator = mediator;
             _logger = logger;
             _serialize = serialize;
-            _customerIp = customerIp;
+            _customerInfo = customerInfo;
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace Oxygen.ServerProxyFactory
                 var messageBody = _serialize.Deserializes<RpcGlobalMessageBase<object>>(message);
                 if (!InstanceDictionary.TryGetValue(messageBody.Path, out var messageType))
                 {
-                    _customerIp.Ip = messageBody.CustomerIp;
+                    _customerInfo.Ip = messageBody.CustomerIp;
                     messageType = MediatRAssembly.GetType($"Oxygen.MediatRProxyClientBuilder.ProxyInstance.{messageBody.Path}");
                     if (messageType != null)
                     {
