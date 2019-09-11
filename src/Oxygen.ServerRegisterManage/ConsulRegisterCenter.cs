@@ -5,11 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Oxygen.ConsulServerRegisterManage
 {
+    /// <summary>
+    /// Consul注册中心
+    /// </summary>
     public class ConsulRegisterCenter : IRegisterCenter
     {
         private static string _clientId;
@@ -59,11 +61,32 @@ namespace Oxygen.ConsulServerRegisterManage
         /// <returns></returns>
         public async Task<List<FlowControlEndPoint>> GetServieByName(string serverName)
         {
-            var remoteSrv = await ConsulFactory.GetClient().Agent.Services();
-            var addrs = remoteSrv.Response.Values.Where(x => x.Service.ToLower().Equals(serverName.ToLower())).ToList();
-            if (addrs.Any())
+            bool NeedFlush = false;
+            if (ConsulFactory.GetServiceCache().TryGetValue(serverName, out NodeCache value))
             {
-                return addrs.Select(x => new FlowControlEndPoint(IPAddress.Parse(x.Address), x.Port)).ToList();
+                if (value.ExpirTime.AddSeconds(10) > DateTime.Now)
+                {
+                    return value.AgentServices.Select(x => new FlowControlEndPoint(IPAddress.Parse(x.Address), x.Port)).ToList();
+                }
+                else
+                {
+                    ConsulFactory.GetServiceCache().TryRemove(serverName, out NodeCache removCache);
+                    NeedFlush = true;
+                }
+            }
+            else
+            {
+                NeedFlush = true;
+            }
+            if (NeedFlush)
+            {
+                var remoteSrv = await ConsulFactory.GetClient().Agent.Services();
+                var addrs = remoteSrv.Response.Values.Where(x => x.Service.ToLower().Equals(serverName.ToLower())).ToList();
+                if (addrs.Any())
+                {
+                    ConsulFactory.GetServiceCache().TryAdd(serverName, new NodeCache() { ExpirTime = DateTime.Now, AgentServices = addrs });
+                    return addrs.Select(x => new FlowControlEndPoint(IPAddress.Parse(x.Address), x.Port)).ToList();
+                }
             }
             return default;
         }

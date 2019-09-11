@@ -1,12 +1,13 @@
 ﻿using Oxygen.IServerFlowControl;
-using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Oxygen.IServerRegisterManage
 {
+    /// <summary>
+    /// 注册中心
+    /// </summary>
     public interface IRegisterCenter
     {
         /// <summary>

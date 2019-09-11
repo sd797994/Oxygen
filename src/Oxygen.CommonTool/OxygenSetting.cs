@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Text;
 
 namespace Oxygen.CommonTool
 {
+    /// <summary>
+    /// Oxygen本地配置
+    /// </summary>
     public class OxygenSetting
     {
         /// <summary>
@@ -48,10 +48,19 @@ namespace Oxygen.CommonTool
         /// redis地址
         /// </summary>
         public static string RedisAddress;
+        /// <summary>
+        /// redis地址
+        /// </summary>
         public static IPEndPoint RedisAddressEndPoint;
         #endregion
         #region 传输安全相关
+        /// <summary>
+        /// 数字签名公钥
+        /// </summary>
         public static string RsaPublicKey;
+        /// <summary>
+        /// 数字签名私钥
+        /// </summary>
         public static string RsaPrivateKey;
         #endregion
     }

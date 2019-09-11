@@ -1,16 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace Oxygen.CommonTool
 {
+    /// <summary>
+    /// 数字签名类型工厂
+    /// </summary>
     public class RsaEncrypFactory
     {
         private static RSA PubProvider { get; set; }
         private static RSA PrvProvider { get; set; }
-
+        /// <summary>
+        /// 创建签名程序
+        /// </summary>
+        /// <returns></returns>
         public static RSA CreateEncrypProvider()
         {
             if (PubProvider == null)
@@ -23,6 +27,10 @@ namespace Oxygen.CommonTool
             }
             return PubProvider;
         }
+        /// <summary>
+        /// 创建验证程序
+        /// </summary>
+        /// <returns></returns>
         public static RSA CreateDecryptProvider()
         {
             if (PrvProvider == null)

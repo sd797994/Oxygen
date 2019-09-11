@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace Oxygen.CommonTool
 {

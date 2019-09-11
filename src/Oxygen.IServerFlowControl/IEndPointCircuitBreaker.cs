@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Text;
+﻿using System.Net;
 
 namespace Oxygen.IServerFlowControl
 {
+    /// <summary>
+    /// 断路器
+    /// </summary>
     public interface IEndPointCircuitBreaker
     {
         /// <summary>

@@ -1,13 +1,14 @@
 ﻿using Oxygen.CommonTool.Logger;
 using Oxygen.IServerFlowControl;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
 
 namespace Oxygen.ServerFlowControl
 {
+    /// <summary>
+    /// 断路器
+    /// </summary>
     public class EndPointCircuitBreaker : IEndPointCircuitBreaker
     {
         private readonly IEndPointConfigureManager _endPointConfigure;

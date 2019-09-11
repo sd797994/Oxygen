@@ -7,6 +7,9 @@ using System.Text;
 
 namespace Oxygen.ServerFlowControl
 {
+    /// <summary>
+    /// 断路策略接口
+    /// </summary>
     public interface ICircuitPolicyProvider
     {
         /// <summary>

@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Oxygen.IServerFlowControl
+﻿namespace Oxygen.IServerFlowControl
 {
+    /// <summary>
+    /// 令牌桶接口
+    /// </summary>
     public interface ITokenBucket
     {
         /// <summary>

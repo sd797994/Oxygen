@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace Oxygen.ICache
 {
@@ -76,5 +75,21 @@ namespace Oxygen.ICache
         /// <param name="work"></param>
         /// <returns></returns>
         bool BlockingWork(string resource, TimeSpan expiryTime, TimeSpan waitTime, Func<bool> work);
+
+        /// <summary>
+        /// 发布消息到对应主题
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="filed"></param>
+        /// <param name="value"></param>
+        Task PublishAsync<T>(string channel, T value);
+
+        /// <summary>
+        /// 订阅主题
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="func"></param>
+        /// <returns></returns>
+        Task SubscribeAsync<T>(string channel, Action<T> func);
     }
 }

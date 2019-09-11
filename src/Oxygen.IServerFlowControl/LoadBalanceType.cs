@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Oxygen.IServerFlowControl
+﻿namespace Oxygen.IServerFlowControl
 {
+    /// <summary>
+    /// 负载均衡类型
+    /// </summary>
     public enum LoadBalanceType
     {
         /// <summary>

@@ -5,21 +5,25 @@ using StackExchange.Redis;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Net;
-using System.Text;
 
 namespace Oxygen.RedisCache
 {
+    /// <summary>
+    /// 缓存客户端工厂
+    /// </summary>
     public class DatabaseFactory
     {
-        private static ConcurrentDictionary<int,IDatabase> _database;
-        private static ConnectionMultiplexer _connection;
-        static DatabaseFactory()
+        private static Lazy<ConcurrentDictionary<int, IDatabase>> _database = new Lazy<ConcurrentDictionary<int, IDatabase>>(() => { return new ConcurrentDictionary<int, IDatabase>(); });
+        private static Lazy<ConnectionMultiplexer> _connection = new Lazy<ConnectionMultiplexer>(() => { return ConnectionMultiplexer.Connect(OxygenSetting.RedisAddress); });
+        /// <summary>
+        /// 获取或创建数据库
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public static ConnectionMultiplexer GetConnection()
         {
-            _connection = _connection ?? ConnectionMultiplexer.Connect(OxygenSetting.RedisAddress);
-            _database = _database ?? new ConcurrentDictionary<int, IDatabase>();
+            return _connection.Value;
         }
-
         /// <summary>
         /// 获取或创建数据库
         /// </summary>
@@ -27,10 +31,10 @@ namespace Oxygen.RedisCache
         /// <returns></returns>
         public static IDatabase GetDatabase(int key = 0)
         {
-            if (!_database.TryGetValue(key, out IDatabase databse))
+            if (!_database.Value.TryGetValue(key, out IDatabase databse))
             {
-                databse = _connection.GetDatabase(key);
-                _database.TryAdd(key, databse);
+                databse = _connection.Value.GetDatabase(key);
+                _database.Value.TryAdd(key, databse);
             }
             return databse;
         }
@@ -40,7 +44,7 @@ namespace Oxygen.RedisCache
         public static void Dispose()
         {
             if (_connection != null)
-                _connection.Dispose();
+                _connection.Value.Dispose();
         }
 
         /// <summary>

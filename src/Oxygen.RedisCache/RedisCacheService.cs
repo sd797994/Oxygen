@@ -1,14 +1,13 @@
 ﻿using Oxygen.ICache;
 using Oxygen.ISerializeService;
-using RedLockNet.SERedis;
-using RedLockNet.SERedis.Configuration;
-using StackExchange.Redis;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace Oxygen.RedisCache
 {
+    /// <summary>
+    /// redis缓存服务
+    /// </summary>
     public class RedisCacheService : ICacheService
     {
         private readonly ISerialize _serialize;
@@ -174,6 +173,35 @@ namespace Oxygen.RedisCache
                 }
                 return false;
             }
+        }
+        /// <summary>
+        /// 发布消息到对应主题
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="filed"></param>
+        /// <param name="value"></param>
+        public async Task PublishAsync<T>(string channel, T value)
+        {
+            if (string.IsNullOrWhiteSpace(channel))
+                throw new ArgumentNullException(nameof(channel));
+            if (value == null)
+                throw new ArgumentNullException(nameof(value));
+
+            await DatabaseFactory.GetDatabase().PublishAsync(channel, _serialize.Serializes<T>(value));
+        }
+
+        /// <summary>
+        /// 订阅主题
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="func"></param>
+        /// <returns></returns>
+        public async Task SubscribeAsync<T>(string channel, Action<T> func)
+        {
+            await DatabaseFactory.GetConnection().GetSubscriber().SubscribeAsync(channel, (subchannel, message) =>
+            {
+                func.Invoke(_serialize.Deserializes<T>(message));
+            });
         }
     }
 }

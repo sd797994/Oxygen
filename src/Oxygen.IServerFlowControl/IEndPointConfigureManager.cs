@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net;
-using System.Text;
 
 namespace Oxygen.IServerFlowControl
 {
+    /// <summary>
+    /// 流控配置管理器
+    /// </summary>
     public interface IEndPointConfigureManager
     {
         /// <summary>
@@ -59,5 +60,34 @@ namespace Oxygen.IServerFlowControl
         /// <param name="IsPlus"></param>
         void ChangeConnectCount(List<FlowControlEndPoint> lbEndPoints, IPEndPoint address, bool IsPlus);
 
+        /// <summary>
+        /// 客户端注册熔断配置节缓存订阅
+        /// </summary>
+        void SubscribeAllService();
+        /// <summary>
+        /// 服务器端初始化并更新配置节到缓存
+        /// </summary>
+        /// <param name="types"></param>
+        void SetCacheFromServices();
+        /// <summary>
+        /// 返回限流桶配置
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="serviceInfo"></param>
+        /// <returns></returns>
+        TokenBucketInfo GetOrAddTokenBucket(string key, ServiceConfigureInfo serviceInfo);
+        /// <summary>
+        /// 更新令牌时间戳
+        /// </summary>
+        /// <param name="bucketInfo"></param>
+        /// <param name="Capacity"></param>
+        /// <param name="Rate"></param>
+        void UpdateTokens(TokenBucketInfo bucketInfo, long Capacity, long Rate);
+        /// <summary>
+        /// 更新令牌数量并发布
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="bucketInfo"></param>
+        void UpdateTokenBucket(string key, TokenBucketInfo bucketInfo);
     }
 }

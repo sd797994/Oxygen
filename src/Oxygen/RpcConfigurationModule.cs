@@ -63,6 +63,8 @@ namespace Oxygen
         {
             //注入默认配置节
             new OxygenSetting(configuration);
+            //注入Client启动类
+            service.AddHostedService<OxygenClientService>();
             return service;
         }
     }

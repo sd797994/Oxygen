@@ -27,18 +27,19 @@ namespace Client.Sample
             {
                 Stopwatch sw = new Stopwatch();
                 sw.Start();
-                for (int i = 0; i < 10; i++)
+                var callCount = 1;
+                for (int i = 0; i < callCount; i++)
                 {
                     var userserver = await _proxyFactory.CreateProxy<IUserLoginUseCase>();
                     var result1 = await userserver.Register(new RegisterInput() { UserName = "admin" });
-                    var result2 = await userserver.Login(new LoginInput() { UserName = "admin" });
+                    //var result2 = await userserver.Login(new LoginInput() { UserName = "admin" });
                     //var registerServer = await _proxyFactory.CreateProxy("/api/UserService/UserLoginUseCase/Register");
                     //var result1 = await registerServer.SendAsync(new LoginInput() { UserName = "admin" });
                     //var loginServer = await _proxyFactory.CreateProxy("/api/UserService/UserLoginUseCase/Login");
                     //var result2 = await loginServer.SendAsync(new LoginInput() { UserName = "admin" });
                 }
                 sw.Stop();
-                Console.WriteLine($"RPC调用{10}次，耗时{sw.ElapsedMilliseconds}ms");
+                Console.WriteLine($"RPC调用{callCount}次，耗时{sw.ElapsedMilliseconds}ms");
                 Console.WriteLine("按任意键继续按q退出....");
                 if (Console.ReadLine() == "q")
                 {

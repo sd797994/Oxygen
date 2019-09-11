@@ -1,18 +1,29 @@
-﻿using Oxygen.CommonTool;
+﻿using Microsoft.Extensions.DependencyModel;
+using Oxygen.CommonTool;
+using Oxygen.CsharpClientAgent;
 using Oxygen.ICache;
 using Oxygen.IServerFlowControl;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Loader;
 using System.Text;
+using System.Threading;
 
 namespace Oxygen.ServerFlowControl
 {
+    /// <summary>
+    /// 令牌桶
+    /// </summary>
     public class TokenBucket: ITokenBucket
     {
-        public static ICacheService _cacheService;
-        public TokenBucket(ICacheService cacheService)
+        private readonly IEndPointConfigureManager _endPointConfigureManager;
+
+        public TokenBucket(IEndPointConfigureManager endPointConfigureManager)
         {
-            _cacheService = cacheService;
+            _endPointConfigureManager = endPointConfigureManager;
         }
         /// <summary>
         /// 初始化桶
@@ -39,61 +50,17 @@ namespace Oxygen.ServerFlowControl
         /// <returns></returns>
         public bool Grant(string key, ServiceConfigureInfo serviceInfo)
         {
-            return _cacheService.BlockingWork($"{OxygenSetting.TokenLimitSettingKey}{key}", new TimeSpan(0, 0, 30), new TimeSpan(0, 0, 30), () =>
+            var bucketInfo = _endPointConfigureManager.GetOrAddTokenBucket(key, serviceInfo);
+            _endPointConfigureManager.UpdateTokens(bucketInfo, Capacity, Rate);
+            if (bucketInfo.Tokens < 1)
             {
-                var bucketInfo = GetOrAddTokenBucket(key, serviceInfo);
-                UpdateTokens(bucketInfo);
-                if (bucketInfo.Tokens < 1)
-                {
-                    var timeToIntervalEnd = bucketInfo.StartTimeStamp - DateTime.UtcNow.Ticks;
-                    if (timeToIntervalEnd < 0) return Grant(key, serviceInfo);
-                    return false;
-                }
-                bucketInfo.Tokens -= 1;
-                UpdateTokenBucket(key, bucketInfo);
-                return true;
-            });
-        }
-        #region 私有方法
-        /// <summary>
-        /// 更新令牌
-        /// </summary>
-        /// <param name="bucketInfo"></param>
-        protected void UpdateTokens(TokenBucketInfo bucketInfo)
-        {
-            var currentTime = DateTime.UtcNow.Ticks;
-            if (currentTime < bucketInfo.StartTimeStamp)
-                return;
-            bucketInfo.Tokens = Capacity;
-            bucketInfo.StartTimeStamp = currentTime + Rate;
-        }
-        /// <summary>
-        /// 获取或创建令牌桶info
-        /// </summary>
-        /// <param name="serviceName"></param>
-        /// <returns></returns>
-        private TokenBucketInfo GetOrAddTokenBucket(string key, ServiceConfigureInfo serviceInfo)
-        {
-            var bucketInfo = _cacheService.GetHashCache<TokenBucketInfo>(OxygenSetting.TokenLimitSettingKey, key);
-            if (bucketInfo == null)
-            {
-                bucketInfo = new TokenBucketInfo();
-                bucketInfo.Tokens = serviceInfo.DefCapacity;
-                bucketInfo.StartTimeStamp = DateTime.UtcNow.Ticks;
-                _cacheService.SetHashCache(OxygenSetting.TokenLimitSettingKey, key, bucketInfo);
+                var timeToIntervalEnd = bucketInfo.StartTimeStamp - DateTime.UtcNow.Ticks;
+                if (timeToIntervalEnd < 0) return Grant(key, serviceInfo);
+                return false;
             }
-            return bucketInfo;
+            bucketInfo.Tokens -= 1;
+            _endPointConfigureManager.UpdateTokenBucket(key, bucketInfo);
+            return true;
         }
-
-        /// <summary>
-        /// 更新令牌桶info
-        /// </summary>
-        /// <param name="serviceName"></param>
-        /// <param name="bucketInfo"></param>
-        private void UpdateTokenBucket(string key, TokenBucketInfo bucketInfo)
-        {
-            _cacheService.SetHashCache(OxygenSetting.TokenLimitSettingKey, key, bucketInfo);
-        }
-        #endregion
     }
 }
