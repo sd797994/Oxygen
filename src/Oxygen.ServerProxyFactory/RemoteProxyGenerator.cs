@@ -17,7 +17,7 @@ namespace Oxygen.ServerProxyFactory
         private readonly IOxygenLogger _oxygenLogger;
         private readonly IFlowControlCenter _flowControlCenter;
         private readonly IEndPointConfigureManager _configureManager;
-        private CustomerIp _customerIp;
+        private readonly CustomerIp _customerIp;
         public RemoteProxyGenerator(IRpcClientProvider clientProvider, IOxygenLogger oxygenLogger
             , IFlowControlCenter flowControlCenter, IEndPointConfigureManager configureManager, CustomerIp customerIp)
         {

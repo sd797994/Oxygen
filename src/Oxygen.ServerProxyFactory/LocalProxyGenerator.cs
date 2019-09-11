@@ -23,7 +23,7 @@ namespace Oxygen.ServerProxyFactory
         private static readonly ConcurrentDictionary<string, Type> InstanceDictionary = new ConcurrentDictionary<string, Type>();
         private readonly IOxygenLogger _logger;
         private readonly ISerialize _serialize;
-        private CustomerIp _customerIp;
+        private readonly CustomerIp _customerIp;
         public LocalProxyGenerator(IMediator mediator, IOxygenLogger logger, ISerialize serialize, CustomerIp customerIp)
         {
             _mediator = mediator;
@@ -42,7 +42,7 @@ namespace Oxygen.ServerProxyFactory
             if (message == null || !message.Any())
             {
                 _logger.LogError($"订阅者消息分发不能为空消息");
-                return default(byte[]);
+                return default;
             }
             else
             {
@@ -65,7 +65,7 @@ namespace Oxygen.ServerProxyFactory
                 {
                     _logger.LogError($"未找到订阅者实例：{messageBody.Path}");
                 }
-                return default(byte[]);
+                return default;
             }
         }
 

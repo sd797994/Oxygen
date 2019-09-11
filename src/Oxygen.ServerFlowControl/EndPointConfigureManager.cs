@@ -20,8 +20,8 @@ namespace Oxygen.ServerFlowControl
     public class EndPointConfigureManager: IEndPointConfigureManager
     {
         private readonly ICacheService _cacheService;
-        private static Lazy<ConcurrentDictionary<string, ServiceConfigureInfo>> _localBreakSetting = new Lazy<ConcurrentDictionary<string, ServiceConfigureInfo>>(() => { return new ConcurrentDictionary<string, ServiceConfigureInfo>(); });
-        private static Lazy<ConcurrentDictionary<string, TokenBucketInfo>> _localLimitSetting = new Lazy<ConcurrentDictionary<string, TokenBucketInfo>>(() => { return new ConcurrentDictionary<string, TokenBucketInfo>(); });
+        private static readonly Lazy<ConcurrentDictionary<string, ServiceConfigureInfo>> _localBreakSetting = new Lazy<ConcurrentDictionary<string, ServiceConfigureInfo>>(() => { return new ConcurrentDictionary<string, ServiceConfigureInfo>(); });
+        private static readonly Lazy<ConcurrentDictionary<string, TokenBucketInfo>> _localLimitSetting = new Lazy<ConcurrentDictionary<string, TokenBucketInfo>>(() => { return new ConcurrentDictionary<string, TokenBucketInfo>(); });
 
         public EndPointConfigureManager(ICacheService cacheService)
         {
@@ -201,32 +201,34 @@ namespace Oxygen.ServerFlowControl
         /// </summary>
         public void SubscribeAllService()
         {
-            var _eventWait = new AutoResetEvent(false);
-            foreach (var type in GetRemoteInterfaceTypes())
+            using (EventWaitHandle _eventWait = new AutoResetEvent(false))
             {
-                foreach (var method in type.GetMethods())
+                foreach (var type in GetRemoteInterfaceTypes())
                 {
-                    //订阅熔断配置
-                    var topicKey = $"{OxygenSetting.BreakerSettingKey}{type.Name.Substring(1, type.Name.Length - 1)}{method.Name}";
-                    _cacheService.SubscribeAsync<ServiceConfigureInfo>(topicKey, (serviceConfigInfo) =>
+                    foreach (var method in type.GetMethods())
                     {
-                        _localBreakSetting.Value.TryRemove(topicKey, out _);
-                        _localBreakSetting.Value.TryAdd(topicKey, serviceConfigInfo);
-                        _eventWait.Set();
-                    });
-                    //订阅限流配置
-                    topicKey = $"{OxygenSetting.TokenLimitSettingKey}{type.Name.Substring(1, type.Name.Length - 1)}{method.Name}";
-                    _cacheService.SubscribeAsync<TokenBucketInfo>(topicKey, (bucketInfo) =>
-                    {
-                        _localLimitSetting.Value.TryRemove(topicKey, out _);
-                        _localLimitSetting.Value.TryAdd(topicKey, bucketInfo);
-                        _eventWait.Set();
-                    });
+                        //订阅熔断配置
+                        var topicKey = $"{OxygenSetting.BreakerSettingKey}{type.Name.Substring(1, type.Name.Length - 1)}{method.Name}";
+                        _cacheService.SubscribeAsync<ServiceConfigureInfo>(topicKey, (serviceConfigInfo) =>
+                        {
+                            _localBreakSetting.Value.TryRemove(topicKey, out _);
+                            _localBreakSetting.Value.TryAdd(topicKey, serviceConfigInfo);
+                            _eventWait.Set();
+                        });
+                        //订阅限流配置
+                        topicKey = $"{OxygenSetting.TokenLimitSettingKey}{type.Name.Substring(1, type.Name.Length - 1)}{method.Name}";
+                        _cacheService.SubscribeAsync<TokenBucketInfo>(topicKey, (bucketInfo) =>
+                        {
+                            _localLimitSetting.Value.TryRemove(topicKey, out _);
+                            _localLimitSetting.Value.TryAdd(topicKey, bucketInfo);
+                            _eventWait.Set();
+                        });
+                    }
                 }
-            }
-            while (true)
-            {
-                _eventWait.WaitOne();
+                while (true)
+                {
+                    _eventWait.WaitOne();
+                }
             }
         }
         /// <summary>
@@ -246,9 +248,11 @@ namespace Oxygen.ServerFlowControl
                 bucketInfo = _cacheService.GetHashCache<TokenBucketInfo>(OxygenSetting.TokenLimitSettingKey, key);
                 if (bucketInfo == null)
                 {
-                    bucketInfo = new TokenBucketInfo();
-                    bucketInfo.Tokens = serviceInfo.DefCapacity;
-                    bucketInfo.StartTimeStamp = DateTime.UtcNow.Ticks;
+                    bucketInfo = new TokenBucketInfo
+                    {
+                        Tokens = serviceInfo.DefCapacity,
+                        StartTimeStamp = DateTime.UtcNow.Ticks
+                    };
                     _cacheService.SetHashCache(OxygenSetting.TokenLimitSettingKey, key, bucketInfo);
                 }
                 _localLimitSetting.Value.TryAdd($"{OxygenSetting.TokenLimitSettingKey}{key}", bucketInfo);

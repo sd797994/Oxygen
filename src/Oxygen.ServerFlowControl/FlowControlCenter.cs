@@ -115,7 +115,7 @@ namespace Oxygen.ServerFlowControl
                 }
                 catch (Exception e)
                 {
-
+                    //ignore
                 }
             }
             return default;

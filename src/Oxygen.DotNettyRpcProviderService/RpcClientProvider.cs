@@ -28,7 +28,7 @@ namespace Oxygen.DotNettyRpcProviderService
         private readonly ISerialize _serialize;
         private readonly IFlowControlCenter _flowControlCenter;
         private readonly IGlobalCommon _globalCommon;
-        private CustomerIp _customerIp;
+        private readonly CustomerIp _customerIp;
         public static readonly ConcurrentDictionary<Guid, TaskCompletionSource<byte[]>> TaskHookInfos =
             new ConcurrentDictionary<Guid, TaskCompletionSource<byte[]>>();
         #region dotnetty相关
@@ -87,7 +87,7 @@ namespace Oxygen.DotNettyRpcProviderService
         /// <returns></returns>
         public async Task<T> SendMessage<T>(string channelKey, IPEndPoint endPoint, string flowControlCfgKey, object configureInfo, string key, string path, object message) where T : class
         {
-            T result = default(T);
+            T result = default;
             if (Channels.TryGetValue(channelKey, out var _channel))
             {
                 try
@@ -226,7 +226,7 @@ namespace Oxygen.DotNettyRpcProviderService
         /// <param name="id"></param>
         void RemoveHook(Guid id)
         {
-            TaskHookInfos.TryRemove(id, out TaskCompletionSource<byte[]> task);
+            TaskHookInfos.TryRemove(id, out _);
         }
 
         /// <summary>
