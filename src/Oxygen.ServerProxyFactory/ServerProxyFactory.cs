@@ -61,7 +61,7 @@ namespace Oxygen.ServerProxyFactory
         {
             if (!string.IsNullOrEmpty(path))
             {
-                if (path.StartsWith("/api"))
+                if (path.ToLower().StartsWith("/api"))
                 {
                     path = path.Replace("/api", "api");
                     if (_container.TryResolve(typeof(IVirtualProxyServer), out var instance))
@@ -72,13 +72,15 @@ namespace Oxygen.ServerProxyFactory
                             var names = path.Split('/');
                             if (names.Length == 4)
                             {
-                                if (names[0].Equals("api"))
+                                if (names[0].ToLower().Equals("api"))
                                 {
                                     var className = $"{names[2]}_ProxyClient";
                                     var type = GetProxtClient(className);
                                     if (type != null)
                                     {
-                                        vitual.Init(names[1], $"{names[2]}_{type.GetMethod(names[3])?.GetParameters().FirstOrDefault()?.ParameterType.Name}", $"{names[2]}{names[3]}");
+                                        var method = type.GetMethods().FirstOrDefault(x => x.Name.ToLower().Equals(names[3].ToLower()));
+                                        var pathName = $"{type.Name.Replace("_ProxyClient", "")}_{method?.GetParameters().FirstOrDefault().ParameterType.Name}";
+                                        vitual.Init(names[1], pathName, $"{type.Name.Replace("_ProxyClient", "")}{method.Name}");
                                     }
                                 }
                             }
@@ -97,10 +99,9 @@ namespace Oxygen.ServerProxyFactory
         /// <returns></returns>
         Type GetProxtClient(string className)
         {
-
             if (!InstanceDictionary.TryGetValue(className, out var messageType))
             {
-                messageType = Assembly.GetType($"Oxygen.RemoteProxyClientBuilder.ProxyInstance.{className}");
+                messageType = Assembly.GetTypes().FirstOrDefault(x => x.FullName.ToLower().Equals($"Oxygen.RemoteProxyClientBuilder.ProxyInstance.{className}".ToLower()));
                 if (messageType != null)
                 {
                     InstanceDictionary.TryAdd(className, messageType);

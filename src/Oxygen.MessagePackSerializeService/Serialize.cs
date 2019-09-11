@@ -13,11 +13,15 @@ namespace Oxygen.MessagePackSerializeService
     public class Serialize : ISerialize
     {
         private readonly IOxygenLogger _logger;
-        public Serialize(IOxygenLogger logger)
-        {
+        public static Lazy<bool> loadConfig = new Lazy<bool>(()=> {
             CompositeResolver.RegisterAndSetAsDefault(
                NativeDateTimeResolver.Instance,
                ContractlessStandardResolverAllowPrivate.Instance);
+            return true;
+        });
+        public Serialize(IOxygenLogger logger)
+        {
+            _ = loadConfig.Value;
             _logger = logger;
         }
         /// <summary>
