@@ -75,7 +75,7 @@ namespace Oxygen.IServerFlowControl
         /// <param name="key"></param>
         /// <param name="serviceInfo"></param>
         /// <returns></returns>
-        TokenBucketInfo GetOrAddTokenBucket(string key, ServiceConfigureInfo serviceInfo);
+        TokenBucketInfo GetOrAddTokenBucket(string key, int defCapacity);
         /// <summary>
         /// 更新令牌时间戳
         /// </summary>

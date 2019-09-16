@@ -9,23 +9,33 @@ namespace Oxygen.CommonTool
     /// </summary>
     public class RsaEncrypFactory
     {
-        private static RSA PubProvider { get; set; }
-        private static RSA PrvProvider { get; set; }
+        private static Lazy<RSA> PubProvider = new Lazy<RSA>(() =>
+        {
+            if (!string.IsNullOrEmpty(OxygenSetting.RsaPublicKey))
+            {
+                var _pubProvider = RSA.Create();
+                _pubProvider.ImportParameters(ConvertFromPublicKey(OxygenSetting.RsaPublicKey));
+                return _pubProvider;
+            }
+            return null;
+        });
+        private static Lazy<RSA> PrvProvider = new Lazy<RSA>(() =>
+        {
+            if (!string.IsNullOrEmpty(OxygenSetting.RsaPrivateKey))
+            {
+                var _prvProvider = RSA.Create();
+                _prvProvider.ImportParameters(ConvertFromPrivateKey(OxygenSetting.RsaPrivateKey));
+                return _prvProvider;
+            }
+            return null;
+        });
         /// <summary>
         /// 创建签名程序
         /// </summary>
         /// <returns></returns>
         public static RSA CreateEncrypProvider()
         {
-            if (PubProvider == null)
-            {
-                if (!string.IsNullOrEmpty(OxygenSetting.RsaPublicKey))
-                {
-                    PubProvider = RSA.Create();
-                    PubProvider.ImportParameters(ConvertFromPublicKey(OxygenSetting.RsaPublicKey));
-                }
-            }
-            return PubProvider;
+            return PubProvider.Value;
         }
         /// <summary>
         /// 创建验证程序
@@ -33,15 +43,7 @@ namespace Oxygen.CommonTool
         /// <returns></returns>
         public static RSA CreateDecryptProvider()
         {
-            if (PrvProvider == null)
-            {
-                if (!string.IsNullOrEmpty(OxygenSetting.RsaPrivateKey))
-                {
-                    PrvProvider = RSA.Create();
-                    PrvProvider.ImportParameters(ConvertFromPrivateKey(OxygenSetting.RsaPrivateKey));
-                }
-            }
-            return PrvProvider;
+            return PrvProvider.Value;
         }
         #region 私有方法
         static RSAParameters ConvertFromPublicKey(string pemFileConent)

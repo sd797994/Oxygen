@@ -30,6 +30,7 @@ namespace Application.Service
         {
             return await DoAsync(async (x) =>
             {
+                await Task.Delay(0);
                 if (string.IsNullOrEmpty(input.UserName))
                 {
                     x.Code = -1;

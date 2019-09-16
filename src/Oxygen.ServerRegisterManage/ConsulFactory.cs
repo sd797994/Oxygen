@@ -2,6 +2,8 @@
 using Oxygen.CommonTool;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Oxygen.ConsulServerRegisterManage
 {
@@ -12,6 +14,7 @@ namespace Oxygen.ConsulServerRegisterManage
     {
         private static readonly Lazy<ConcurrentDictionary<string, NodeCache>> _lazynodeCaches = new Lazy<ConcurrentDictionary<string, NodeCache>>(() => { return new ConcurrentDictionary<string, NodeCache>(); });
         private static readonly Lazy<ConsulClient> _lazyclient = new Lazy<ConsulClient>(() => { return new ConsulClient(ConfigurationOverview); });
+        private static readonly Lazy<Task<QueryResult<Dictionary<string, AgentService>>>> _lazyservice = new Lazy<Task<QueryResult<Dictionary<string, AgentService>>>>(async () => await _lazyclient.Value.Agent.Services());
         /// <summary>
         /// 创建并返回Consul客户端
         /// </summary>

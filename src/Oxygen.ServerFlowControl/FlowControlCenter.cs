@@ -1,9 +1,12 @@
-﻿using Oxygen.CommonTool.Logger;
+﻿using Oxygen.CommonTool;
+using Oxygen.CommonTool.Logger;
 using Oxygen.IServerFlowControl;
 using Oxygen.IServerRegisterManage;
 using System;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Oxygen.ServerFlowControl
@@ -12,7 +15,7 @@ namespace Oxygen.ServerFlowControl
     /// <summary>
     /// 流控中心
     /// </summary>
-    public class FlowControlCenter: IFlowControlCenter
+    public class FlowControlCenter : IFlowControlCenter
     {
         private readonly IRegisterCenter _registerCenter;
         private readonly IEndPointConfigureManager _endPointConfigure;
@@ -36,7 +39,7 @@ namespace Oxygen.ServerFlowControl
         /// <param name="key"></param>
         /// <param name="clientIp"></param>
         /// <returns></returns>
-        public async Task<(IPEndPoint endPoint,ServiceConfigureInfo configureInfo)> GetFlowControlEndPointByServicePath(string serviceName, string key, IPEndPoint clientIp)
+        public async Task<(IPEndPoint endPoint, ServiceConfigureInfo configureInfo)> GetFlowControlEndPointByServicePath(string serviceName, string key, IPEndPoint clientIp)
         {
             //根据服务返回健康地址
             var healthNode = await _registerCenter.GetServieByName(serviceName);
@@ -58,7 +61,6 @@ namespace Oxygen.ServerFlowControl
                     {
                         //将有效地址的熔断数据清空
                         _endPointConfigure.CleanBreakTimes(flowcontrolSetting);
-                        _endPointConfigure.UpdateBreakerConfigure(key, flowcontrolSetting);
                         return (point, flowcontrolSetting);
                     }
                 }
@@ -68,7 +70,7 @@ namespace Oxygen.ServerFlowControl
                 //删除所有地址并同步
                 if (flowcontrolSetting != null)
                 {
-                    flowcontrolSetting.EndPoints = null;
+                    flowcontrolSetting.SetEndPoints(null);
                     _endPointConfigure.UpdateBreakerConfigure(key, flowcontrolSetting);
                 }
                 _logger.LogError($"没有找到健康的服务节点：{serviceName}");
@@ -85,7 +87,7 @@ namespace Oxygen.ServerFlowControl
         /// <param name="endPoint"></param>
         /// <param name="func"></param>
         /// <returns></returns>
-        public async Task<T> ExcuteAsync<T>(string key, IPEndPoint endPoint, string flowControlCfgKey, ServiceConfigureInfo configureInfo, Func<Task<T>> func) where T :class
+        public async Task<T> ExcuteAsync<T>(string key, IPEndPoint endPoint, string flowControlCfgKey, ServiceConfigureInfo configureInfo, Func<Task<T>> func) where T : class
         {
             if (configureInfo == null)
             {
@@ -103,13 +105,8 @@ namespace Oxygen.ServerFlowControl
                     {
                         //获取远程调用结果
                         var result = await func.Invoke();
-                        //更新请求时间(用于限流)
-                        _policyProvider.PushTimeInReq(key, endPoint);
-                        //更新连接数(用于负载均衡)
-                        _endPointConfigure.ChangeConnectCount(configureInfo.EndPoints, endPoint, false);
-                        //更新缓存（用于缓存降级）
-                        configureInfo.ReflushCache(result);
-                        _endPointConfigure.UpdateBreakerConfigure(flowControlCfgKey, configureInfo);
+                        //消费结果集
+                        AddQueueResult(new ResultQueueDto(key, endPoint, flowControlCfgKey, configureInfo, result));
                         return result;
                     }) as T;
                 }
@@ -120,5 +117,57 @@ namespace Oxygen.ServerFlowControl
             }
             return default;
         }
+        #region 私有方法
+        static Lazy<ConcurrentQueue<ResultQueueDto>> resultQueue = new Lazy<ConcurrentQueue<ResultQueueDto>>(() => new ConcurrentQueue<ResultQueueDto>());
+        static Lazy<EventWaitHandle> _event = new Lazy<EventWaitHandle>(() => new AutoResetEvent(false));
+        static Lazy<object> startlock = new Lazy<object>(() => new object());
+        static Task start = null;
+        /// <summary>
+        /// 将结果集放入本地消费队列进行后续消费
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="endPoint"></param>
+        /// <param name="flowControlCfgKey"></param>
+        /// <param name="configureInfo"></param>
+        /// <param name="result"></param>
+        void AddQueueResult(ResultQueueDto result)
+        {
+            lock (startlock.Value)
+            {
+                if (start == null)
+                {
+                    start = ConsumerResult();
+                }
+            }
+            resultQueue.Value.Enqueue(result);
+            _event.Value.Set();
+        }
+
+        /// <summary>
+        /// 消费结果集
+        /// </summary>
+        Task ConsumerResult()
+        {
+            return Task.Run(() =>
+            {
+                while (true)
+                {
+                    _event.Value.WaitOne();
+                    if (resultQueue.Value.TryDequeue(out ResultQueueDto dto))
+                    {
+                        //更新请求时间(用于限流)
+                        _policyProvider.PushTimeInReq(dto.Key, dto.EndPoint);
+                        //更新连接数(用于负载均衡)
+                        _endPointConfigure.ChangeConnectCount(dto.ConfigureInfo.GetEndPoints(), dto.EndPoint, false);
+                        //更新缓存（用于缓存降级）
+                        dto.ConfigureInfo.ReflushCache(dto.Result);
+                        _endPointConfigure.UpdateBreakerConfigure(dto.FlowControlCfgKey, dto.ConfigureInfo);
+                        _event.Value.Set();
+                    }
+                }
+            });
+        }
+        #endregion
     }
 }

@@ -17,6 +17,6 @@
         /// <param name="pathName"></param>
         /// <param name="serviceInfo"></param>
         /// <returns></returns>
-        bool Grant(string key, ServiceConfigureInfo serviceInfo);
+        bool Grant(string key, int defCapacity);
     }
 }

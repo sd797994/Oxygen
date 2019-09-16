@@ -48,14 +48,14 @@ namespace Oxygen.ServerFlowControl
         /// </summary>
         /// <param name="serviceName"></param>
         /// <returns></returns>
-        public bool Grant(string key, ServiceConfigureInfo serviceInfo)
+        public bool Grant(string key, int defCapacity)
         {
-            var bucketInfo = _endPointConfigureManager.GetOrAddTokenBucket(key, serviceInfo);
+            var bucketInfo = _endPointConfigureManager.GetOrAddTokenBucket(key, defCapacity);
             _endPointConfigureManager.UpdateTokens(bucketInfo, Capacity, Rate);
             if (bucketInfo.Tokens < 1)
             {
                 var timeToIntervalEnd = bucketInfo.StartTimeStamp - DateTime.UtcNow.Ticks;
-                if (timeToIntervalEnd < 0) return Grant(key, serviceInfo);
+                if (timeToIntervalEnd < 0) return Grant(key, defCapacity);
                 return false;
             }
             bucketInfo.Tokens -= 1;

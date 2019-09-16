@@ -24,7 +24,7 @@ namespace Oxygen.RedisCache
         {
             if (string.IsNullOrWhiteSpace(key))
                 throw new ArgumentNullException(nameof(key));
-            return DatabaseFactory.GetDatabase().KeyExists(key);
+            return CsRedisFactory.GetDatabase().Exists(key);
         }
 
         /// <summary>
@@ -38,11 +38,9 @@ namespace Oxygen.RedisCache
             if (string.IsNullOrWhiteSpace(key))
                 throw new ArgumentNullException(nameof(key));
 
-
-            var value = DatabaseFactory.GetDatabase().StringGet(key);
-            if (!value.HasValue)
+            var value = CsRedisFactory.GetDatabase().Get<byte[]>(key);
+            if (value == null)
                 return default(T);
-
 
             return _serialize.Deserializes<T>(value);
         }
@@ -63,8 +61,7 @@ namespace Oxygen.RedisCache
             if (Exists(key))
                 RemoveCache(key);
 
-
-            DatabaseFactory.GetDatabase().StringSet(key, _serialize.Serializes<T>(value));
+            CsRedisFactory.GetDatabase().Set(key, _serialize.Serializes<T>(value));
         }
         /// <summary>
         /// 设置缓存带过期时间
@@ -83,8 +80,8 @@ namespace Oxygen.RedisCache
             if (Exists(key))
                 RemoveCache(key);
 
-
-            DatabaseFactory.GetDatabase().StringSet(key, _serialize.Serializes<T>(value), expiressAbsoulte);
+            int.TryParse(expiressAbsoulte.TotalSeconds.ToString(), out int expiressSecond);
+            CsRedisFactory.GetDatabase().Set(key, _serialize.Serializes<T>(value), expiressSecond);
         }
 
         /// <summary>
@@ -96,17 +93,7 @@ namespace Oxygen.RedisCache
             if (string.IsNullOrWhiteSpace(key))
                 throw new ArgumentNullException(nameof(key));
 
-
-            DatabaseFactory.GetDatabase().KeyDelete(key);
-        }
-
-        /// <summary>
-        /// 强制回收redis连接
-        /// </summary>
-        public void Dispose()
-        {
-            DatabaseFactory.Dispose();
-            GC.SuppressFinalize(this);
+            CsRedisFactory.GetDatabase().Del(key);
         }
 
         /// <summary>
@@ -124,9 +111,10 @@ namespace Oxygen.RedisCache
                 throw new ArgumentNullException(nameof(filed));
 
 
-            var value = DatabaseFactory.GetDatabase().HashGet(key, filed);
-            if (!value.HasValue)
+            var value = CsRedisFactory.GetDatabase().HGet<byte[]>(key, filed);
+            if (value == null)
                 return default(T);
+
             return _serialize.Deserializes<T>(value);
         }
 
@@ -144,35 +132,9 @@ namespace Oxygen.RedisCache
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
 
-
-            if (DatabaseFactory.GetDatabase().HashExists(key, filed))
-                DatabaseFactory.GetDatabase().HashDelete(key, filed);
-            DatabaseFactory.GetDatabase().HashSet(key, filed, _serialize.Serializes<T>(value));
-        }
-        /// <summary>
-        /// 获取分布式锁
-        /// </summary>
-        /// <param name="resource"></param>
-        /// <param name="expiryTime"></param>
-        /// <param name="waitTime"></param>
-        /// <param name="work"></param>
-        /// <returns></returns>
-        public bool BlockingWork(string resource, TimeSpan expiryTime, TimeSpan waitTime, Func<bool> work)
-        {
-            using (var redisLockFactory = DatabaseFactory.GetLockFacroty())
-            {
-                using (var redisLock = redisLockFactory.CreateLock(resource, expiryTime, waitTime, TimeSpan.FromSeconds(1)))
-                {
-                    if (redisLock.IsAcquired)
-                    {
-                        if (work())
-                        {
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            }
+            if (CsRedisFactory.GetDatabase().HExists(key, filed))
+                CsRedisFactory.GetDatabase().HDel(key, filed);
+            CsRedisFactory.GetDatabase().HSet(key, filed, _serialize.Serializes<T>(value));
         }
         /// <summary>
         /// 发布消息到对应主题
@@ -187,7 +149,7 @@ namespace Oxygen.RedisCache
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
 
-            await DatabaseFactory.GetDatabase().PublishAsync(channel, _serialize.Serializes<T>(value));
+            await CsRedisFactory.GetDatabase().PublishAsync(channel, _serialize.SerializesJson(value));
         }
 
         /// <summary>
@@ -196,12 +158,13 @@ namespace Oxygen.RedisCache
         /// <param name="key"></param>
         /// <param name="func"></param>
         /// <returns></returns>
-        public async Task SubscribeAsync<T>(string channel, Action<T> func)
+        public void Subscribe<T>(string channel, Action<T> func)
         {
-            await DatabaseFactory.GetConnection().GetSubscriber().SubscribeAsync(channel, (subchannel, message) =>
+            CsRedisFactory.GetDatabase().Subscribe((channel, message =>
             {
-                func.Invoke(_serialize.Deserializes<T>(message));
-            });
+                func.Invoke(_serialize.DeserializesJson<T>(message.Body));
+            }
+            ));
         }
     }
 }

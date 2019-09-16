@@ -8,6 +8,7 @@ namespace Oxygen.IServerFlowControl
     /// </summary>
     public class FlowControlEndPoint
     {
+        public FlowControlEndPoint() { }
         public FlowControlEndPoint(string address, int port)
         {
             this.Address = address;

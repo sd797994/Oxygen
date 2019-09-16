@@ -45,7 +45,27 @@ namespace Oxygen.MessagePackSerializeService
             return default(byte[]);
         }
         /// <summary>
-        /// 序列化json字符串
+        /// 序列化T为JSON字符串
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public string SerializesJson<T>(T input)
+        {
+            if (input == null)
+                return default(string);
+            try
+            {
+                return MessagePackSerializer.ToJson(input);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"序列化对象失败：{e.Message}");
+            }
+            return default(string);
+        }
+        /// <summary>
+        /// 序列化json字符串为Byte[]
         /// </summary>
         /// <param name="jsonStr"></param>
         /// <returns></returns>
@@ -77,6 +97,27 @@ namespace Oxygen.MessagePackSerializeService
             try
             {
                 return MessagePackSerializer.Deserialize<T>(input);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"反序化对象失败：{e.Message}");
+            }
+            return default(T);
+        }
+
+        /// <summary>
+        /// 反序列化JSON字符串为T
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public T DeserializesJson<T>(string input)
+        {
+            if (input == null || !input.Any())
+                return default(T);
+            try
+            {
+                return MessagePackSerializer.Deserialize<T>(SerializesJsonString(input));
             }
             catch (Exception e)
             {

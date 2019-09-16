@@ -45,11 +45,6 @@ namespace Oxygen.ICache
         void RemoveCache(string key);
 
         /// <summary>
-        /// 强制回收redis连接
-        /// </summary>
-        void Dispose();
-
-        /// <summary>
         /// 获取hash缓存
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -67,16 +62,6 @@ namespace Oxygen.ICache
         void SetHashCache<T>(string key, string filed, T value);
 
         /// <summary>
-        /// 分布式锁
-        /// </summary>
-        /// <param name="resource"></param>
-        /// <param name="expiryTime"></param>
-        /// <param name="waitTime"></param>
-        /// <param name="work"></param>
-        /// <returns></returns>
-        bool BlockingWork(string resource, TimeSpan expiryTime, TimeSpan waitTime, Func<bool> work);
-
-        /// <summary>
         /// 发布消息到对应主题
         /// </summary>
         /// <param name="key"></param>
@@ -90,6 +75,6 @@ namespace Oxygen.ICache
         /// <param name="key"></param>
         /// <param name="func"></param>
         /// <returns></returns>
-        Task SubscribeAsync<T>(string channel, Action<T> func);
+        void Subscribe<T>(string channel, Action<T> func);
     }
 }

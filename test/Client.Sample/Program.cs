@@ -42,6 +42,7 @@ namespace Client.Sample
                     configure.AddConsole();
                 });
                 services.AddHostedService<CustomHostService>();
+                services.AddHttpClient();
                 services.AddAutofac();
             })
             .UseServiceProviderFactory(new AutofacServiceProviderFactory())

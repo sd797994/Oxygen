@@ -22,6 +22,12 @@
   </ItemGroup>
   
   <ItemGroup>
+    <Reference Include="Microsoft.Extensions.Http">
+      <HintPath>C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.http\2.2.0\lib\netstandard2.0\Microsoft.Extensions.Http.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  
+  <ItemGroup>
     <None Update="oxygen.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

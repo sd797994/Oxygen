@@ -7,4 +7,12 @@
     <Version>0.0.1.0</Version>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="System.Collections.Concurrent" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Oxygen.CommonTool\Oxygen.CommonTool.csproj" />
+  </ItemGroup>
+
 </Project>

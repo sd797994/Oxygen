@@ -1,4 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using Oxygen.CommonTool;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Oxygen.IServerFlowControl
 {
@@ -34,7 +38,7 @@ namespace Oxygen.IServerFlowControl
         /// <summary>
         /// 默认熔断阈值比率
         /// </summary>
-        public float DefThresholdBreakeRatePerSec { get; set; } = 0.5F;
+        public double DefThresholdBreakeRatePerSec { get; set; } = 0.5F;
         /// <summary>
         /// 默认重试次数
         /// </summary>
@@ -57,7 +61,24 @@ namespace Oxygen.IServerFlowControl
         /// <summary>
         /// 服务地址
         /// </summary>
-        public List<FlowControlEndPoint> EndPoints { get; set; }
+        private List<FlowControlEndPoint> EndPoints { get; set; }
+
+
+        /// <summary>
+        /// 获取服务地址（深克隆）
+        /// </summary>
+        public List<FlowControlEndPoint> GetEndPoints()
+        {
+            return this.EndPoints ?? new List<FlowControlEndPoint>();
+        }
+
+        /// <summary>
+        /// 设置服务地址
+        /// </summary>
+        public void SetEndPoints(List<FlowControlEndPoint> endPoints)
+        {
+            this.EndPoints = endPoints;
+        }
         /// <summary>
         /// 更新缓存
         /// </summary>

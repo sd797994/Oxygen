@@ -53,16 +53,18 @@ namespace Oxygen.ServerProxyFactory
                     }
                     else
                     {
+                        _oxygenLogger.LogError($"远程调用通道创建失败:{ipendpoint.endPoint.ToString()}");
                         //强制熔断当前节点
                         if (ipendpoint.configureInfo != null)
+                        {
                             _configureManager.ForcedCircuitBreakEndPoint(flowControlCfgKey, ipendpoint.configureInfo, ipendpoint.endPoint);
-                        throw new Exception($"创建通道失败:{ipendpoint.ToString()}");
+                        }
                     }
                 }
             }
             catch (Exception e)
             {
-                _oxygenLogger.LogError($"远程调用失败:{e.Message}");
+                _oxygenLogger.LogError($"远程调用失败:{e.Message},堆栈跟踪:{e.StackTrace.ToString()}");
             }
             return await Task.FromResult(default(TOut));
         }

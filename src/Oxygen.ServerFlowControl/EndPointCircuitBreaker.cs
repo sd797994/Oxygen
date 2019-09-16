@@ -30,7 +30,7 @@ namespace Oxygen.ServerFlowControl
         public bool CheckCircuitByEndPoint(string key, IPEndPoint clientEndPoint, ServiceConfigureInfo serviceInfo, out IPEndPoint addr)
         {
             //根据配置抛弃断路状态地址
-            var useAddr = serviceInfo.EndPoints.Where(x => x.BreakerTime == null || (x.BreakerTime != null && x.BreakerTime.Value.AddSeconds(serviceInfo.DefBreakerRetryTimeSec) <= DateTime.Now)).ToList();
+            var useAddr = serviceInfo.GetEndPoints().Where(x => x.BreakerTime == null || (x.BreakerTime != null && x.BreakerTime.Value.AddSeconds(serviceInfo.DefBreakerRetryTimeSec) <= DateTime.Now)).ToList();
             //若全部熔断
             if (!useAddr.Any())
             {
@@ -44,7 +44,7 @@ namespace Oxygen.ServerFlowControl
                 addr = _endPointConfigure.GetServieByLoadBalane(useAddr, clientEndPoint, LoadBalanceType.IPHash);
                 //初始化令牌桶并判断是否限流
                 _tokenBucket.InitTokenBucket(serviceInfo.DefCapacity, serviceInfo.DefRateLimit);
-                return _tokenBucket.Grant(key, serviceInfo);
+                return _tokenBucket.Grant(key, serviceInfo.DefCapacity);
             }
         }
     }

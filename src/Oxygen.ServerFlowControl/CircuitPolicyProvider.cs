@@ -39,7 +39,7 @@ namespace Oxygen.ServerFlowControl
             }
             else
             {
-                var address = config.EndPoints.FirstOrDefault(x => x.GetEndPoint().Equals(endpoint));
+                var address = config.GetEndPoints().FirstOrDefault(x => x.GetEndPoint().Equals(endpoint));
                 //定义默认策略
                 IAsyncPolicy<T> defPolicy = Policy<T>.Handle<Exception>().FallbackAsync((CancellationToken cancelToken) =>
                 {
@@ -74,7 +74,7 @@ namespace Oxygen.ServerFlowControl
                     }
                     defPolicy = defPolicy.WrapAsync(Policy.Handle<Exception>().WaitAndRetryAsync(timespan, (exception, TimeSpan, retryCount, Context) =>
                     {
-                        _logger.LogError($"地址{address.GetEndPoint().ToString()}调用{TimeSpan.TotalSeconds}秒后重试第{retryCount}次，异常原因:{exception.Message}");
+                        _logger.LogError($"地址{address.GetEndPoint().ToString()}调用{TimeSpan.TotalSeconds}秒后重试第{retryCount}次,异常原因:{exception.Message}");
                     }));
                 }
                 //定义超时策略

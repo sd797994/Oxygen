@@ -43,7 +43,7 @@ namespace Oxygen.ServerFlowControl
                 servcieInfo = _cacheService.GetHashCache<ServiceConfigureInfo>(OxygenSetting.BreakerSettingKey, pathName);
                 if (servcieInfo != null)
                 {
-                    servcieInfo.EndPoints = servcieInfo.EndPoints ?? new List<FlowControlEndPoint>();
+                    servcieInfo.SetEndPoints(servcieInfo.GetEndPoints());
                 }
                 _localBreakSetting.Value.TryAdd($"{OxygenSetting.BreakerSettingKey}{pathName}", servcieInfo);
             }
@@ -70,7 +70,7 @@ namespace Oxygen.ServerFlowControl
         /// <param name="breakEndPoint"></param>
         public void ForcedCircuitBreakEndPoint(string pathName, ServiceConfigureInfo servcieInfo, IPEndPoint breakEndPoint)
         {
-            var addr = servcieInfo.EndPoints.FirstOrDefault(x => x.GetEndPoint().Equals(breakEndPoint));
+            var addr = servcieInfo.GetEndPoints().FirstOrDefault(x => x.GetEndPoint().Equals(breakEndPoint));
             if (addr != null)
             {
                 addr.BreakerTime = DateTime.Now;
@@ -83,14 +83,17 @@ namespace Oxygen.ServerFlowControl
         /// <param name="servcieInfo"></param>
         public void CleanBreakTimes(ServiceConfigureInfo servcieInfo)
         {
-            servcieInfo.EndPoints.ForEach(x =>
+            List<FlowControlEndPoint> tmp = new List<FlowControlEndPoint>();
+            servcieInfo.GetEndPoints().ForEach(x =>
             {
                 if ((x.BreakerTime != null && x.BreakerTime.Value.AddSeconds(servcieInfo.DefBreakerRetryTimeSec) <= DateTime.Now))
                 {
                     x.ThresholdBreakeTimes = 0;
                     x.BreakerTime = null;
                 }
+                tmp.Add(x);
             });
+            servcieInfo.SetEndPoints(tmp);
         }
 
         /// <summary>
@@ -101,11 +104,11 @@ namespace Oxygen.ServerFlowControl
         public void ReflushConfigureEndPoint(ServiceConfigureInfo serviceInfo, List<FlowControlEndPoint> addrs)
         {
             //删除无效节点(即注册中心丢弃的非健康节点)
-            var oldEndPoint = serviceInfo.EndPoints.Select(x => x.GetEndPoint()).Except(addrs.Select(x => x.GetEndPoint())).ToList();
-            serviceInfo.EndPoints = serviceInfo.EndPoints.Where(x => !oldEndPoint.Any(y => y.Equals(x.GetEndPoint()))).ToList();
+            var oldEndPoint = serviceInfo.GetEndPoints().Select(x => x.GetEndPoint()).Except(addrs.Select(x => x.GetEndPoint())).ToList();
+            serviceInfo.SetEndPoints(serviceInfo.GetEndPoints().Where(x => !oldEndPoint.Any(y => y.Equals(x.GetEndPoint()))).ToList());
             //增加新注册的节点
-            var newEndPoint = addrs.Where(y => addrs.Select(x => x.GetEndPoint()).Except(serviceInfo.EndPoints.Select(x => x.GetEndPoint())).Any(z => z.Equals(y.GetEndPoint())));
-            serviceInfo.EndPoints.AddRange(newEndPoint.Select(x => new FlowControlEndPoint(x.Address, x.Port)));
+            var newEndPoint = addrs.Where(y => addrs.Select(x => x.GetEndPoint()).Except(serviceInfo.GetEndPoints().Select(x => x.GetEndPoint())).Any(z => z.Equals(y.GetEndPoint())));
+            serviceInfo.SetEndPoints(serviceInfo.GetEndPoints().Concat(newEndPoint.Select(x => new FlowControlEndPoint(x.Address, x.Port))).ToList());
         }
 
         /// <summary>
@@ -209,7 +212,7 @@ namespace Oxygen.ServerFlowControl
                     {
                         //订阅熔断配置
                         var topicKey = $"{OxygenSetting.BreakerSettingKey}{type.Name.Substring(1, type.Name.Length - 1)}{method.Name}";
-                        _cacheService.SubscribeAsync<ServiceConfigureInfo>(topicKey, (serviceConfigInfo) =>
+                        _cacheService.Subscribe<ServiceConfigureInfo>(topicKey, (serviceConfigInfo) =>
                         {
                             _localBreakSetting.Value.TryRemove(topicKey, out _);
                             _localBreakSetting.Value.TryAdd(topicKey, serviceConfigInfo);
@@ -217,7 +220,7 @@ namespace Oxygen.ServerFlowControl
                         });
                         //订阅限流配置
                         topicKey = $"{OxygenSetting.TokenLimitSettingKey}{type.Name.Substring(1, type.Name.Length - 1)}{method.Name}";
-                        _cacheService.SubscribeAsync<TokenBucketInfo>(topicKey, (bucketInfo) =>
+                        _cacheService.Subscribe<TokenBucketInfo>(topicKey, (bucketInfo) =>
                         {
                             _localLimitSetting.Value.TryRemove(topicKey, out _);
                             _localLimitSetting.Value.TryAdd(topicKey, bucketInfo);
@@ -237,7 +240,7 @@ namespace Oxygen.ServerFlowControl
         /// <param name="key"></param>
         /// <param name="serviceInfo"></param>
         /// <returns></returns>
-        public TokenBucketInfo GetOrAddTokenBucket(string key, ServiceConfigureInfo serviceInfo)
+        public TokenBucketInfo GetOrAddTokenBucket(string key, int defCapacity)
         {
             if (_localLimitSetting.Value.TryGetValue($"{OxygenSetting.TokenLimitSettingKey}{key}", out TokenBucketInfo bucketInfo))
             {
@@ -250,7 +253,7 @@ namespace Oxygen.ServerFlowControl
                 {
                     bucketInfo = new TokenBucketInfo
                     {
-                        Tokens = serviceInfo.DefCapacity,
+                        Tokens = defCapacity,
                         StartTimeStamp = DateTime.UtcNow.Ticks
                     };
                     _cacheService.SetHashCache(OxygenSetting.TokenLimitSettingKey, key, bucketInfo);

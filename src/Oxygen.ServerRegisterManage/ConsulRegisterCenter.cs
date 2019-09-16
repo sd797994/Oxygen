@@ -1,4 +1,5 @@
 ﻿using Consul;
+using Nito.AsyncEx;
 using Oxygen.IServerFlowControl;
 using Oxygen.IServerRegisterManage;
 using System;

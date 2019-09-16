@@ -14,8 +14,16 @@ namespace Oxygen.ISerializeService
         /// <param name="input"></param>
         /// <returns></returns>
         byte[] Serializes<T>(T input);
+
         /// <summary>
-        /// 序列化json字符串
+        /// 序列化T为JSON字符串
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        string SerializesJson<T>(T input);
+        /// <summary>
+        /// 序列化json字符串为Byte[]
         /// </summary>
         /// <param name="jsonStr"></param>
         /// <returns></returns>
@@ -29,6 +37,13 @@ namespace Oxygen.ISerializeService
         /// <returns></returns>
         T Deserializes<T>(byte[] input);
 
+        /// <summary>
+        /// 反序列化JSON字符串为T
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        T DeserializesJson<T>(string input);
 
         /// <summary>
         /// 序列化
