@@ -288,8 +288,8 @@ namespace Oxygen.ServerFlowControl
             //更新本地缓存
             _localLimitSetting.Value.TryRemove($"{OxygenSetting.TokenLimitSettingKey}{key}", out _);
             _localLimitSetting.Value.TryAdd($"{OxygenSetting.TokenLimitSettingKey}{key}", bucketInfo);
-            //将变更发布到订阅端进行更新
-            _cacheService.PublishAsync($"{OxygenSetting.TokenLimitSettingKey}{key}", bucketInfo);
+            ////将变更发布到订阅端进行更新
+            //_cacheService.PublishAsync($"{OxygenSetting.TokenLimitSettingKey}{key}", bucketInfo);
         }
 
         #region 私有方法

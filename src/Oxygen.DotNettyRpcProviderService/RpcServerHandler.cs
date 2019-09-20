@@ -35,10 +35,10 @@ namespace Oxygen.DotNettyRpcProviderService
                 {
                     var data = new byte[buffer.ReadableBytes];
                     buffer.ReadBytes(data);
-                    var localHanderResult = await _localProxyGenerator.Invoke(_globalCommon.RsaDecrypt(data));
+                    var localHanderResult = await _localProxyGenerator.Invoke(_globalCommon.BfDecrypt(data));
                     if (localHanderResult != null && localHanderResult.Any())
                     {
-                        await context.WriteAsync(Unpooled.WrappedBuffer(_globalCommon.RsaEncryp(localHanderResult)));
+                        await context.WriteAsync(Unpooled.WrappedBuffer(_globalCommon.BfEncryp(localHanderResult)));
                     }
                 }
             }

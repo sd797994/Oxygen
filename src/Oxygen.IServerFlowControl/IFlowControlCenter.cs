@@ -27,5 +27,10 @@ namespace Oxygen.IServerFlowControl
         /// <param name="func"></param>
         /// <returns></returns>
         Task<T> ExcuteAsync<T>(string key, IPEndPoint endPoint, string flowControlCfgKey, ServiceConfigureInfo configureInfo, Func<Task<T>> func) where T : class;
+
+        /// <summary>
+        /// 注册RPC回调消费者处理
+        /// </summary>
+        void RegisterConsumerResult();
     }
 }

@@ -28,6 +28,7 @@ namespace Oxygen.CommonTool
             RedisAddressEndPoint = new IPEndPoint(IPAddress.Parse(configuration["Oxygen:Redis:Address"]), int.Parse(configuration["Oxygen:Redis:Port"]));
             RsaPublicKey = configuration["Oxygen:Secret:PubKey"];
             RsaPrivateKey = configuration["Oxygen:Secret:PrvKey"];
+            BfKey = configuration["Oxygen:Secret:BfKey"];
         }
         #region 注册中心相关
         /// <summary>
@@ -55,13 +56,17 @@ namespace Oxygen.CommonTool
         #endregion
         #region 传输安全相关
         /// <summary>
-        /// 数字签名公钥
+        /// rsa算法签名公钥
         /// </summary>
         public static string RsaPublicKey;
         /// <summary>
-        /// 数字签名私钥
+        /// rsa算法签名私钥
         /// </summary>
         public static string RsaPrivateKey;
+        /// <summary>
+        /// bf算法签名密钥
+        /// </summary>
+        public static string BfKey;
         #endregion
     }
 }

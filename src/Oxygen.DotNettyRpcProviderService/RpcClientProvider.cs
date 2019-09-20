@@ -103,7 +103,7 @@ namespace Oxygen.DotNettyRpcProviderService
                             Message = message is string ? _serialize.Deserializes<object>(_serialize.SerializesJsonString((string)message)) : message
                         };
                         var resultTask = RegisterResultCallbackAsync(taskId);
-                        var buffer = Unpooled.WrappedBuffer(_globalCommon.RsaEncryp(_serialize.Serializes(sendMessage)));
+                        var buffer = Unpooled.WrappedBuffer(_globalCommon.BfEncryp(_serialize.Serializes(sendMessage)));
                         await _channel.WriteAndFlushAsync(buffer);
                         var resultBt = await resultTask;
                         if (resultBt != null && resultBt.Any())
@@ -174,7 +174,7 @@ namespace Oxygen.DotNettyRpcProviderService
         {
             if (input != null || input.Any())
             {
-                var message = _serialize.Deserializes<RpcGlobalMessageBase<object>>(_globalCommon.RsaDecrypt(input));
+                var message = _serialize.Deserializes<RpcGlobalMessageBase<object>>(_globalCommon.BfDecrypt(input));
                 var task = GetHook(message.TaskId);
                 task?.TrySetResult(_serialize.Serializes(message.Message));
             }

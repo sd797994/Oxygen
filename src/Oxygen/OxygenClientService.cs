@@ -13,10 +13,11 @@ namespace Oxygen
     {
         private static bool _stopFlag = false;
         private readonly IEndPointConfigureManager _configureManage;
-
-        public OxygenClientService(IEndPointConfigureManager configureManage)
+        private readonly IFlowControlCenter _flowControlCenter;
+        public OxygenClientService(IEndPointConfigureManager configureManage, IFlowControlCenter flowControlCenter)
         {
             _configureManage = configureManage;
+            _flowControlCenter = flowControlCenter;
             AppDomain.CurrentDomain.ProcessExit += ProcessExit;
         }
 
@@ -29,7 +30,10 @@ namespace Oxygen
             {
                 await _executingTask;
             }
-            _ = Task.Run(() => _configureManage.SubscribeAllService());
+            _ = Task.Run(() => {
+                _configureManage.SubscribeAllService();
+                _flowControlCenter.RegisterConsumerResult();
+            });
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)

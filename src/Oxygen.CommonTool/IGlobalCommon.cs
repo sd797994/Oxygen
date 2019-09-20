@@ -29,5 +29,21 @@ namespace Oxygen.CommonTool
         /// <param name="data"></param>
         /// <returns></returns>
         byte[] RsaDecrypt(byte[] data);
+
+
+        /// <summary>
+        /// BlowFish加密
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        byte[] BfEncryp(byte[] data);
+        /// <summary>
+        /// BlowFish解密
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        byte[] BfDecrypt(byte[] data);
+
+
     }
 }

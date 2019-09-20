@@ -91,8 +91,8 @@ namespace Oxygen.ServerFlowControl
         {
             if (configureInfo == null)
             {
-                //如果当前服务并未配置流控，则直接执行函数
-                return await func.Invoke();
+                //如果当前服务并未配置流控，则直接远程调用
+                return await func();
             }
             else
             {
@@ -103,8 +103,8 @@ namespace Oxygen.ServerFlowControl
                 {
                     return await policy.ExecuteAsync(async () =>
                     {
-                        //获取远程调用结果
-                        var result = await func.Invoke();
+                        //远程调用
+                        var result = await func();
                         //消费结果集
                         AddQueueResult(new ResultQueueDto(key, endPoint, flowControlCfgKey, configureInfo, result));
                         return result;
@@ -117,11 +117,32 @@ namespace Oxygen.ServerFlowControl
             }
             return default;
         }
+
+
+        /// <summary>
+        /// 消费结果集
+        /// </summary>
+        public void RegisterConsumerResult()
+        {
+            while (true)
+            {
+                _event.Value.WaitOne();
+                if (resultQueue.Value.TryDequeue(out ResultQueueDto dto))
+                {
+                    //更新请求时间(用于限流)
+                    _policyProvider.PushTimeInReq(dto.Key, dto.EndPoint);
+                    //更新连接数(用于负载均衡)
+                    _endPointConfigure.ChangeConnectCount(dto.ConfigureInfo.GetEndPoints(), dto.EndPoint, false);
+                    //更新缓存（用于缓存降级）
+                    dto.ConfigureInfo.ReflushCache(dto.Result);
+                    _endPointConfigure.UpdateBreakerConfigure(dto.FlowControlCfgKey, dto.ConfigureInfo);
+                    _event.Value.Set();
+                }
+            }
+        }
         #region 私有方法
         static Lazy<ConcurrentQueue<ResultQueueDto>> resultQueue = new Lazy<ConcurrentQueue<ResultQueueDto>>(() => new ConcurrentQueue<ResultQueueDto>());
         static Lazy<EventWaitHandle> _event = new Lazy<EventWaitHandle>(() => new AutoResetEvent(false));
-        static Lazy<object> startlock = new Lazy<object>(() => new object());
-        static Task start = null;
         /// <summary>
         /// 将结果集放入本地消费队列进行后续消费
         /// </summary>
@@ -133,40 +154,8 @@ namespace Oxygen.ServerFlowControl
         /// <param name="result"></param>
         void AddQueueResult(ResultQueueDto result)
         {
-            lock (startlock.Value)
-            {
-                if (start == null)
-                {
-                    start = ConsumerResult();
-                }
-            }
             resultQueue.Value.Enqueue(result);
             _event.Value.Set();
-        }
-
-        /// <summary>
-        /// 消费结果集
-        /// </summary>
-        Task ConsumerResult()
-        {
-            return Task.Run(() =>
-            {
-                while (true)
-                {
-                    _event.Value.WaitOne();
-                    if (resultQueue.Value.TryDequeue(out ResultQueueDto dto))
-                    {
-                        //更新请求时间(用于限流)
-                        _policyProvider.PushTimeInReq(dto.Key, dto.EndPoint);
-                        //更新连接数(用于负载均衡)
-                        _endPointConfigure.ChangeConnectCount(dto.ConfigureInfo.GetEndPoints(), dto.EndPoint, false);
-                        //更新缓存（用于缓存降级）
-                        dto.ConfigureInfo.ReflushCache(dto.Result);
-                        _endPointConfigure.UpdateBreakerConfigure(dto.FlowControlCfgKey, dto.ConfigureInfo);
-                        _event.Value.Set();
-                    }
-                }
-            });
         }
         #endregion
     }

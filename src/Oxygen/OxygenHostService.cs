@@ -18,12 +18,14 @@ namespace Oxygen
         private static bool _stopFlag = false;
         private readonly IRegisterCenter _registerCenter;
         private readonly IEndPointConfigureManager _configureManage;
+        private readonly IFlowControlCenter _flowControlCenter;
 
-        public OxygenHostService(IRpcServerProvider rpcServerProvider, IRegisterCenter registerCenter, IEndPointConfigureManager configureManage)
+        public OxygenHostService(IRpcServerProvider rpcServerProvider, IRegisterCenter registerCenter, IEndPointConfigureManager configureManage, IFlowControlCenter flowControlCenter)
         {
             _rpcServerProvider = rpcServerProvider;
             _registerCenter = registerCenter;
             _configureManage = configureManage;
+            _flowControlCenter = flowControlCenter;
             AppDomain.CurrentDomain.ProcessExit += ProcessExit;
         }
 
@@ -42,7 +44,10 @@ namespace Oxygen
                 await Task.CompletedTask;
             }
             _configureManage.SetCacheFromServices();
-            _ = Task.Run(() => _configureManage.SubscribeAllService());
+            _ = Task.Run(() => {
+                _configureManage.SubscribeAllService();
+                _flowControlCenter.RegisterConsumerResult();
+            });
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)

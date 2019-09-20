@@ -125,5 +125,26 @@ namespace Oxygen.CommonTool
             var provider = RsaEncrypFactory.CreateDecryptProvider();
             return provider.Decrypt(data, RSAEncryptionPadding.Pkcs1);
         }
+
+        /// <summary>
+        /// BlowFish加密
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public byte[] BfEncryp(byte[] data)
+        {
+            var provider = BlowFishEncrypFactory.CreateProvider();
+            return provider.Encrypt_ECB(data);
+        }
+        /// <summary>
+        /// BlowFish解密
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public byte[] BfDecrypt(byte[] data)
+        {
+            var provider = BlowFishEncrypFactory.CreateProvider();
+            return provider.Decrypt_ECB(data);
+        }
     }
 }
