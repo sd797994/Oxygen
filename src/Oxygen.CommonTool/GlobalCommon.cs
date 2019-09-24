@@ -13,16 +13,11 @@ namespace Oxygen.CommonTool
     /// </summary>
     public class GlobalCommon : IGlobalCommon
     {
-        private readonly IOxygenLogger _logger;
-        public GlobalCommon(IOxygenLogger logger)
-        {
-            _logger = logger;
-        }
         /// <summary>
         /// 获取可用端口号
         /// </summary>
         /// <returns></returns>
-        public int GetFreePort()
+        public static int GetFreePort()
         {
             //检查指定端口是否已用
             bool PortIsAvailable(int port)
@@ -74,14 +69,13 @@ namespace Oxygen.CommonTool
                     break;
                 }
             }
-            _logger.LogError("没有找到可用端口号");
-            return -1;
+            throw new Exception("没有找到可用端口号");
         }
         /// <summary>
         /// 获取本机在局域网内的ip
         /// </summary>
         /// <returns></returns>
-        public IPAddress GetMachineIp()
+        public static IPAddress GetMachineIp()
         {
             IPAddress result = default(IPAddress);
             NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();

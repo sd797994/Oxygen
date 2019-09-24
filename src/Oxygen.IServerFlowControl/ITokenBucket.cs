@@ -1,4 +1,6 @@
-﻿namespace Oxygen.IServerFlowControl
+﻿using System.Threading.Tasks;
+
+namespace Oxygen.IServerFlowControl
 {
     /// <summary>
     /// 令牌桶接口
@@ -17,6 +19,6 @@
         /// <param name="pathName"></param>
         /// <param name="serviceInfo"></param>
         /// <returns></returns>
-        bool Grant(string key, int defCapacity);
+        Task<bool> Grant(string flowControlCfgKey, int defCapacity);
     }
 }

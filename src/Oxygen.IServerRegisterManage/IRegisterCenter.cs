@@ -1,5 +1,4 @@
-﻿using Oxygen.IServerFlowControl;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -24,10 +23,10 @@ namespace Oxygen.IServerRegisterManage
         Task<bool> UnRegisterService();
 
         /// <summary>
-        /// 根据路由名称返回流控IP
+        /// 根据路由名称返回IP
         /// </summary>
         /// <param name="serverName"></param>
         /// <returns></returns>
-        Task<List<FlowControlEndPoint>> GetServieByName(string serverName);
+        Task<List<IPEndPoint>> GetServieByName(string serverName);
     }
 }

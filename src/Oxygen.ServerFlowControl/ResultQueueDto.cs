@@ -11,18 +11,16 @@ namespace Oxygen.ServerFlowControl
     /// </summary>
     public class ResultQueueDto
     {
-        public ResultQueueDto(string key, IPEndPoint endPoint, string flowControlCfgKey, ServiceConfigureInfo configureInfo, object result)
+        public ResultQueueDto(string key, IPEndPoint endPoint, string flowControlCfgKey, object result)
         {
             Key = key;
             EndPoint = endPoint;
             FlowControlCfgKey = flowControlCfgKey;
-            ConfigureInfo = configureInfo;
             Result = result;
         }
         public string Key { get; set; }
         public IPEndPoint EndPoint { get; set; }
         public string FlowControlCfgKey { get; set; }
-        public ServiceConfigureInfo ConfigureInfo { get; set; }
         public object Result { get; set; }
     }
 }

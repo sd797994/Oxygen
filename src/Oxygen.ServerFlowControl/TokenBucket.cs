@@ -3,6 +3,7 @@ using Oxygen.CommonTool;
 using Oxygen.CsharpClientAgent;
 using Oxygen.ICache;
 using Oxygen.IServerFlowControl;
+using Oxygen.IServerFlowControl.Configure;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ using System.Reflection;
 using System.Runtime.Loader;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Oxygen.ServerFlowControl
 {
@@ -19,11 +21,11 @@ namespace Oxygen.ServerFlowControl
     /// </summary>
     public class TokenBucket: ITokenBucket
     {
-        private readonly IEndPointConfigureManager _endPointConfigureManager;
+        private readonly IEndPointConfigureManager _endPointConfigure;
 
-        public TokenBucket(IEndPointConfigureManager endPointConfigureManager)
+        public TokenBucket(IEndPointConfigureManager endPointConfigure)
         {
-            _endPointConfigureManager = endPointConfigureManager;
+            _endPointConfigure = endPointConfigure;
         }
         /// <summary>
         /// 初始化桶
@@ -33,7 +35,7 @@ namespace Oxygen.ServerFlowControl
         public void InitTokenBucket(long capacity, long rate)
         {
             this.Capacity = capacity;
-            this.Rate = TimeSpan.FromMilliseconds(rate * 1000).Ticks; ;
+            this.Rate = TimeSpan.FromMilliseconds(rate * 1000).Ticks;
         }
         /// <summary>
         /// 桶的大小
@@ -48,18 +50,18 @@ namespace Oxygen.ServerFlowControl
         /// </summary>
         /// <param name="serviceName"></param>
         /// <returns></returns>
-        public bool Grant(string key, int defCapacity)
+        public async Task<bool> Grant(string flowControlCfgKey, int defCapacity)
         {
-            var bucketInfo = _endPointConfigureManager.GetOrAddTokenBucket(key, defCapacity);
-            _endPointConfigureManager.UpdateTokens(bucketInfo, Capacity, Rate);
+            var bucketInfo = await _endPointConfigure.GetOrAddTokenBucket(flowControlCfgKey, defCapacity);
+            _endPointConfigure.UpdateTokens(bucketInfo, Capacity, Rate);
             if (bucketInfo.Tokens < 1)
             {
                 var timeToIntervalEnd = bucketInfo.StartTimeStamp - DateTime.UtcNow.Ticks;
-                if (timeToIntervalEnd < 0) return Grant(key, defCapacity);
+                if (timeToIntervalEnd < 0) return await Grant(flowControlCfgKey, defCapacity);
                 return false;
             }
             bucketInfo.Tokens -= 1;
-            _endPointConfigureManager.UpdateTokenBucket(key, bucketInfo);
+            await _endPointConfigure.UpdateTokenBucket(flowControlCfgKey, bucketInfo);
             return true;
         }
     }

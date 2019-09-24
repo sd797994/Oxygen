@@ -2,6 +2,7 @@
 using Oxygen.CommonTool;
 using Oxygen.IRpcProviderService;
 using Oxygen.IServerFlowControl;
+using Oxygen.IServerFlowControl.Configure;
 using Oxygen.IServerRegisterManage;
 using System;
 using System.Threading;
@@ -43,9 +44,8 @@ namespace Oxygen
             {
                 await Task.CompletedTask;
             }
-            _configureManage.SetCacheFromServices();
             _ = Task.Run(() => {
-                _configureManage.SubscribeAllService();
+                _configureManage.SetCacheFromServices();
                 _flowControlCenter.RegisterConsumerResult();
             });
         }

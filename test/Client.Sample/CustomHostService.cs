@@ -29,7 +29,7 @@ namespace Client.Sample
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             //测试调用
-            Thread.Sleep(1000);
+            Thread.Sleep(3000);
             EventWaitHandle _event = new AutoResetEvent(false);
             var callCount = 1;
             while (true)

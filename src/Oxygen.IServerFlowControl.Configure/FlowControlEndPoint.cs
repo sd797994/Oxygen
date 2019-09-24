@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 
-namespace Oxygen.IServerFlowControl
+namespace Oxygen.IServerFlowControl.Configure
 {
     /// <summary>
     /// 流控服务IP类
@@ -9,6 +11,11 @@ namespace Oxygen.IServerFlowControl
     public class FlowControlEndPoint
     {
         public FlowControlEndPoint() { }
+        public FlowControlEndPoint(IPEndPoint point)
+        {
+            this.Address = point.Address.ToString();
+            this.Port = point.Port;
+        }
         public FlowControlEndPoint(string address, int port)
         {
             this.Address = address;
@@ -51,4 +58,18 @@ namespace Oxygen.IServerFlowControl
         /// </summary>
         public int ThresholdBreakeTimes { get; set; }
     }
+
+    public static class IPEndPointExtension
+    {
+        public static FlowControlEndPoint GetFlowControlEndPoint(this IPEndPoint endpoint)
+        {
+            return new FlowControlEndPoint(endpoint);
+        }
+
+        public static List<FlowControlEndPoint> GetFlowControlEndPoints(this List<IPEndPoint> endpoints)
+        {
+            return endpoints.Select(endpoint => new FlowControlEndPoint(endpoint)).ToList();
+        }
+    }
+
 }

@@ -30,13 +30,13 @@ namespace Client.Sample
             })
             .ConfigureContainer<ContainerBuilder>(builder =>
             {
-                //依赖注入oxygen
+                //注入oxygen依赖
                 builder.RegisterOxygen();
             })
             .ConfigureServices(services =>
             {
-                //添加oxygen管道
-                services.AddOxygenClient(Configuration);
+                //注册oxygen配置节
+                services.ConfigureOxygen(Configuration);
                 services.AddLogging(configure =>
                 {
                     configure.AddConsole();

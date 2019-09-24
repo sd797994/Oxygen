@@ -72,9 +72,9 @@ namespace Oxygen.DotNettyRpcProviderService
         /// <param name="serverName"></param>
         /// <param name="path"></param>
         /// <returns></returns>
-        public async Task<string> CreateClient(IPEndPoint endPoint, string serverName, string path)
+        public async Task<string> CreateClient(IPEndPoint endPoint, string flowControlCfgKey)
         {
-            return await CreateChannel(endPoint, serverName, path);
+            return await CreateChannel(endPoint, flowControlCfgKey);
         }
 
         /// <summary>
@@ -85,14 +85,14 @@ namespace Oxygen.DotNettyRpcProviderService
         /// <param name="path"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        public async Task<T> SendMessage<T>(string channelKey, IPEndPoint endPoint, string flowControlCfgKey, object configureInfo, string key, string path, object message) where T : class
+        public async Task<T> SendMessage<T>(string channelKey, IPEndPoint endPoint, string flowControlCfgKey, string key, string path, object message) where T : class
         {
             T result = default;
             if (Channels.TryGetValue(channelKey, out var _channel))
             {
                 try
                 {
-                    result = await _flowControlCenter.ExcuteAsync(key, endPoint, flowControlCfgKey,(ServiceConfigureInfo)configureInfo, async () =>
+                    result = await _flowControlCenter.ExcuteAsync(key, endPoint, flowControlCfgKey, async () =>
                     {
                         var taskId = Guid.NewGuid();
                         var sendMessage = new RpcGlobalMessageBase<object>
@@ -128,11 +128,11 @@ namespace Oxygen.DotNettyRpcProviderService
         /// <param name="serverName"></param>
         /// <param name="port"></param>
         /// <returns></returns>
-        async Task<string> CreateChannel(IPEndPoint endpoint, string serviceName, string path)
+        async Task<string> CreateChannel(IPEndPoint endpoint, string flowControlCfgKey)
         {
             try
             {
-                var channelKey = $"{endpoint.Address}{endpoint.Port}{serviceName}{path}";
+                var channelKey = $"{endpoint.Address}{endpoint.Port}{flowControlCfgKey}";
                 if (Channels.TryGetValue(channelKey, out var channel))
                 {
                     if (!channel.Active)

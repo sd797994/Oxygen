@@ -29,15 +29,18 @@ namespace Server.Sample
             })
             .ConfigureContainer<ContainerBuilder>(builder =>
             {
-                //依赖注入oxygen
+                //注入oxygen依赖
                 builder.RegisterOxygen();
-                //依赖注入本地业务
+                //注入本地业务依赖
                 builder.RegisterType<UserLoginUseCase>().As<IUserLoginUseCase>().InstancePerLifetimeScope();
+            })
+            //注册成为oxygen服务节点
+            .UseOxygenService(services => {
+                //注册oxygen配置节
+                services.ConfigureOxygen(Configuration);
             })
             .ConfigureServices(services =>
             {
-                //添加oxygen管道
-                services.AddOxygenServer(Configuration);
                 services.AddLogging(configure =>
                 {
                     configure.AddConsole();

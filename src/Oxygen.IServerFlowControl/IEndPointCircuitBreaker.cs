@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Threading.Tasks;
 
 namespace Oxygen.IServerFlowControl
 {
@@ -14,6 +15,6 @@ namespace Oxygen.IServerFlowControl
         /// <param name="serviceInfo"></param>
         /// <param name="addr"></param>
         /// <returns></returns>
-        bool CheckCircuitByEndPoint(string pathName, IPEndPoint clientEndPoint, ServiceConfigureInfo serviceInfo, out IPEndPoint addr);
+        Task<IPEndPoint> CheckCircuitByEndPoint(string flowControlCfgKey, IPEndPoint clientEndPoint);
     }
 }

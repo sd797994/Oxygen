@@ -1,4 +1,5 @@
-﻿namespace Oxygen.IServerFlowControl
+﻿
+namespace Oxygen.IServerFlowControl.Configure
 {
     /// <summary>
     /// 负载均衡类型

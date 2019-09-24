@@ -1,10 +1,9 @@
-﻿using Oxygen.CommonTool;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Oxygen.IServerFlowControl
+namespace Oxygen.IServerFlowControl.Configure
 {
     /// <summary>
     /// 服务缓存配置
@@ -65,7 +64,7 @@ namespace Oxygen.IServerFlowControl
 
 
         /// <summary>
-        /// 获取服务地址（深克隆）
+        /// 获取服务地址
         /// </summary>
         public List<FlowControlEndPoint> GetEndPoints()
         {

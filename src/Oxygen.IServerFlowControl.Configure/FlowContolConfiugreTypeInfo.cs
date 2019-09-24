@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Oxygen.ServerFlowControl
+namespace Oxygen.IServerFlowControl.Configure
 {
     /// <summary>
     /// 流控服务本地配置类型

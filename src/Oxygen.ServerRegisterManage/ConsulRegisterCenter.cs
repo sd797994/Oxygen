@@ -1,6 +1,5 @@
 ﻿using Consul;
 using Nito.AsyncEx;
-using Oxygen.IServerFlowControl;
 using Oxygen.IServerRegisterManage;
 using System;
 using System.Collections.Generic;
@@ -60,14 +59,14 @@ namespace Oxygen.ConsulServerRegisterManage
         /// </summary>
         /// <param name="serverName"></param>
         /// <returns></returns>
-        public async Task<List<FlowControlEndPoint>> GetServieByName(string serverName)
+        public async Task<List<IPEndPoint>> GetServieByName(string serverName)
         {
             bool NeedFlush = false;
             if (ConsulFactory.GetServiceCache().TryGetValue(serverName, out NodeCache value))
             {
                 if (value.ExpirTime.AddSeconds(10) > DateTime.Now)
                 {
-                    return value.AgentServices.Select(x => new FlowControlEndPoint(IPAddress.Parse(x.Address), x.Port)).ToList();
+                    return value.AgentServices.Select(x => new IPEndPoint(IPAddress.Parse(x.Address), x.Port)).ToList();
                 }
                 else
                 {
@@ -86,7 +85,7 @@ namespace Oxygen.ConsulServerRegisterManage
                 if (addrs.Any())
                 {
                     ConsulFactory.GetServiceCache().TryAdd(serverName, new NodeCache() { ExpirTime = DateTime.Now, AgentServices = addrs });
-                    return addrs.Select(x => new FlowControlEndPoint(IPAddress.Parse(x.Address), x.Port)).ToList();
+                    return addrs.Select(x => new IPEndPoint(IPAddress.Parse(x.Address), x.Port)).ToList();
                 }
             }
             return default;

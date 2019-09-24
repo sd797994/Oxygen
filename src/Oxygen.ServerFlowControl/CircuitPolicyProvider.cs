@@ -1,5 +1,6 @@
 ﻿using Oxygen.CommonTool.Logger;
 using Oxygen.IServerFlowControl;
+using Oxygen.IServerFlowControl.Configure;
 using Polly;
 using Polly.Timeout;
 using System;
@@ -8,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Oxygen.ServerFlowControl
 {
@@ -31,7 +33,7 @@ namespace Oxygen.ServerFlowControl
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        public IAsyncPolicy<T> BuildPolicy<T>(string key, ServiceConfigureInfo config, IPEndPoint endpoint)
+        public async Task<IAsyncPolicy<T>> BuildPolicy<T>(string key, IPEndPoint endpoint)
         {
             if (_lazyDefPolicy.Value.TryGetValue($"{key}{endpoint.ToString()}", out dynamic cachepolicy))
             {
@@ -39,9 +41,10 @@ namespace Oxygen.ServerFlowControl
             }
             else
             {
+                var config = await _endPointConfigure.GetBreakerConfigure(key);
                 var address = config.GetEndPoints().FirstOrDefault(x => x.GetEndPoint().Equals(endpoint));
                 //定义默认策略
-                IAsyncPolicy<T> defPolicy = Policy<T>.Handle<Exception>().FallbackAsync((CancellationToken cancelToken) =>
+                IAsyncPolicy<T> defPolicy = Policy<T>.Handle<Exception>().FallbackAsync(async (CancellationToken cancelToken) =>
                 {
                     //请求失败，更新配置节并进行回退
                     address.ThresholdBreakeTimes += 1;
@@ -53,7 +56,7 @@ namespace Oxygen.ServerFlowControl
                         _logger.LogError($"地址{address.GetEndPoint().ToString()}超过熔断阈值，强制熔断。详细信息{{当前IP熔断次数:{address.ThresholdBreakeTimes},成功请求次数:{time.Count()},熔断比率{(double)address.ThresholdBreakeTimes / (double)time.Count(y => y >= DateTime.Now.AddSeconds(1))}}}");
                         address.BreakerTime = DateTime.Now;
                     }
-                    _endPointConfigure.UpdateBreakerConfigure(key, config);
+                   await _endPointConfigure.UpdateBreakerConfigure(key, config);
                     _logger.LogError($"地址{address.GetEndPoint().ToString()}请求出错,执行回退");
                     return default;
                 });

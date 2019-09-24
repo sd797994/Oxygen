@@ -56,10 +56,10 @@ namespace Oxygen.DotNettyRpcProviderService
                     pipeline.AddLast(new LengthFieldBasedFrameDecoder(int.MaxValue, 0, 4, 0, 4));
                     pipeline.AddLast(new RpcServerHandler(_logger, _localProxyGenerator, _common));
                 }));
-            var port = OxygenSetting.ServerPort ?? _common.GetFreePort();
+            var port = OxygenSetting.ServerPort ?? GlobalCommon.GetFreePort();
             boundChannel = await _bootstrap.BindAsync(port);
             _logger.LogInfo($"bind tcp 0.0.0.0:{port} to listen");
-            return new IPEndPoint(_common.GetMachineIp(), port);
+            return new IPEndPoint(GlobalCommon.GetMachineIp(), port);
         }
         /// <summary>
         /// 关闭tcp服务

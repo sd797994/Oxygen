@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Oxygen.ServerFlowControl
 {
@@ -20,7 +21,7 @@ namespace Oxygen.ServerFlowControl
         /// <param name="config"></param>
         /// <param name="endpoint"></param>
         /// <returns></returns>
-        IAsyncPolicy<T> BuildPolicy<T>(string key, ServiceConfigureInfo config, IPEndPoint endpoint);
+        Task<IAsyncPolicy<T>> BuildPolicy<T>(string key, IPEndPoint endpoint);
 
         /// <summary>
         /// 写入请求成功的时间

@@ -7,8 +7,4 @@
     <Version>0.0.1.0</Version>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Oxygen.IServerFlowControl\Oxygen.IServerFlowControl.csproj" />
-  </ItemGroup>
-
 </Project>

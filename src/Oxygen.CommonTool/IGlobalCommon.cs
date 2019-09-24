@@ -8,16 +8,6 @@ namespace Oxygen.CommonTool
     public interface IGlobalCommon
     {
         /// <summary>
-        /// 获取可用端口号
-        /// </summary>
-        /// <returns></returns>
-        int GetFreePort();
-        /// <summary>
-        /// 获取本机在局域网内的ip
-        /// </summary>
-        /// <returns></returns>
-        IPAddress GetMachineIp();
-        /// <summary>
         /// Rsa加密
         /// </summary>
         /// <param name="data"></param>

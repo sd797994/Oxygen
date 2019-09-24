@@ -1,8 +1,10 @@
 ﻿using Oxygen.CommonTool.Logger;
 using Oxygen.IServerFlowControl;
+using Oxygen.IServerFlowControl.Configure;
 using System;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace Oxygen.ServerFlowControl
 {
@@ -27,24 +29,28 @@ namespace Oxygen.ServerFlowControl
         /// <param name="serviceInfo"></param>
         /// <param name="addr"></param>
         /// <returns></returns>
-        public bool CheckCircuitByEndPoint(string key, IPEndPoint clientEndPoint, ServiceConfigureInfo serviceInfo, out IPEndPoint addr)
+        public async Task<IPEndPoint> CheckCircuitByEndPoint(string flowControlCfgKey, IPEndPoint clientEndPoint)
         {
             //根据配置抛弃断路状态地址
-            var useAddr = serviceInfo.GetEndPoints().Where(x => x.BreakerTime == null || (x.BreakerTime != null && x.BreakerTime.Value.AddSeconds(serviceInfo.DefBreakerRetryTimeSec) <= DateTime.Now)).ToList();
+            var config = await _endPointConfigure.GetBreakerConfigure(flowControlCfgKey);
+            var useAddr = config.GetEndPoints().Where(x => x.BreakerTime == null || (x.BreakerTime != null && x.BreakerTime.Value.AddSeconds(config.DefBreakerRetryTimeSec) <= DateTime.Now)).ToList();
             //若全部熔断
             if (!useAddr.Any())
             {
                 _logger.LogError("服务被熔断,无法提供服务");
-                addr = null;
-                return false;
+                return null;
             }
             else
             {
                 //负载均衡有效地址
-                addr = _endPointConfigure.GetServieByLoadBalane(useAddr, clientEndPoint, LoadBalanceType.IPHash);
+                var addr = _endPointConfigure.GetServieByLoadBalane(useAddr, clientEndPoint, LoadBalanceType.IPHash, flowControlCfgKey);
                 //初始化令牌桶并判断是否限流
-                _tokenBucket.InitTokenBucket(serviceInfo.DefCapacity, serviceInfo.DefRateLimit);
-                return _tokenBucket.Grant(key, serviceInfo.DefCapacity);
+                _tokenBucket.InitTokenBucket(config.DefCapacity, config.DefRateLimit);
+                if (await _tokenBucket.Grant(flowControlCfgKey, config.DefCapacity))
+                {
+                    return addr;
+                }
+                return null;
             }
         }
     }

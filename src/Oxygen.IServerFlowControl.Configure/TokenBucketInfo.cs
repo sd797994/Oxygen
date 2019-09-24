@@ -1,4 +1,5 @@
-﻿namespace Oxygen.IServerFlowControl
+﻿
+namespace Oxygen.IServerFlowControl.Configure
 {
     /// <summary>
     /// 全局令牌桶

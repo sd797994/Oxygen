@@ -17,6 +17,7 @@
     <ProjectReference Include="..\Oxygen.CommonTool\Oxygen.CommonTool.csproj" />
     <ProjectReference Include="..\Oxygen.IRpcProviderService\Oxygen.IRpcProviderService.csproj" />
     <ProjectReference Include="..\Oxygen.ISerializeService\Oxygen.ISerializeService.csproj" />
+    <ProjectReference Include="..\Oxygen.IServerFlowControl.Configure\Oxygen.IServerFlowControl.Configure.csproj" />
     <ProjectReference Include="..\Oxygen.IServerFlowControl\Oxygen.IServerFlowControl.csproj" />
     <ProjectReference Include="..\Oxygen.IServerProxyFactory\Oxygen.IServerProxyFactory.csproj" />
   </ItemGroup>

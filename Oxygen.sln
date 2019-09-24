@@ -37,17 +37,23 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiGateWay", "ApiGateWay\Ap
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oxygen.IServerProxyFactory", "src\Oxygen.IServerProxyFactory\Oxygen.IServerProxyFactory.csproj", "{6B0E24A4-AF46-4FCB-B6F7-BF968B776140}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oxygen.ConsulServerRegisterManage", "src\Oxygen.ServerRegisterManage\Oxygen.ConsulServerRegisterManage.csproj", "{C8254C13-ABFD-4FA6-93FE-A72ECAC7172C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oxygen.ConsulServerRegisterManage", "src\Oxygen.ServerRegisterManage\Oxygen.ConsulServerRegisterManage.csproj", "{C8254C13-ABFD-4FA6-93FE-A72ECAC7172C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oxygen.ServerFlowControl", "src\Oxygen.ServerFlowControl\Oxygen.ServerFlowControl.csproj", "{9FED09F7-CCAC-49F3-A519-B7328F18AD2A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oxygen.ServerFlowControl", "src\Oxygen.ServerFlowControl\Oxygen.ServerFlowControl.csproj", "{9FED09F7-CCAC-49F3-A519-B7328F18AD2A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oxygen.IServerFlowControl", "src\Oxygen.IServerFlowControl\Oxygen.IServerFlowControl.csproj", "{CB1A3CFD-B1B5-47FD-9BAE-452AE240EA0A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oxygen.IServerFlowControl", "src\Oxygen.IServerFlowControl\Oxygen.IServerFlowControl.csproj", "{CB1A3CFD-B1B5-47FD-9BAE-452AE240EA0A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oxygen.IServerRegisterManage", "src\Oxygen.IServerRegisterManage\Oxygen.IServerRegisterManage.csproj", "{00FA1601-5196-43E4-953A-58D09FE491AE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oxygen.IServerRegisterManage", "src\Oxygen.IServerRegisterManage\Oxygen.IServerRegisterManage.csproj", "{00FA1601-5196-43E4-953A-58D09FE491AE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oxygen.ICache", "src\Oxygen.ICache\Oxygen.ICache.csproj", "{44EEC44B-4D3A-4C87-9B30-605C6EA9A480}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oxygen.ICache", "src\Oxygen.ICache\Oxygen.ICache.csproj", "{44EEC44B-4D3A-4C87-9B30-605C6EA9A480}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oxygen.RedisCache", "src\Oxygen.RedisCache\Oxygen.RedisCache.csproj", "{1599EA1A-FE6B-4B13-9471-E9EDE2DE4684}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oxygen.RedisCache", "src\Oxygen.RedisCache\Oxygen.RedisCache.csproj", "{1599EA1A-FE6B-4B13-9471-E9EDE2DE4684}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oxygen.IServerFlowControl.Configure", "src\Oxygen.IServerFlowControl.Configure\Oxygen.IServerFlowControl.Configure.csproj", "{5C534CCF-4911-4565-A6B2-A91E788D4AB1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oxygen.ServerFlowControl.Configure", "src\Oxygen.ServerFlowControl.Configure\Oxygen.ServerFlowControl.Configure.csproj", "{5FA10198-D8FC-44FF-B7E5-FEA62303320B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oxygen.ThreadSyncGenerator", "src\Oxygen.ThreadSyncGenerator\Oxygen.ThreadSyncGenerator.csproj", "{C1DEBD95-C079-4140-93E5-417F8AAE7613}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -139,6 +145,18 @@ Global
 		{1599EA1A-FE6B-4B13-9471-E9EDE2DE4684}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1599EA1A-FE6B-4B13-9471-E9EDE2DE4684}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1599EA1A-FE6B-4B13-9471-E9EDE2DE4684}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C534CCF-4911-4565-A6B2-A91E788D4AB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C534CCF-4911-4565-A6B2-A91E788D4AB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C534CCF-4911-4565-A6B2-A91E788D4AB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C534CCF-4911-4565-A6B2-A91E788D4AB1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5FA10198-D8FC-44FF-B7E5-FEA62303320B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5FA10198-D8FC-44FF-B7E5-FEA62303320B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5FA10198-D8FC-44FF-B7E5-FEA62303320B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5FA10198-D8FC-44FF-B7E5-FEA62303320B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1DEBD95-C079-4140-93E5-417F8AAE7613}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1DEBD95-C079-4140-93E5-417F8AAE7613}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1DEBD95-C079-4140-93E5-417F8AAE7613}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1DEBD95-C079-4140-93E5-417F8AAE7613}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -164,6 +182,9 @@ Global
 		{00FA1601-5196-43E4-953A-58D09FE491AE} = {5E0BADCE-71FC-4950-ACFE-1340DD435402}
 		{44EEC44B-4D3A-4C87-9B30-605C6EA9A480} = {5E0BADCE-71FC-4950-ACFE-1340DD435402}
 		{1599EA1A-FE6B-4B13-9471-E9EDE2DE4684} = {5E0BADCE-71FC-4950-ACFE-1340DD435402}
+		{5C534CCF-4911-4565-A6B2-A91E788D4AB1} = {5E0BADCE-71FC-4950-ACFE-1340DD435402}
+		{5FA10198-D8FC-44FF-B7E5-FEA62303320B} = {5E0BADCE-71FC-4950-ACFE-1340DD435402}
+		{C1DEBD95-C079-4140-93E5-417F8AAE7613} = {5E0BADCE-71FC-4950-ACFE-1340DD435402}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {83624657-71E1-4209-8A42-056014F3D0C5}

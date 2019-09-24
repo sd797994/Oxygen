@@ -2,6 +2,7 @@
 using Oxygen.CommonTool.Logger;
 using Oxygen.IRpcProviderService;
 using Oxygen.IServerFlowControl;
+using Oxygen.IServerFlowControl.Configure;
 using Oxygen.IServerProxyFactory;
 using System;
 using System.Threading.Tasks;
@@ -44,21 +45,18 @@ namespace Oxygen.ServerProxyFactory
             {
                 //流量控制
                 var ipendpoint = await _flowControlCenter.GetFlowControlEndPointByServicePath(serviceName, flowControlCfgKey, _customerInfo.Ip);
-                if (ipendpoint.endPoint != null)
+                if (ipendpoint != null)
                 {
-                    var channelKey = await _clientProvider.CreateClient(ipendpoint.endPoint, serviceName, pathName);
+                    var channelKey = await _clientProvider.CreateClient(ipendpoint, flowControlCfgKey);
                     if (channelKey != null)
                     {
-                        return await _clientProvider.SendMessage<TOut>(channelKey, ipendpoint.endPoint, flowControlCfgKey, ipendpoint.configureInfo, serviceName, pathName, input);
+                        return await _clientProvider.SendMessage<TOut>(channelKey, ipendpoint, flowControlCfgKey, serviceName, pathName, input);
                     }
                     else
                     {
-                        _oxygenLogger.LogError($"远程调用通道创建失败:{ipendpoint.endPoint.ToString()}");
+                        _oxygenLogger.LogError($"远程调用通道创建失败:{ipendpoint.ToString()}");
                         //强制熔断当前节点
-                        if (ipendpoint.configureInfo != null)
-                        {
-                            _configureManager.ForcedCircuitBreakEndPoint(flowControlCfgKey, ipendpoint.configureInfo, ipendpoint.endPoint);
-                        }
+                        await _configureManager.ForcedCircuitBreakEndPoint(flowControlCfgKey, ipendpoint);
                     }
                 }
             }
