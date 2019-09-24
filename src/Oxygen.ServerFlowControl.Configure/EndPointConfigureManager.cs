@@ -52,7 +52,7 @@ namespace Oxygen.ServerFlowControl.Configure
         /// <returns></returns>
         public async Task InitBreakerConfigure(string flowControlCfgKey, ServiceConfigureInfo configure)
         {
-            await _syncConfigureProvider.InitConfigure($"{OxygenSetting.BreakerSettingKey}{ flowControlCfgKey}", configure);
+            await _syncConfigureProvider.InitConfigure($"{flowControlCfgKey}", configure);
         }
         /// <summary>
         /// 强制熔断无法连通的EndPoint
