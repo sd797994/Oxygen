@@ -9,6 +9,7 @@ using Oxygen.CommonTool.Logger;
 using Oxygen.IRpcProviderService;
 using Oxygen.ISerializeService;
 using Oxygen.IServerFlowControl;
+using Oxygen.IServerFlowControl.Configure;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -85,14 +86,14 @@ namespace Oxygen.DotNettyRpcProviderService
         /// <param name="path"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        public async Task<T> SendMessage<T>(string channelKey, IPEndPoint endPoint, string flowControlCfgKey, string key, string path, object message) where T : class
+        public async Task<T> SendMessage<T>(string channelKey, IPEndPoint endPoint, string flowControlCfgKey, ServiceConfigureInfo configure, string key, string path, object message) where T : class
         {
             T result = default;
             if (Channels.TryGetValue(channelKey, out var _channel))
             {
                 try
                 {
-                    result = await _flowControlCenter.ExcuteAsync(key, endPoint, flowControlCfgKey, async () =>
+                    result = await _flowControlCenter.ExcuteAsync(key, endPoint, flowControlCfgKey, configure, async () =>
                     {
                         var taskId = Guid.NewGuid();
                         var sendMessage = new RpcGlobalMessageBase<object>

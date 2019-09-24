@@ -50,18 +50,16 @@ namespace Oxygen.ServerFlowControl
         /// </summary>
         /// <param name="serviceName"></param>
         /// <returns></returns>
-        public async Task<bool> Grant(string flowControlCfgKey, int defCapacity)
+        public async Task<bool> Grant(ServiceConfigureInfo configure)
         {
-            var bucketInfo = await _endPointConfigure.GetOrAddTokenBucket(flowControlCfgKey, defCapacity);
-            _endPointConfigure.UpdateTokens(bucketInfo, Capacity, Rate);
-            if (bucketInfo.Tokens < 1)
+            configure.UpdateTokens(Capacity, Rate);
+            if (configure.Tokens < 1)
             {
-                var timeToIntervalEnd = bucketInfo.StartTimeStamp - DateTime.UtcNow.Ticks;
-                if (timeToIntervalEnd < 0) return await Grant(flowControlCfgKey, defCapacity);
+                var timeToIntervalEnd = configure.StartTimeStamp - DateTime.UtcNow.Ticks;
+                if (timeToIntervalEnd < 0) return await Grant(configure);
                 return false;
             }
-            bucketInfo.Tokens -= 1;
-            await _endPointConfigure.UpdateTokenBucket(flowControlCfgKey, bucketInfo);
+            configure.Tokens -= 1;
             return true;
         }
     }

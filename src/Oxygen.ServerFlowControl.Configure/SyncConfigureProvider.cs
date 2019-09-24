@@ -13,14 +13,6 @@ namespace Oxygen.ServerFlowControl.Configure
 {
     public class SyncConfigureProvider : ISyncConfigureProvider
     {
-        public async Task<TokenBucketInfo> GetBucket(string key)
-        {
-            return await DoSync(key, async (grain) => await grain.GetBucket());
-        }
-        public async Task SetBucket(string key, TokenBucketInfo newBucket)
-        {
-            await DoSync(key, false, async (grain) => await grain.SetBucket(newBucket));
-        }
         public async Task<ServiceConfigureInfo> GetConfigure(string key)
         {
             return await DoSync(key, async (grain) => await grain.GetConfigure());

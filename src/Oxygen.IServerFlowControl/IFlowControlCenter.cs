@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Oxygen.IServerFlowControl.Configure;
+using System;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -15,7 +16,7 @@ namespace Oxygen.IServerFlowControl
         /// <param name="serviceName"></param>
         /// <param name="path"></param>
         /// <returns></returns>
-        Task<IPEndPoint> GetFlowControlEndPointByServicePath(string serviceName, string flowControlCfgKey, IPEndPoint clientIp);
+        Task<IPEndPoint> GetFlowControlEndPointByServicePath(string serviceName, ServiceConfigureInfo configure, IPEndPoint clientIp);
 
         /// <summary>
         /// 根据断路策略
@@ -26,7 +27,7 @@ namespace Oxygen.IServerFlowControl
         /// <param name="endPoint"></param>
         /// <param name="func"></param>
         /// <returns></returns>
-        Task<T> ExcuteAsync<T>(string key, IPEndPoint endPoint, string flowControlCfgKey, Func<Task<T>> func) where T : class;
+        Task<T> ExcuteAsync<T>(string key, IPEndPoint endPoint, string flowControlCfgKey, ServiceConfigureInfo configure, Func<Task<T>> func) where T : class;
 
         /// <summary>
         /// 注册RPC回调消费者处理

@@ -33,7 +33,7 @@ namespace Oxygen.ServerFlowControl
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        public async Task<IAsyncPolicy<T>> BuildPolicy<T>(string key, IPEndPoint endpoint)
+        public IAsyncPolicy<T> BuildPolicy<T>(string key, ServiceConfigureInfo configure, IPEndPoint endpoint)
         {
             if (_lazyDefPolicy.Value.TryGetValue($"{key}{endpoint.ToString()}", out dynamic cachepolicy))
             {
@@ -41,8 +41,7 @@ namespace Oxygen.ServerFlowControl
             }
             else
             {
-                var config = await _endPointConfigure.GetBreakerConfigure(key);
-                var address = config.GetEndPoints().FirstOrDefault(x => x.GetEndPoint().Equals(endpoint));
+                var address = configure.GetEndPoints().FirstOrDefault(x => x.GetEndPoint().Equals(endpoint));
                 //定义默认策略
                 IAsyncPolicy<T> defPolicy = Policy<T>.Handle<Exception>().FallbackAsync(async (CancellationToken cancelToken) =>
                 {
@@ -51,29 +50,28 @@ namespace Oxygen.ServerFlowControl
                     tmpReqTime.Value.TryGetValue($"{key}{endpoint.ToString()}", out List<DateTime> time);
                     time = time ?? new List<DateTime>();
                     //若错误次数超过阈值或者阈值比例则触发熔断
-                    if (address.ThresholdBreakeTimes >= config.DefThresholdBreakeTimes || time.Count() == 0 || (time.Count() > 0 && (double)config.DefThresholdBreakeRatePerSec >= (double)address.ThresholdBreakeTimes / (double)time.Count(y => y >= DateTime.Now.AddSeconds(1))))
+                    if (address.ThresholdBreakeTimes >= configure.DefThresholdBreakeTimes || time.Count() == 0 || (time.Count() > 0 && (double)configure.DefThresholdBreakeRatePerSec >= (double)address.ThresholdBreakeTimes / (double)time.Count(y => y >= DateTime.Now.AddSeconds(1))))
                     {
                         _logger.LogError($"地址{address.GetEndPoint().ToString()}超过熔断阈值，强制熔断。详细信息{{当前IP熔断次数:{address.ThresholdBreakeTimes},成功请求次数:{time.Count()},熔断比率{(double)address.ThresholdBreakeTimes / (double)time.Count(y => y >= DateTime.Now.AddSeconds(1))}}}");
                         address.BreakerTime = DateTime.Now;
                     }
-                   await _endPointConfigure.UpdateBreakerConfigure(key, config);
                     _logger.LogError($"地址{address.GetEndPoint().ToString()}请求出错,执行回退");
                     return default;
                 });
                 //定义重试策略
-                if (config.DefRetryTimes > 0 && config.DefRetryTimesSec == 0)
+                if (configure.DefRetryTimes > 0 && configure.DefRetryTimesSec == 0)
                 {
-                    defPolicy = defPolicy.WrapAsync(Policy.Handle<Exception>().RetryAsync(config.DefRetryTimes, (exception, retryCount) =>
+                    defPolicy = defPolicy.WrapAsync(Policy.Handle<Exception>().RetryAsync(configure.DefRetryTimes, (exception, retryCount) =>
                     {
                         _logger.LogError($"地址{address.GetEndPoint().ToString()}调用重试{retryCount}次，异常原因:{exception.Message}");
                     }));
                 }
-                else if (config.DefRetryTimes > 0 && config.DefRetryTimesSec > 0)
+                else if (configure.DefRetryTimes > 0 && configure.DefRetryTimesSec > 0)
                 {
-                    var timespan = new TimeSpan[config.DefRetryTimes];
-                    for (var i = 0; i < config.DefRetryTimes; i++)
+                    var timespan = new TimeSpan[configure.DefRetryTimes];
+                    for (var i = 0; i < configure.DefRetryTimes; i++)
                     {
-                        timespan[i] = new TimeSpan(0, 0, config.DefRetryTimesSec);
+                        timespan[i] = new TimeSpan(0, 0, configure.DefRetryTimesSec);
                     }
                     defPolicy = defPolicy.WrapAsync(Policy.Handle<Exception>().WaitAndRetryAsync(timespan, (exception, TimeSpan, retryCount, Context) =>
                     {
@@ -81,9 +79,9 @@ namespace Oxygen.ServerFlowControl
                     }));
                 }
                 //定义超时策略
-                if (config.DefTimeOutBreakerSec > 0)
+                if (configure.DefTimeOutBreakerSec > 0)
                 {
-                    defPolicy = defPolicy.WrapAsync(Policy.TimeoutAsync(config.DefTimeOutBreakerSec, TimeoutStrategy.Pessimistic, (Context, TimeSpan, Task) =>
+                    defPolicy = defPolicy.WrapAsync(Policy.TimeoutAsync(configure.DefTimeOutBreakerSec, TimeoutStrategy.Pessimistic, (Context, TimeSpan, Task) =>
                     {
                         _logger.LogError($"地址{address.GetEndPoint().ToString()}调用超时:{TimeSpan.TotalSeconds}秒");
                         return default;

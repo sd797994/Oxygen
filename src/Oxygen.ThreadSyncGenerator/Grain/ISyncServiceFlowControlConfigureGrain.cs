@@ -9,8 +9,6 @@ namespace Oxygen.ThreadSyncGenerator.Grains
 {
     public interface ISyncServiceFlowControlConfigureGrain : IGrainWithStringKey
     {
-        Task<TokenBucketInfo> GetBucket();
-        Task SetBucket(TokenBucketInfo newBucket);
         Task<ServiceConfigureInfo> GetConfigure();
         Task SetConfigure(ServiceConfigureInfo newConfigure);
     }

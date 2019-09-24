@@ -29,11 +29,10 @@ namespace Oxygen.ServerFlowControl
         /// <param name="serviceInfo"></param>
         /// <param name="addr"></param>
         /// <returns></returns>
-        public async Task<IPEndPoint> CheckCircuitByEndPoint(string flowControlCfgKey, IPEndPoint clientEndPoint)
+        public async Task<IPEndPoint> CheckCircuitByEndPoint(ServiceConfigureInfo configure, IPEndPoint clientEndPoint)
         {
             //根据配置抛弃断路状态地址
-            var config = await _endPointConfigure.GetBreakerConfigure(flowControlCfgKey);
-            var useAddr = config.GetEndPoints().Where(x => x.BreakerTime == null || (x.BreakerTime != null && x.BreakerTime.Value.AddSeconds(config.DefBreakerRetryTimeSec) <= DateTime.Now)).ToList();
+            var useAddr = configure.GetEndPoints().Where(x => x.BreakerTime == null || (x.BreakerTime != null && x.BreakerTime.Value.AddSeconds(configure.DefBreakerRetryTimeSec) <= DateTime.Now)).ToList();
             //若全部熔断
             if (!useAddr.Any())
             {
@@ -43,10 +42,10 @@ namespace Oxygen.ServerFlowControl
             else
             {
                 //负载均衡有效地址
-                var addr = _endPointConfigure.GetServieByLoadBalane(useAddr, clientEndPoint, LoadBalanceType.IPHash, flowControlCfgKey);
+                var addr = _endPointConfigure.GetServieByLoadBalane(useAddr, clientEndPoint, LoadBalanceType.IPHash, configure);
                 //初始化令牌桶并判断是否限流
-                _tokenBucket.InitTokenBucket(config.DefCapacity, config.DefRateLimit);
-                if (await _tokenBucket.Grant(flowControlCfgKey, config.DefCapacity))
+                _tokenBucket.InitTokenBucket(configure.DefCapacity, configure.DefRateLimit);
+                if (await _tokenBucket.Grant(configure))
                 {
                     return addr;
                 }

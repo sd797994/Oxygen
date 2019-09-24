@@ -1,4 +1,5 @@
 ﻿using Oxygen.IServerFlowControl;
+using Oxygen.IServerFlowControl.Configure;
 using Polly;
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,7 @@ namespace Oxygen.ServerFlowControl
         /// <param name="config"></param>
         /// <param name="endpoint"></param>
         /// <returns></returns>
-        Task<IAsyncPolicy<T>> BuildPolicy<T>(string key, IPEndPoint endpoint);
+        IAsyncPolicy<T> BuildPolicy<T>(string key, ServiceConfigureInfo configure, IPEndPoint endpoint);
 
         /// <summary>
         /// 写入请求成功的时间

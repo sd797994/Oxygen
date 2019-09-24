@@ -40,23 +40,22 @@ namespace Oxygen.ServerFlowControl
         /// <param name="flowControlCfgKey"></param>
         /// <param name="clientIp"></param>
         /// <returns></returns>
-        public async Task<IPEndPoint> GetFlowControlEndPointByServicePath(string serviceName, string flowControlCfgKey, IPEndPoint clientIp)
+        public async Task<IPEndPoint> GetFlowControlEndPointByServicePath(string serviceName, ServiceConfigureInfo configure, IPEndPoint clientIp)
         {
             //根据服务返回健康地址
             var healthNode = await _registerCenter.GetServieByName(serviceName);
-            var checkConfigAny = await _endPointConfigure.CheckBreakerConfigureAny(flowControlCfgKey);
             if (healthNode != null && healthNode.Any())
             {
-                if (checkConfigAny)
+                if (configure != null)
                 {
                     //更新健康节点和缓存同步
-                    await _endPointConfigure.ReflushConfigureEndPoint(flowControlCfgKey, healthNode);
+                    configure.ReflushConfigureEndPoint(healthNode);
                     //若配置流控，则进行熔断和限流检测
-                    var point = await _breaker.CheckCircuitByEndPoint(flowControlCfgKey, clientIp);
+                    var point = await _breaker.CheckCircuitByEndPoint(configure, clientIp);
                     if (point != null)
                     {
                         //将有效地址的熔断数据清空
-                        await _endPointConfigure.CleanBreakTimes(flowControlCfgKey);
+                        configure.CleanBreakTimes();
                         return point;
                     }
                 }
@@ -69,9 +68,9 @@ namespace Oxygen.ServerFlowControl
             else
             {
                 //删除所有地址并同步
-                if (!checkConfigAny)
+                if (configure != null)
                 {
-                    await _endPointConfigure.RemoveAllNode(flowControlCfgKey);
+                    configure.RemoveAllNode();
                 }
                 _logger.LogError($"没有找到健康的服务节点：{serviceName}");
             }
@@ -87,10 +86,9 @@ namespace Oxygen.ServerFlowControl
         /// <param name="endPoint"></param>
         /// <param name="func"></param>
         /// <returns></returns>
-        public async Task<T> ExcuteAsync<T>(string key, IPEndPoint endPoint, string flowControlCfgKey, Func<Task<T>> func) where T : class
+        public async Task<T> ExcuteAsync<T>(string key, IPEndPoint endPoint, string flowControlCfgKey, ServiceConfigureInfo configure, Func<Task<T>> func) where T : class
         {
-            var config = _endPointConfigure.GetBreakerConfigure(key);
-            if (config == null)
+            if (configure == null)
             {
                 //如果当前服务并未配置流控，则直接远程调用
                 return await func();
@@ -98,7 +96,7 @@ namespace Oxygen.ServerFlowControl
             else
             {
                 //构造断路策略
-                var policy = await _policyProvider.BuildPolicy<T>(key, endPoint);
+                var policy = _policyProvider.BuildPolicy<T>(key, configure, endPoint);
                 //启动polly进行调用检查
                 try
                 {
@@ -107,7 +105,7 @@ namespace Oxygen.ServerFlowControl
                         //远程调用
                         var result = await func();
                         //消费结果集
-                        AddQueueResult(new ResultQueueDto(key, endPoint, flowControlCfgKey, result));
+                        AddQueueResult(new ResultQueueDto(key, endPoint, flowControlCfgKey, configure, result));
                         return result;
                     }) as T;
                 }
@@ -133,9 +131,10 @@ namespace Oxygen.ServerFlowControl
                     //更新请求时间(用于限流)
                     _policyProvider.PushTimeInReq(dto.Key, dto.EndPoint);
                     //更新连接数(用于负载均衡)
-                    await _endPointConfigure.ChangeConnectCount(dto.FlowControlCfgKey, dto.EndPoint, false);
+                    dto.Configure.ChangeConnectCount(dto.EndPoint, false);
                     //更新缓存（用于缓存降级）
-                    await _endPointConfigure.ReflushCache(dto.FlowControlCfgKey, dto.Result);
+                    dto.Configure.ReflushCache(dto.Result);
+                    await _endPointConfigure.UpdateBreakerConfigure(dto.FlowControlCfgKey, dto.Configure);
                     _event.Value.Set();
                 }
             }

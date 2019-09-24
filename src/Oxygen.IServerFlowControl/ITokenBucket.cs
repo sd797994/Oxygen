@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using Oxygen.IServerFlowControl.Configure;
+using System.Threading.Tasks;
 
 namespace Oxygen.IServerFlowControl
 {
@@ -19,6 +20,6 @@ namespace Oxygen.IServerFlowControl
         /// <param name="pathName"></param>
         /// <param name="serviceInfo"></param>
         /// <returns></returns>
-        Task<bool> Grant(string flowControlCfgKey, int defCapacity);
+        Task<bool> Grant(ServiceConfigureInfo configure);
     }
 }

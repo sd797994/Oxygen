@@ -26,10 +26,6 @@ namespace Oxygen.ServerFlowControl.Configure
             _syncConfigureProvider = syncConfigureProvider;
         }
         #region ServiceConfigureInfo
-        public async Task<bool> CheckBreakerConfigureAny(string flowControlCfgKey)
-        {
-            return await GetBreakerConfigure(flowControlCfgKey) != null;
-        }
         /// <summary>
         /// 获取服务配置节
         /// </summary>
@@ -44,9 +40,9 @@ namespace Oxygen.ServerFlowControl.Configure
         /// </summary>
         /// <param name="pathName"></param>
         /// <returns></returns>
-        public async Task UpdateBreakerConfigure(string flowControlCfgKey, ServiceConfigureInfo servcieInfo)
+        public async Task UpdateBreakerConfigure(string flowControlCfgKey, ServiceConfigureInfo configure)
         {
-            await _syncConfigureProvider.SetConfigure($"{OxygenSetting.BreakerSettingKey}{ flowControlCfgKey}", servcieInfo);
+            await _syncConfigureProvider.SetConfigure($"{OxygenSetting.BreakerSettingKey}{ flowControlCfgKey}", configure);
         }
         /// <summary>
         /// 服务端初始化配置节
@@ -54,9 +50,9 @@ namespace Oxygen.ServerFlowControl.Configure
         /// <param name="flowControlCfgKey"></param>
         /// <param name="servcieInfo"></param>
         /// <returns></returns>
-        public async Task InitBreakerConfigure(string flowControlCfgKey, ServiceConfigureInfo servcieInfo)
+        public async Task InitBreakerConfigure(string flowControlCfgKey, ServiceConfigureInfo configure)
         {
-            await _syncConfigureProvider.InitConfigure($"{OxygenSetting.BreakerSettingKey}{ flowControlCfgKey}", servcieInfo);
+            await _syncConfigureProvider.InitConfigure($"{OxygenSetting.BreakerSettingKey}{ flowControlCfgKey}", configure);
         }
         /// <summary>
         /// 强制熔断无法连通的EndPoint
@@ -64,100 +60,16 @@ namespace Oxygen.ServerFlowControl.Configure
         /// <param name="pathName"></param>
         /// <param name="servcieInfo"></param>
         /// <param name="breakEndPoint"></param>
-        public async Task ForcedCircuitBreakEndPoint(string flowControlCfgKey, IPEndPoint breakEndPoint)
+        public async Task ForcedCircuitBreakEndPoint(string flowControlCfgKey, ServiceConfigureInfo configure, IPEndPoint breakEndPoint)
         {
-            var config =await GetBreakerConfigure(flowControlCfgKey);
-            var addr = config.GetEndPoints().FirstOrDefault(x => x.GetEndPoint().Equals(breakEndPoint));
+            var addr = configure.GetEndPoints().FirstOrDefault(x => x.GetEndPoint().Equals(breakEndPoint));
             if (addr != null)
             {
                 addr.BreakerTime = DateTime.Now;
-                await UpdateBreakerConfigure(flowControlCfgKey, config);
             }
+            await UpdateBreakerConfigure(flowControlCfgKey, configure);
         }
-        /// <summary>
-        /// 更新熔断结束的配置文件
-        /// </summary>
-        /// <param name="servcieInfo"></param>
-        public async Task CleanBreakTimes(string flowControlCfgKey)
-        {
-            var config = await GetBreakerConfigure(flowControlCfgKey);
-            List<FlowControlEndPoint> tmp = new List<FlowControlEndPoint>();
-            config.GetEndPoints().ForEach(x =>
-            {
-                if ((x.BreakerTime != null && x.BreakerTime.Value.AddSeconds(config.DefBreakerRetryTimeSec) <= DateTime.Now))
-                {
-                    x.ThresholdBreakeTimes = 0;
-                    x.BreakerTime = null;
-                }
-                tmp.Add(x);
-            });
-            config.SetEndPoints(tmp);
-            await UpdateBreakerConfigure(flowControlCfgKey, config);
-        }
-
-        /// <summary>
-        /// 删除配置节所有下属节点
-        /// </summary>
-        /// <param name="flowControlCfgKey"></param>
-        public async Task RemoveAllNode(string flowControlCfgKey)
-        {
-            var config = await GetBreakerConfigure(flowControlCfgKey);
-            config.SetEndPoints(null);
-            await UpdateBreakerConfigure(flowControlCfgKey, config);
-        }
-
-        /// <summary>
-        /// 根据服务路由更新配置节
-        /// </summary>
-        /// <param name="serviceInfo"></param>
-        /// <param name="addrs"></param>
-        public async Task ReflushConfigureEndPoint(string flowControlCfgKey, List<IPEndPoint> addrs)
-        {
-            var config = await GetBreakerConfigure(flowControlCfgKey);
-            //删除无效节点(即注册中心丢弃的非健康节点)
-            var oldEndPoint = config.GetEndPoints().Select(x => x.GetEndPoint()).Except(addrs).ToList();
-            config.SetEndPoints(config.GetEndPoints().Where(x => !oldEndPoint.Any(y => y.Equals(x.GetEndPoint()))).ToList());
-            //增加新注册的节点
-            var newEndPoint = addrs.Where(y => addrs.Except(config.GetEndPoints().Select(x => x.GetEndPoint())).Any(z => z.Equals(y)));
-            config.SetEndPoints(config.GetEndPoints().Concat(newEndPoint.Select(x => new FlowControlEndPoint(x.Address, x.Port))).ToList());
-            await UpdateBreakerConfigure(flowControlCfgKey, config);
-        }
-
-
-        /// <summary>
-        /// 修改最小连接数
-        /// </summary>
-        public async Task ChangeConnectCount(string flowControlCfgKey, IPEndPoint address, bool IsPlus)
-        {
-            var config = await GetBreakerConfigure(flowControlCfgKey);
-            var addr = config.GetEndPoints().FirstOrDefault(x => x.GetEndPoint().Equals(address));
-            if (addr != null)
-            {
-                if (IsPlus)
-                    addr.ConnectCount += 1;
-                else
-                    addr.ConnectCount = addr.ConnectCount <= 1 ? 0 : addr.ConnectCount - 1;
-                await UpdateBreakerConfigure(flowControlCfgKey, config);
-            }
-        }
-        /// <summary>
-        /// 更新降级缓存
-        /// </summary>
-        /// <param name="flowControlCfgKey"></param>
-        /// <param name="entity"></param>
-        /// <returns></returns>
-        public async Task ReflushCache(string flowControlCfgKey, object entity)
-        {
-            var config = await GetBreakerConfigure(flowControlCfgKey);
-            if (config.DefOpenCache)
-            {
-                if (config.DefCacheData != null)
-                {
-                    config.DefCacheData = entity;
-                    await UpdateBreakerConfigure(flowControlCfgKey, config);
-                }
-            }
-        }
+        
 
         /// <summary>
         /// 读取本地更新断路配置
@@ -173,65 +85,14 @@ namespace Oxygen.ServerFlowControl.Configure
                     {
                         var flowControllerAttr = attr as FlowControlAttribute;
                         var serviceConfigInfo = Mapper<FlowControlAttribute, ServiceConfigureInfo>.Map(flowControllerAttr);
-                        if (!(await CheckBreakerConfigureAny($"{OxygenSetting.BreakerSettingKey}{type.ClassType.Name}{method.Name}")))
+                        var flowControlCfgKey = $"{OxygenSetting.BreakerSettingKey}{type.ClassType.Name}{method.Name}";
+                        if ((await GetBreakerConfigure(flowControlCfgKey)) == null)
                         {
-                            await InitBreakerConfigure($"{OxygenSetting.BreakerSettingKey}{type.ClassType.Name}{method.Name}", serviceConfigInfo);
+                            await InitBreakerConfigure(flowControlCfgKey, serviceConfigInfo);
                         }
                     }
                 }
             }
-        }
-        #endregion
-        #region TokenBucketInfo
-
-        /// <summary>
-        /// 获取限流令牌桶配置
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="serviceInfo"></param>
-        /// <returns></returns>
-        public async Task<TokenBucketInfo> GetOrAddTokenBucket(string flowControlCfgKey, int defCapacity)
-        {
-            var bucket =await _syncConfigureProvider.GetBucket($"{OxygenSetting.TokenLimitSettingKey}{flowControlCfgKey}");
-            if (bucket!=null)
-            {
-                return bucket;
-            }
-            else
-            {
-                bucket = new TokenBucketInfo
-                {
-                    Tokens = defCapacity,
-                    StartTimeStamp = DateTime.UtcNow.Ticks
-                };
-                await _syncConfigureProvider.SetBucket($"{OxygenSetting.TokenLimitSettingKey}{flowControlCfgKey}", bucket);
-            }
-            return bucket;
-        }
-
-        /// <summary>
-        /// 更新令牌时间戳
-        /// </summary>
-        /// <param name="bucketInfo"></param>
-        /// <param name="Capacity"></param>
-        /// <param name="Rate"></param>
-        public void UpdateTokens(TokenBucketInfo bucketInfo, long Capacity, long Rate)
-        {
-            var currentTime = DateTime.UtcNow.Ticks;
-            if (currentTime < bucketInfo.StartTimeStamp)
-                return;
-            bucketInfo.Tokens = Capacity;
-            bucketInfo.StartTimeStamp = currentTime + Rate;
-        }
-
-        /// <summary>
-        /// 更新令牌数量并发布
-        /// </summary>
-        /// <param name="serviceName"></param>
-        /// <param name="bucketInfo"></param>
-        public async Task UpdateTokenBucket(string key, TokenBucketInfo bucketInfo)
-        {
-            await _syncConfigureProvider.SetBucket($"{OxygenSetting.TokenLimitSettingKey}{key}", bucketInfo);
         }
         #endregion
         #region 负载均衡
@@ -246,7 +107,7 @@ namespace Oxygen.ServerFlowControl.Configure
         {
             return GetServieByLoadBalane(lbEndPoints.GetFlowControlEndPoints(), clientIp, type);
         }
-        public IPEndPoint GetServieByLoadBalane(List<FlowControlEndPoint> lbEndPoints, IPEndPoint clientIp, LoadBalanceType type = LoadBalanceType.IPHash, string flowControlCfgKey = null)
+        public IPEndPoint GetServieByLoadBalane(List<FlowControlEndPoint> lbEndPoints, IPEndPoint clientIp, LoadBalanceType type = LoadBalanceType.IPHash, ServiceConfigureInfo configure = null)
         {
             var result = default(FlowControlEndPoint);
             if (lbEndPoints != null && lbEndPoints.Any())
@@ -279,9 +140,9 @@ namespace Oxygen.ServerFlowControl.Configure
                         break;
                 }
             }
-            if (!string.IsNullOrEmpty(flowControlCfgKey))
+            if (configure != null)
             {
-                ChangeConnectCount(flowControlCfgKey, result.GetEndPoint(), true);
+                configure.ChangeConnectCount(result.GetEndPoint(), true);
             }
             return result.GetEndPoint();
         }
