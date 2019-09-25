@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Oxygen.IServerFlowControl;
+using Oxygen.IServerFlowControl.Configure;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,9 +14,11 @@ namespace Oxygen
     {
         private static bool _stopFlag = false;
         private readonly IFlowControlCenter _flowControlCenter;
-        public OxygenClientService(IFlowControlCenter flowControlCenter)
+        private readonly IEndPointConfigureManager _configureManage;
+        public OxygenClientService(IFlowControlCenter flowControlCenter, IEndPointConfigureManager configureManage)
         {
             _flowControlCenter = flowControlCenter;
+            _configureManage = configureManage;
             AppDomain.CurrentDomain.ProcessExit += ProcessExit;
         }
 
@@ -28,9 +31,8 @@ namespace Oxygen
             {
                 await _executingTask;
             }
-            _ = Task.Run(async () =>
-            {
-                await _flowControlCenter.RegisterConsumerResult();
+            _ = Task.Run(() => {
+                _flowControlCenter.RegisterConsumerResult();
             });
         }
 

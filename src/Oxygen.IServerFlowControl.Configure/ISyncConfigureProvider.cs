@@ -30,5 +30,12 @@ namespace Oxygen.IServerFlowControl.Configure
         /// <param name="newConfigure"></param>
         /// <returns></returns>
         Task InitConfigure(string key, ServiceConfigureInfo newConfigure);
+        /// <summary>
+        /// 初始化客户端订阅配置节
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="newConfigure"></param>
+        /// <returns></returns>
+        Task RegisterConfigureObserver(string key);
     }
 }

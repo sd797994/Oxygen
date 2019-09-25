@@ -41,10 +41,9 @@ namespace Oxygen.ServerProxyFactory
         /// <returns></returns>
         public async Task<TOut> SendAsync<TIn, TOut>(TIn input, string serviceName, string flowControlCfgKey, string pathName) where TOut : class
         {
-            ServiceConfigureInfo configure = default;
             try
             {
-                configure = await _configureManager.GetBreakerConfigure(flowControlCfgKey);
+                var configure = await _configureManager.GetBreakerConfigure(flowControlCfgKey);
                 //流量控制
                 var ipendpoint = await _flowControlCenter.GetFlowControlEndPointByServicePath(serviceName, configure, _customerInfo.Ip);
                 if (ipendpoint != null)

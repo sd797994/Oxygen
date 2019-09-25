@@ -14,7 +14,7 @@ namespace Oxygen.IServerFlowControl.Configure
         /// </summary>
         /// <param name="pathName"></param>
         /// <returns></returns>
-        Task<ServiceConfigureInfo> GetBreakerConfigure(string flowControlCfgKey);
+        Task<ServiceConfigureInfo> GetBreakerConfigure(string flowControlCfgKey, bool readLocalCache = true);
         /// <summary>
         /// 更新服务配置节
         /// </summary>
@@ -28,7 +28,12 @@ namespace Oxygen.IServerFlowControl.Configure
         /// <param name="servcieInfo"></param>
         /// <returns></returns>
         Task InitBreakerConfigure(string flowControlCfgKey, ServiceConfigureInfo servcieInfo);
-
+        /// <summary>
+        /// 客户端初始化订阅配置节
+        /// </summary>
+        /// <param name="flowControlCfgKey"></param>
+        /// <returns></returns>
+        Task RegisterConfigureObserver(string flowControlCfgKey);
         /// <summary>
         /// 强制熔断无法连通的EndPoint
         /// </summary>

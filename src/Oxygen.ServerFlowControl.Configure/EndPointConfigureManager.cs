@@ -1,17 +1,16 @@
 ﻿using Microsoft.Extensions.DependencyModel;
 using Oxygen.CommonTool;
 using Oxygen.CsharpClientAgent;
-using Oxygen.ICache;
 using Oxygen.IServerFlowControl.Configure;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Runtime.Loader;
-using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
+using Oxygen.ThreadSyncGenerator;
 
 namespace Oxygen.ServerFlowControl.Configure
 {
@@ -31,9 +30,23 @@ namespace Oxygen.ServerFlowControl.Configure
         /// </summary>
         /// <param name="pathName"></param>
         /// <returns></returns>
-        public async Task<ServiceConfigureInfo> GetBreakerConfigure(string flowControlCfgKey)
+        public async Task<ServiceConfigureInfo> GetBreakerConfigure(string flowControlCfgKey, bool readLocalCache = true)
         {
-            return await _syncConfigureProvider.GetConfigure($"{OxygenSetting.BreakerSettingKey}{ flowControlCfgKey}");
+            var cacheKey = $"{OxygenSetting.BreakerSettingKey}{ flowControlCfgKey}";
+            ServiceConfigureInfo result = null;
+            if (readLocalCache)
+            {
+                if (!OrleanClientProvider.GetConfigureCache().TryGetValue(cacheKey, out result))
+                {
+                    result = await _syncConfigureProvider.GetConfigure(cacheKey);
+                    _ = Task.Run(() => RegisterConfigureObserver(cacheKey));
+                }
+            }
+            else
+            {
+                result = await _syncConfigureProvider.GetConfigure(cacheKey);
+            }
+            return result;
         }
         /// <summary>
         /// 更新服务配置节
@@ -42,7 +55,8 @@ namespace Oxygen.ServerFlowControl.Configure
         /// <returns></returns>
         public async Task UpdateBreakerConfigure(string flowControlCfgKey, ServiceConfigureInfo configure)
         {
-            await _syncConfigureProvider.SetConfigure($"{OxygenSetting.BreakerSettingKey}{ flowControlCfgKey}", configure);
+            var cacheKey = $"{OxygenSetting.BreakerSettingKey}{ flowControlCfgKey}";
+            await _syncConfigureProvider.SetConfigure(cacheKey, configure);
         }
         /// <summary>
         /// 服务端初始化配置节
@@ -54,6 +68,11 @@ namespace Oxygen.ServerFlowControl.Configure
         {
             await _syncConfigureProvider.InitConfigure($"{flowControlCfgKey}", configure);
         }
+        public async Task RegisterConfigureObserver(string flowControlCfgKey)
+        {
+            await _syncConfigureProvider.RegisterConfigureObserver($"{flowControlCfgKey}");
+        }
+        
         /// <summary>
         /// 强制熔断无法连通的EndPoint
         /// </summary>
@@ -69,7 +88,7 @@ namespace Oxygen.ServerFlowControl.Configure
             }
             await UpdateBreakerConfigure(flowControlCfgKey, configure);
         }
-        
+
 
         /// <summary>
         /// 读取本地更新断路配置
@@ -86,7 +105,8 @@ namespace Oxygen.ServerFlowControl.Configure
                         var flowControllerAttr = attr as FlowControlAttribute;
                         var serviceConfigInfo = Mapper<FlowControlAttribute, ServiceConfigureInfo>.Map(flowControllerAttr);
                         var flowControlCfgKey = $"{OxygenSetting.BreakerSettingKey}{type.ClassType.Name}{method.Name}";
-                        if ((await GetBreakerConfigure(flowControlCfgKey)) == null)
+                        serviceConfigInfo.FlowControlCfgKey = flowControlCfgKey;
+                        if ((await GetBreakerConfigure(flowControlCfgKey, false)) == null)
                         {
                             await InitBreakerConfigure(flowControlCfgKey, serviceConfigInfo);
                         }
@@ -94,6 +114,7 @@ namespace Oxygen.ServerFlowControl.Configure
                 }
             }
         }
+
         #endregion
         #region 负载均衡
         /// <summary>
@@ -162,17 +183,6 @@ namespace Oxygen.ServerFlowControl.Configure
                 result.Add(new FlowContolConfiugreTypeInfo(x, x.GetInterfaces().FirstOrDefault()));
             }
             return result;
-        }
-        /// <summary>
-        /// 获取客户端服务类型
-        /// </summary>
-        /// <returns></returns>
-        private static List<Type> GetRemoteInterfaceTypes()
-        {
-            var result = new List<FlowContolConfiugreTypeInfo>();
-            var assemblys = GetAllAssemblies();
-            var interfaceType = assemblys.SelectMany(a => a.GetTypes().Where(t => t.GetCustomAttributes(typeof(RemoteServiceAttribute)).Any() && t.IsInterface)).ToArray();
-            return interfaceType.Except(assemblys.SelectMany(x => x.GetTypes().Where(t => t.GetInterfaces().Any() && interfaceType.Contains(t.GetInterfaces().FirstOrDefault()))).Select(x => x.GetInterfaces().FirstOrDefault()).ToArray()).ToList();
         }
         /// <summary>
         /// 获取当前程序集

@@ -12,10 +12,6 @@ namespace Oxygen.CommonTool
         /// 断路设置缓存KEY
         /// </summary>
         public static readonly string BreakerSettingKey = "RPCBREAKERSETTINGKEY";
-        /// <summary>
-        /// 限流令牌桶设置KEY
-        /// </summary>
-        public static readonly string TokenLimitSettingKey = "RPCTOKENLIMITSETTINGKEY";
         public OxygenSetting(IConfiguration configuration)
         {
             ServerName = configuration["Oxygen:Consul:ServerName"];

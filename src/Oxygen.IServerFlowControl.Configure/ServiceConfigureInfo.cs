@@ -13,6 +13,10 @@ namespace Oxygen.IServerFlowControl.Configure
     {
         #region 属性
         /// <summary>
+        /// 主键
+        /// </summary>
+        public string FlowControlCfgKey { get; set; }
+        /// <summary>
         /// 默认启用缓存
         /// </summary>
         public bool DefOpenCache { get; set; } = true;

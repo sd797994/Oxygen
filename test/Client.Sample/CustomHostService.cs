@@ -75,7 +75,7 @@ namespace Client.Sample
                 }
                 else
                 {
-                    callCount = 1000;
+                    callCount = 1;
                 }
             }
         }

@@ -1,4 +1,5 @@
-﻿using Orleans;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Orleans;
 using Orleans.ApplicationParts;
 using Orleans.Configuration;
 using Orleans.Hosting;
@@ -18,6 +19,7 @@ namespace Oxygen.ThreadSyncGenerator
     /// </summary>
     public class OrleanClientProvider
     {
+        static Lazy<MemoryCache> memoryCache = new Lazy<MemoryCache>(() => new MemoryCache(new MemoryCacheOptions()));
         static readonly string CLUSTERNAME = "ORLEANCLUSTERCLIENT";
         static ConcurrentDictionary<string, IClusterClient> clusterClients = new ConcurrentDictionary<string, IClusterClient>();
         public static async Task<IClusterClient> GetClient(bool reGetClient = false)
@@ -61,6 +63,34 @@ namespace Oxygen.ThreadSyncGenerator
                     return client;
                 }
             }
+        }
+
+        /// <summary>
+        /// 获取grain对象
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="reGetClient"></param>
+        /// <returns></returns>
+        public static async Task<ISyncServiceFlowControlConfigureGrain> GetGrain(string key, bool reGetClient = false)
+        {
+            try
+            {
+                var client = await GetClient(reGetClient);
+                if (client != null)
+                {
+                    return client.GetGrain<ISyncServiceFlowControlConfigureGrain>(key);
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+            return null;
+        }
+
+        public static MemoryCache GetConfigureCache()
+        {
+            return memoryCache.Value;
         }
     }
 }
