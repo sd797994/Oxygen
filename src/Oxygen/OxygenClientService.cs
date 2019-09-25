@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Oxygen.IServerFlowControl;
-using Oxygen.IServerFlowControl.Configure;
 using System;
 using System.Threading;
 using System.Threading.Tasks;

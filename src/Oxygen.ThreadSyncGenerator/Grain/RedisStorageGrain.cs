@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Oxygen.ThreadSyncGenerator.Grains
 {
+    /// <summary>
+    /// redis存储
+    /// </summary>
     public class RedisStorageGrain : Grain, IRedisStorageGrain
     {
         private IDictionary<string, GrainStateStore> grainStore;

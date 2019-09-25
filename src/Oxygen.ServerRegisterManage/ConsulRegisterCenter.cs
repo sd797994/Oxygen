@@ -1,5 +1,4 @@
 ﻿using Consul;
-using Nito.AsyncEx;
 using Oxygen.IServerRegisterManage;
 using System;
 using System.Collections.Generic;
@@ -89,6 +88,16 @@ namespace Oxygen.ConsulServerRegisterManage
                 }
             }
             return default;
+        }
+        /// <summary>
+        /// 删除consul配置节
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public async Task<bool> DelValueByKey(string key)
+        {
+            var result = await ConsulFactory.GetClient().KV.Delete(key);
+            return result.StatusCode == System.Net.HttpStatusCode.OK;
         }
     }
 }

@@ -28,5 +28,12 @@ namespace Oxygen.IServerRegisterManage
         /// <param name="serverName"></param>
         /// <returns></returns>
         Task<List<IPEndPoint>> GetServieByName(string serverName);
+
+        /// <summary>
+        /// 删除consul配置节
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        Task<bool> DelValueByKey(string key);
     }
 }

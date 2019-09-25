@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace Oxygen.ThreadSyncGenerator
 {
+    /// <summary>
+    /// 同步配置节grain
+    /// </summary>
     public class SyncServiceFlowControlConfigureGrain : Grain, ISyncServiceFlowControlConfigureGrain
     {
         static ServiceConfigureInfo configure = null;

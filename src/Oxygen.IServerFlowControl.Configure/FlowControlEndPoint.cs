@@ -58,7 +58,9 @@ namespace Oxygen.IServerFlowControl.Configure
         /// </summary>
         public int ThresholdBreakeTimes { get; set; }
     }
-
+    /// <summary>
+    /// 流控endpoint扩展
+    /// </summary>
     public static class IPEndPointExtension
     {
         public static FlowControlEndPoint GetFlowControlEndPoint(this IPEndPoint endpoint)

@@ -8,6 +8,9 @@ using System.Text;
 
 namespace Oxygen.ThreadSyncGenerator.Storage
 {
+    /// <summary>
+    /// redisstorage工厂
+    /// </summary>
     public static class RedisGrainStorageFactory
     {
         public static IGrainStorage Create(IServiceProvider services, string name)

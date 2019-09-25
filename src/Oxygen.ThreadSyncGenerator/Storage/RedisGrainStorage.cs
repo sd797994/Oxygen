@@ -16,6 +16,9 @@ using System.Threading.Tasks;
 
 namespace Oxygen.ThreadSyncGenerator.Storage
 {
+    /// <summary>
+    /// orlaen扩展redisstorage
+    /// </summary>
     public class RedisGrainStorage : IGrainStorage, ILifecycleParticipant<ISiloLifecycle>
     {
         private Lazy<ConcurrentDictionary<string, IRedisStorageGrain>> storageGrains

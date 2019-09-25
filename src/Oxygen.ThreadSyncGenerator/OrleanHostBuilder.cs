@@ -9,6 +9,9 @@ using Oxygen.ThreadSyncGenerator.Grains;
 
 namespace Oxygen.ServerFlowControl.Configure
 {
+    /// <summary>
+    /// orlean服务端builder
+    /// </summary>
     public static class OrleanHostBuilder
     {
         public static readonly string CLUSTERID = "OXYGENTHREADSYNCSERVICE";

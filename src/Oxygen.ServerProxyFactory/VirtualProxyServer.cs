@@ -1,5 +1,4 @@
 ﻿using Oxygen.IServerProxyFactory;
-using System.Net;
 using System.Threading.Tasks;
 
 namespace Oxygen.ServerProxyFactory

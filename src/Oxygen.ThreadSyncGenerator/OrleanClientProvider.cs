@@ -13,6 +13,9 @@ using System.Threading.Tasks;
 
 namespace Oxygen.ThreadSyncGenerator
 {
+    /// <summary>
+    /// orlean客户端提供者
+    /// </summary>
     public class OrleanClientProvider
     {
         static readonly string CLUSTERNAME = "ORLEANCLUSTERCLIENT";

@@ -45,6 +45,7 @@ namespace Oxygen.IServerFlowControl.Configure
         /// <param name="type"></param>
         /// <returns></returns>
         IPEndPoint GetServieByLoadBalane(List<FlowControlEndPoint> lbEndPoints, IPEndPoint clientIp, LoadBalanceType type = LoadBalanceType.IPHash, ServiceConfigureInfo configure = null);
+
         /// <summary>
         /// 通过负载均衡返回一个ip地址
         /// </summary>
@@ -53,6 +54,7 @@ namespace Oxygen.IServerFlowControl.Configure
         /// <param name="type"></param>
         /// <returns></returns>
         IPEndPoint GetServieByLoadBalane(List<IPEndPoint> lbEndPoints, IPEndPoint clientIp, LoadBalanceType type = LoadBalanceType.IPHash);
+
         /// <summary>
         /// 服务器端初始化并更新配置节到缓存
         /// </summary>
