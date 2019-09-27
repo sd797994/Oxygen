@@ -8,7 +8,7 @@ namespace Oxygen.CsharpClientAgent
     [AttributeUsage(AttributeTargets.Method)]
     public class FlowControlAttribute : Attribute
     {
-        public FlowControlAttribute(string FunctionName,bool DefOpenCache = true, object DefCacheData = null, int DefCapacity = 1000, int DefRateLimit = 1, int DefThresholdBreakeTimes = 10, double DefThresholdBreakeRatePerSec = 0.5F,
+        public FlowControlAttribute(string FunctionName,bool DefOpenCache = true, object DefCacheData = null, int DefCapacity = 2000, int DefRateLimit = 1, int DefThresholdBreakeTimes = 10, double DefThresholdBreakeRatePerSec = 0.5F,
             int DefRetryTimes = 3, int DefRetryTimesSec = 5, int DefBreakerRetryTimeSec = 300, int DefTimeOutBreakerSec = 5)
         {
             this.FunctionName = FunctionName;

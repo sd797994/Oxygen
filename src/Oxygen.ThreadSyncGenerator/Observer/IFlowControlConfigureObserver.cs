@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Oxygen.ThreadSyncGenerator
 {
-    public interface IFlowControlConfigureGrainObserver : IGrainObserver
+    public interface IFlowControlConfigureObserver : IGrainObserver
     {
         void UpdateFlowControlConfigure(ServiceConfigureInfo configure);
     }

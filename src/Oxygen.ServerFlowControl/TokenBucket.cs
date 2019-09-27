@@ -21,12 +21,6 @@ namespace Oxygen.ServerFlowControl
     /// </summary>
     public class TokenBucket: ITokenBucket
     {
-        private readonly IEndPointConfigureManager _endPointConfigure;
-
-        public TokenBucket(IEndPointConfigureManager endPointConfigure)
-        {
-            _endPointConfigure = endPointConfigure;
-        }
         /// <summary>
         /// 初始化桶
         /// </summary>

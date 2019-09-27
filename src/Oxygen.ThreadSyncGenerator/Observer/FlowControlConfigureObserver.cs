@@ -7,7 +7,7 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace Oxygen.ThreadSyncGenerator
 {
-    public class FlowControlConfigureGrainObserver: IFlowControlConfigureGrainObserver
+    public class FlowControlConfigureObserver : IFlowControlConfigureObserver
     {
         public void UpdateFlowControlConfigure(ServiceConfigureInfo configure)
         {

@@ -67,12 +67,17 @@ namespace Oxygen.ServerFlowControl.Configure
         {
             await DoSync(key, true, async (grain) => await grain.SetConfigure(newConfigure));
         }
-
+        static Lazy<ConcurrentDictionary<string, FlowControlConfigureObserver>> observers = new Lazy<ConcurrentDictionary<string, FlowControlConfigureObserver>>(() => new ConcurrentDictionary<string, FlowControlConfigureObserver>());
         public async Task RegisterConfigureObserver(string key)
         {
             await DoSync(key, true, async (grain) =>
             {
-                var reference = await (await OrleanClientProvider.GetClient()).CreateObjectReference<IFlowControlConfigureGrainObserver>(new FlowControlConfigureGrainObserver());
+                if (!observers.Value.TryGetValue(key, out FlowControlConfigureObserver observer))
+                {
+                    observer = new FlowControlConfigureObserver();
+                    observers.Value.TryAdd(key, observer);
+                }
+                var reference = await (await OrleanClientProvider.GetClient()).CreateObjectReference<IFlowControlConfigureObserver>(observer);
                 await grain.RegisterObserver(reference);
             });
         }

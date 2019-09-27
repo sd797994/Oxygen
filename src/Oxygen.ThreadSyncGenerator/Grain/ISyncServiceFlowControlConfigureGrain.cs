@@ -11,6 +11,6 @@ namespace Oxygen.ThreadSyncGenerator.Grains
     {
         Task<ServiceConfigureInfo> GetConfigure();
         Task SetConfigure(ServiceConfigureInfo newConfigure);
-        Task RegisterObserver(IFlowControlConfigureGrainObserver observer);
+        Task RegisterObserver(IFlowControlConfigureObserver observer);
     }
 }

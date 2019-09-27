@@ -14,8 +14,8 @@ namespace Oxygen.ThreadSyncGenerator
     public class SyncServiceFlowControlConfigureGrain : Grain, ISyncServiceFlowControlConfigureGrain
     {
         static ServiceConfigureInfo configure = null;
-        static HashSet<IFlowControlConfigureGrainObserver> observers = new HashSet<IFlowControlConfigureGrainObserver>();
-        static List<IFlowControlConfigureGrainObserver> failobservers = new List<IFlowControlConfigureGrainObserver>();
+        static HashSet<IFlowControlConfigureObserver> observers = new HashSet<IFlowControlConfigureObserver>();
+        static List<IFlowControlConfigureObserver> failobservers = new List<IFlowControlConfigureObserver>();
         public async Task<ServiceConfigureInfo> GetConfigure()
         {
             return await Task.FromResult(configure);
@@ -41,7 +41,7 @@ namespace Oxygen.ThreadSyncGenerator
             await Task.CompletedTask;
         }
 
-        public async Task RegisterObserver(IFlowControlConfigureGrainObserver observer)
+        public async Task RegisterObserver(IFlowControlConfigureObserver observer)
         {
             observers.Add(observer);
             await Task.CompletedTask;

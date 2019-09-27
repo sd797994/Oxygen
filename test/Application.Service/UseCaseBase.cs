@@ -19,7 +19,6 @@ namespace Application.Service
             catch (Exception e)
             {
                 result.Message = "出错了,请稍后再试";
-                Console.WriteLine(e.Message);
             }
             return result;
         }

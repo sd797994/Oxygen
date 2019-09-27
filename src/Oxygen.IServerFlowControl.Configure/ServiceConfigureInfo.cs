@@ -29,7 +29,7 @@ namespace Oxygen.IServerFlowControl.Configure
         /// <summary>
         /// 令牌桶默认最大容量(枚)
         /// </summary>
-        public int DefCapacity { get; set; } = 100;
+        public int DefCapacity { get; set; } = 2000;
 
         /// <summary>
         /// 令牌生成桶默认间隔(秒)
