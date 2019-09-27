@@ -20,42 +20,14 @@ namespace Client.Sample
     public class CustomHostService : IHostedService
     {
         private readonly IServerProxyFactory _proxyFactory;
-        private readonly IGlobalCommon _globalCommon;
-        private readonly ISerialize _serialize;
-        public CustomHostService(IServerProxyFactory proxyFactory, IGlobalCommon globalCommon, ISerialize serialize)
+        public CustomHostService(IServerProxyFactory proxyFactory)
         {
             _proxyFactory = proxyFactory;
-            _globalCommon = globalCommon;
-            _serialize = serialize;
         }
         static int succ = 0;
         static int fail = 0;
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            Task[] tasks = new Task[10000];
-            var sendMessage = new Oxygen.IRpcProviderService.RpcGlobalMessageBase<object>
-            {
-                CustomerIp = null,
-                TaskId = Guid.NewGuid(),
-                Path = "abcdef",
-                Message = new RegisterInput() { UserName = "admin" }
-            };
-            var sertest = _serialize.SerializesJson(sendMessage);
-            Stopwatch sw1 = new Stopwatch();
-            sw1.Start();
-            for(var i = 0; i < 1; i++)
-            {
-                tasks[i] = Task.Run(() =>
-                {
-                    var bfbt = _globalCommon.BfEncryp(System.Text.Encoding.Unicode.GetBytes(sertest));
-                    //Console.WriteLine("加密字符串：" + string.Join(",", bfbt));
-                    var bfdebt = _globalCommon.BfDecrypt(bfbt);
-                    //Console.WriteLine("解密字符串：" + string.Join(",", bfbt));
-                });
-            }
-            await Task.WhenAll(tasks);
-            sw1.Stop();
-            Console.WriteLine($"累计耗时{sw1.ElapsedMilliseconds}ms");
             //测试调用
             Console.WriteLine("按任意键开始测试....");
             Console.ReadLine();

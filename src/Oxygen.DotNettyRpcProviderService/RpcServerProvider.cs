@@ -19,7 +19,6 @@ namespace Oxygen.DotNettyRpcProviderService
     public class RpcServerProvider : IRpcServerProvider
     {
         private readonly IOxygenLogger _logger;
-        private readonly IGlobalCommon _common;
         private readonly ILocalProxyGenerator _localProxyGenerator;
         #region dotnetty相关
         IEventLoopGroup _bossGroup;
@@ -28,9 +27,8 @@ namespace Oxygen.DotNettyRpcProviderService
         IChannel boundChannel;
         #endregion
 
-        public RpcServerProvider(IOxygenLogger logger, IGlobalCommon common, ILocalProxyGenerator localProxyGenerator)
+        public RpcServerProvider(IOxygenLogger logger,ILocalProxyGenerator localProxyGenerator)
         {
-            _common = common;
             _logger = logger;
             _localProxyGenerator = localProxyGenerator;
         }
@@ -54,7 +52,7 @@ namespace Oxygen.DotNettyRpcProviderService
                     IChannelPipeline pipeline = channel.Pipeline;
                     pipeline.AddLast(new LengthFieldPrepender(4));
                     pipeline.AddLast(new LengthFieldBasedFrameDecoder(int.MaxValue, 0, 4, 0, 4));
-                    pipeline.AddLast(new RpcServerHandler(_logger, _localProxyGenerator, _common));
+                    pipeline.AddLast(new RpcServerHandler(_logger, _localProxyGenerator));
                 }));
             var port = OxygenSetting.ServerPort ?? GlobalCommon.GetFreePort();
             boundChannel = await _bootstrap.BindAsync(port);

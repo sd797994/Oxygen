@@ -1,10 +1,13 @@
 ﻿using Microsoft.Extensions.Hosting;
+using Orleans;
 using Oxygen.CommonTool;
 using Oxygen.IRpcProviderService;
 using Oxygen.IServerFlowControl;
 using Oxygen.IServerFlowControl.Configure;
 using Oxygen.IServerRegisterManage;
+using Oxygen.ServerFlowControl.Configure;
 using System;
+using System.Runtime.Loader;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -27,7 +30,6 @@ namespace Oxygen
             _registerCenter = registerCenter;
             _configureManage = configureManage;
             _flowControlCenter = flowControlCenter;
-            AppDomain.CurrentDomain.ProcessExit += ProcessExit;
         }
 
         private Task _executingTask;
@@ -52,8 +54,7 @@ namespace Oxygen
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
-            await _rpcServerProvider.CloseServer();
-            await _registerCenter.UnRegisterService();
+            //await CloseOxygenService();
             await Task.WhenAny(_executingTask, Task.Delay(Timeout.Infinite, cancellationToken));
             _stopFlag = true;
         }
@@ -62,8 +63,6 @@ namespace Oxygen
         {
             if (!_stopFlag)
             {
-                await _rpcServerProvider.CloseServer();
-                await _registerCenter.UnRegisterService();
                 await Task.WhenAny(_executingTask, Task.Delay(Timeout.Infinite));
             }
         }
@@ -71,6 +70,21 @@ namespace Oxygen
         public async Task ExecuteAsync()
         {
             await Task.Delay(5000);
+        }
+
+        public async Task CloseOxygenService()
+        {
+            try
+            {
+                await OrleanHostBuilder.ClearConsulKV(async (root, key) => await _registerCenter.DelValueByKey(root, key));
+                await _registerCenter.UnRegisterService();
+                await _rpcServerProvider.CloseServer();
+                await Task.Delay(5000);
+            }
+            catch (Exception)
+            {
+
+            }
         }
     }
 }

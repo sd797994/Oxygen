@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Oxygen.ConsulServerRegisterManage
@@ -94,10 +95,19 @@ namespace Oxygen.ConsulServerRegisterManage
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public async Task<bool> DelValueByKey(string key)
+        public async Task DelValueByKey(string root, string key)
         {
-            var result = await ConsulFactory.GetClient().KV.Delete(key);
-            return result.StatusCode == System.Net.HttpStatusCode.OK;
+            var rootkeys = await ConsulFactory.GetClient().KV.Keys("orleans");
+            if (rootkeys.StatusCode == HttpStatusCode.OK)
+            {
+                foreach(var mykey in rootkeys.Response)
+                {
+                    if (mykey.Contains($"{root}/{key}"))
+                    {
+                        _ = await ConsulFactory.GetClient().KV.Delete(mykey);
+                    }
+                }
+            }
         }
     }
 }

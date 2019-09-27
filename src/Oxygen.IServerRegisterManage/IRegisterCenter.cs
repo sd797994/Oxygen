@@ -34,6 +34,6 @@ namespace Oxygen.IServerRegisterManage
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        Task<bool> DelValueByKey(string key);
+        Task DelValueByKey(string root, string key);
     }
 }

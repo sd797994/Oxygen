@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting.Internal;
 using Oxygen.CommonTool;
 using Oxygen.ServerFlowControl.Configure;
 using System;
@@ -48,7 +49,7 @@ namespace Oxygen
         /// <param name="hostBuilder"></param>
         /// <param name="configuration"></param>
         /// <returns></returns>
-        public static IHostBuilder UseOxygenService(this IHostBuilder hostBuilder,Action<IServiceCollection> collection)
+        public static IHostBuilder UseOxygenService(this IHostBuilder hostBuilder, Action<IServiceCollection> collection)
         {
             CONFIGSERVICE = true;
             //注入线程同步服务
@@ -63,6 +64,8 @@ namespace Oxygen
         /// <returns></returns>
         public static IServiceCollection ConfigureOxygen(this IServiceCollection service, IConfiguration configuration)
         {
+            //注册默认周期管理
+            service.AddSingleton<IHostLifetime, ConsoleLifetime>();
             //注入默认配置节
             new OxygenSetting(configuration);
             if (CONFIGSERVICE)

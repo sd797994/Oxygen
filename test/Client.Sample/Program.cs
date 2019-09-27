@@ -45,7 +45,6 @@ namespace Client.Sample
                 services.AddHttpClient();
                 services.AddAutofac();
             })
-            .UseServiceProviderFactory(new AutofacServiceProviderFactory())
-            .UseConsoleLifetime();
+            .UseServiceProviderFactory(new AutofacServiceProviderFactory());
     }
 }

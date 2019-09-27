@@ -15,7 +15,6 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-
 namespace Oxygen.DotNettyRpcProviderService
 {
     public delegate void ReceiveHander(byte[] input);
@@ -28,7 +27,6 @@ namespace Oxygen.DotNettyRpcProviderService
         private readonly IOxygenLogger _logger;
         private readonly ISerialize _serialize;
         private readonly IFlowControlCenter _flowControlCenter;
-        private readonly IGlobalCommon _globalCommon;
         private readonly CustomerInfo _customerInfo;
         public static readonly ConcurrentDictionary<Guid, TaskCompletionSource<byte[]>> TaskHookInfos =
             new ConcurrentDictionary<Guid, TaskCompletionSource<byte[]>>();
@@ -37,14 +35,13 @@ namespace Oxygen.DotNettyRpcProviderService
         static readonly ConcurrentDictionary<string, IChannel> Channels = new ConcurrentDictionary<string, IChannel>();
         #endregion
 
-        public RpcClientProvider(IOxygenLogger logger, ISerialize serialize, IFlowControlCenter flowControlCenter, IGlobalCommon globalCommon, CustomerInfo customerInfo)
+        public RpcClientProvider(IOxygenLogger logger, ISerialize serialize, IFlowControlCenter flowControlCenter, CustomerInfo customerInfo)
         {
             _logger = logger;
             _serialize = serialize;
             _flowControlCenter = flowControlCenter;
             _bootstrap = CreateBootStrap();
             _customerInfo = customerInfo;
-            _globalCommon = globalCommon;
         }
         /// <summary>
         /// 创建Bootstrap
@@ -103,8 +100,9 @@ namespace Oxygen.DotNettyRpcProviderService
                             Path = path,
                             Message = message is string ? _serialize.Deserializes<object>(_serialize.SerializesJsonString((string)message)) : message
                         };
+                        sendMessage.Sign(GlobalCommon.SHA256Encrypt(taskId + OxygenSetting.SignKey));
                         var resultTask = RegisterResultCallbackAsync(taskId);
-                        var buffer = Unpooled.WrappedBuffer(_globalCommon.BfEncryp(_serialize.Serializes(sendMessage)));
+                        var buffer = Unpooled.WrappedBuffer(_serialize.Serializes(sendMessage));
                         await _channel.WriteAndFlushAsync(buffer);
                         var resultBt = await resultTask;
                         if (resultBt != null && resultBt.Any())
@@ -175,9 +173,24 @@ namespace Oxygen.DotNettyRpcProviderService
         {
             if (input != null || input.Any())
             {
-                var message = _serialize.Deserializes<RpcGlobalMessageBase<object>>(_globalCommon.BfDecrypt(input));
-                var task = GetHook(message.TaskId);
-                task?.TrySetResult(_serialize.Serializes(message.Message));
+                var message = _serialize.Deserializes<RpcGlobalMessageBase<object>>(input);
+                switch (message.code)
+                {
+                    case HttpStatusCode.OK:
+                        var task = GetHook(message.TaskId);
+                        task?.TrySetResult(_serialize.Serializes(message.Message));
+                        break;
+                    case HttpStatusCode.NotFound:
+                        _logger.LogError("RPC调用失败,未找到对应的消费者应用程序!");
+                        task = GetHook(message.TaskId);
+                        task?.TrySetResult(null);
+                        break;
+                    case HttpStatusCode.Unauthorized:
+                        _logger.LogError("RPC调用失败,数字签名验签不通过!");
+                        task = GetHook(message.TaskId);
+                        task?.TrySetResult(null);
+                        break;
+                }
             }
         }
         /// <summary>

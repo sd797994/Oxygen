@@ -47,6 +47,16 @@ namespace Oxygen.ServerProxyFactory
             else
             {
                 var messageBody = _serialize.Deserializes<RpcGlobalMessageBase<object>>(message);
+                if (messageBody == null)
+                {
+                    return default;
+                }
+                if (!messageBody.CheckSign(GlobalCommon.SHA256Encrypt(messageBody.TaskId + OxygenSetting.SignKey)))
+                {
+                    _logger.LogError($"验签失败,任务ID:{messageBody.TaskId}");
+                    messageBody.code = System.Net.HttpStatusCode.Unauthorized;
+                    return _serialize.Serializes(messageBody);
+                }
                 if (!InstanceDictionary.TryGetValue(messageBody.Path, out var messageType))
                 {
                     _customerInfo.Ip = messageBody.CustomerIp;
@@ -59,13 +69,15 @@ namespace Oxygen.ServerProxyFactory
                 if (messageType != null)
                 {
                     messageBody.Message = await Publish(_serialize.Deserializes(messageType, _serialize.Serializes(messageBody.Message)));
+                    messageBody.code = System.Net.HttpStatusCode.OK;
                     return _serialize.Serializes(messageBody);
                 }
                 else
                 {
-                    _logger.LogError($"未找到订阅者实例：{messageBody.Path}");
+                    _logger.LogError($"未找到订阅者实例:{messageBody.Path}");
+                    messageBody.code = System.Net.HttpStatusCode.NotFound;
+                    return _serialize.Serializes(messageBody);
                 }
-                return default;
             }
         }
 

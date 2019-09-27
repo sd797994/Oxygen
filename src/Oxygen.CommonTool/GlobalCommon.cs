@@ -2,22 +2,24 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace Oxygen.CommonTool
 {
     /// <summary>
     /// 全局通用工具类
     /// </summary>
-    public class GlobalCommon : IGlobalCommon
+    public class GlobalCommon
     {
         /// <summary>
         /// 获取可用端口号
         /// </summary>
         /// <returns></returns>
-        public static int GetFreePort()
+        public static int GetFreePort(params int[] ingorePort)
         {
             //检查指定端口是否已用
             bool PortIsAvailable(int port)
@@ -56,7 +58,11 @@ namespace Oxygen.CommonTool
             while (true)
             {
                 var randomPort = new Random(Guid.NewGuid().GetHashCode()).Next(BEGIN_PORT, MAX_PORT);
-                if (PortIsAvailable(randomPort))
+                if (ingorePort != null && ingorePort.ToList().Contains(randomPort))
+                {
+                    usePort.Add(randomPort);
+                }
+                else if (PortIsAvailable(randomPort))
                 {
                     return randomPort;
                 }
@@ -98,47 +104,12 @@ namespace Oxygen.CommonTool
         }
 
 
-
-        /// <summary>
-        /// Rsa加密
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        public byte[] RsaEncryp(byte[] data)
+        static Lazy<SHA256Managed> shamaanger = new Lazy<SHA256Managed>(() => new SHA256Managed());
+        public static string SHA256Encrypt(string StrIn)
         {
-            var provider = RsaEncrypFactory.CreateEncrypProvider();
-            return provider.Encrypt(data, RSAEncryptionPadding.Pkcs1);
-        }
-        /// <summary>
-        /// Rsa解密
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        public byte[] RsaDecrypt(byte[] data)
-        {
-            var provider = RsaEncrypFactory.CreateDecryptProvider();
-            return provider.Decrypt(data, RSAEncryptionPadding.Pkcs1);
-        }
-
-        /// <summary>
-        /// BlowFish加密
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        public byte[] BfEncryp(byte[] data)
-        {
-            var provider = BlowFishEncrypFactory.CreateProvider();
-            return provider.Encrypt_ECB(data);
-        }
-        /// <summary>
-        /// BlowFish解密
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        public byte[] BfDecrypt(byte[] data)
-        {
-            var provider = BlowFishEncrypFactory.CreateProvider();
-            return provider.Decrypt_ECB(data);
+            var tmpByte = Encoding.UTF8.GetBytes(StrIn);
+            var EncryptBytes = shamaanger.Value.ComputeHash(tmpByte);
+            return Convert.ToBase64String(EncryptBytes);
         }
     }
 }

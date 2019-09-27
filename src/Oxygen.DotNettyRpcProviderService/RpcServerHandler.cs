@@ -15,12 +15,10 @@ namespace Oxygen.DotNettyRpcProviderService
     {
         private readonly IOxygenLogger _logger;
         private readonly ILocalProxyGenerator _localProxyGenerator;
-        private readonly IGlobalCommon _globalCommon;
-        public RpcServerHandler(IOxygenLogger logger, ILocalProxyGenerator localProxyGenerator, IGlobalCommon globalCommon)
+        public RpcServerHandler(IOxygenLogger logger, ILocalProxyGenerator localProxyGenerator)
         {
             _logger = logger;
             _localProxyGenerator = localProxyGenerator;
-            _globalCommon = globalCommon;
         }
         /// <summary>
         /// 从tcp管道接受消息
@@ -35,10 +33,10 @@ namespace Oxygen.DotNettyRpcProviderService
                 {
                     var data = new byte[buffer.ReadableBytes];
                     buffer.ReadBytes(data);
-                    var localHanderResult = await _localProxyGenerator.Invoke(_globalCommon.BfDecrypt(data));
+                    var localHanderResult = await _localProxyGenerator.Invoke(data);
                     if (localHanderResult != null && localHanderResult.Any())
                     {
-                        await context.WriteAsync(Unpooled.WrappedBuffer(_globalCommon.BfEncryp(localHanderResult)));
+                        await context.WriteAsync(Unpooled.WrappedBuffer(localHanderResult));
                     }
                 }
             }

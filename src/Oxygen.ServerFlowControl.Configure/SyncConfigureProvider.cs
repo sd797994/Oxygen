@@ -65,7 +65,7 @@ namespace Oxygen.ServerFlowControl.Configure
         /// <returns></returns>
         public async Task InitConfigure(string key, ServiceConfigureInfo newConfigure)
         {
-            await DoSync(key, true, async (grain) => await grain.SetConfigure(newConfigure));
+            await DoSync(key, true, async (grain) => await TrySetConfigure(grain,newConfigure));
         }
         static Lazy<ConcurrentDictionary<string, FlowControlConfigureObserver>> observers = new Lazy<ConcurrentDictionary<string, FlowControlConfigureObserver>>(() => new ConcurrentDictionary<string, FlowControlConfigureObserver>());
         public async Task RegisterConfigureObserver(string key)

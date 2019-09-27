@@ -47,7 +47,6 @@ namespace Server.Sample
                 });
                 services.AddAutofac();
             })
-            .UseServiceProviderFactory(new AutofacServiceProviderFactory())
-            .UseConsoleLifetime();
+            .UseServiceProviderFactory(new AutofacServiceProviderFactory());
     }
 }
