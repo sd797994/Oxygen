@@ -16,7 +16,7 @@ namespace Oxygen.ThreadSyncGenerator.Extensions
     /// </summary>
     public static class SiloBuilderExtensions
     {
-        public static ISiloBuilder AddRedisGrainStorage(this ISiloBuilder builder, string name)
+        public static ISiloHostBuilder AddRedisGrainStorage(this ISiloHostBuilder builder, string name)
         {
             return builder.ConfigureApplicationParts(delegate (IApplicationPartManager parts)
             {

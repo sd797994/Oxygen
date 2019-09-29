@@ -54,7 +54,7 @@ namespace Oxygen
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
-            //await CloseOxygenService();
+            await CloseOxygenService();
             await Task.WhenAny(_executingTask, Task.Delay(Timeout.Infinite, cancellationToken));
             _stopFlag = true;
         }
@@ -76,10 +76,9 @@ namespace Oxygen
         {
             try
             {
-                await OrleanHostBuilder.ClearConsulKV(async (root, key) => await _registerCenter.DelValueByKey(root, key));
+                await OrleanHostBuilder.CloseOrleansSiloService(async (root, key) => await _registerCenter.DelValueByKey(root, key));
                 await _registerCenter.UnRegisterService();
                 await _rpcServerProvider.CloseServer();
-                await Task.Delay(5000);
             }
             catch (Exception)
             {
