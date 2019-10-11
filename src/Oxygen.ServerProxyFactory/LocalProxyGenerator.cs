@@ -37,46 +37,41 @@ namespace Oxygen.ServerProxyFactory
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        public async Task<byte[]> Invoke(byte[] message)
+        public async Task<RpcGlobalMessageBase<object>> Invoke(RpcGlobalMessageBase<object> message)
         {
-            if (message == null || !message.Any())
+            if (message == null)
             {
                 _logger.LogError($"订阅者消息分发不能为空消息");
                 return default;
             }
             else
             {
-                var messageBody = _serialize.Deserializes<RpcGlobalMessageBase<object>>(message);
-                if (messageBody == null)
+                if (!message.CheckSign(GlobalCommon.SHA256Encrypt(message.TaskId + OxygenSetting.SignKey)))
                 {
-                    return default;
+                    _logger.LogError($"验签失败,任务ID:{message.TaskId}");
+                    message.code = System.Net.HttpStatusCode.Unauthorized;
+                    return message;
                 }
-                if (!messageBody.CheckSign(GlobalCommon.SHA256Encrypt(messageBody.TaskId + OxygenSetting.SignKey)))
+                if (!InstanceDictionary.TryGetValue(message.Path, out var messageType))
                 {
-                    _logger.LogError($"验签失败,任务ID:{messageBody.TaskId}");
-                    messageBody.code = System.Net.HttpStatusCode.Unauthorized;
-                    return _serialize.Serializes(messageBody);
-                }
-                if (!InstanceDictionary.TryGetValue(messageBody.Path, out var messageType))
-                {
-                    _customerInfo.Ip = messageBody.CustomerIp;
-                    messageType = MediatRAssembly.GetType($"Oxygen.MediatRProxyClientBuilder.ProxyInstance.{messageBody.Path}");
+                    _customerInfo.Ip = message.CustomerIp;
+                    messageType = MediatRAssembly.GetType($"Oxygen.MediatRProxyClientBuilder.ProxyInstance.{message.Path}");
                     if (messageType != null)
                     {
-                        InstanceDictionary.TryAdd(messageBody.Path, messageType);
+                        InstanceDictionary.TryAdd(message.Path, messageType);
                     }
                 }
                 if (messageType != null)
                 {
-                    messageBody.Message = await Publish(_serialize.Deserializes(messageType, _serialize.Serializes(messageBody.Message)));
-                    messageBody.code = System.Net.HttpStatusCode.OK;
-                    return _serialize.Serializes(messageBody);
+                    message.Message = await Publish(_serialize.Deserializes(messageType, _serialize.Serializes(message.Message)));
+                    message.code = System.Net.HttpStatusCode.OK;
+                    return message;
                 }
                 else
                 {
-                    _logger.LogError($"未找到订阅者实例:{messageBody.Path}");
-                    messageBody.code = System.Net.HttpStatusCode.NotFound;
-                    return _serialize.Serializes(messageBody);
+                    _logger.LogError($"未找到订阅者实例:{message.Path}");
+                    message.code = System.Net.HttpStatusCode.NotFound;
+                    return message;
                 }
             }
         }

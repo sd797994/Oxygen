@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using Oxygen.IRpcProviderService;
+using System.Threading.Tasks;
 
 namespace Oxygen.IServerProxyFactory
 {
@@ -12,6 +13,6 @@ namespace Oxygen.IServerProxyFactory
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        Task<byte[]> Invoke(byte[] message);
+        Task<RpcGlobalMessageBase<object>> Invoke(RpcGlobalMessageBase<object> message);
     }
 }

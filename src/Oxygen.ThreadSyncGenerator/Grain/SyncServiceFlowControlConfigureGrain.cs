@@ -41,10 +41,10 @@ namespace Oxygen.ThreadSyncGenerator
             await Task.CompletedTask;
         }
 
-        public async Task RegisterObserver(IFlowControlConfigureObserver observer)
+        public async Task<bool> RegisterObserver(IFlowControlConfigureObserver observer)
         {
             observers.Add(observer);
-            await Task.CompletedTask;
+            return await Task.FromResult(true);
         }
     }
 }

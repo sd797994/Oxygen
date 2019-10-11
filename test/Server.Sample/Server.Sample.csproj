@@ -26,6 +26,9 @@
     <None Update="oxygen.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="skyapm.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties oxygen_1json__JsonSchema="http://json.schemastore.org/appsscript" /></VisualStudio></ProjectExtensions>

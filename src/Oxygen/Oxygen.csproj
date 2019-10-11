@@ -11,7 +11,7 @@
     <PackageReference Include="Autofac.Configuration" Version="4.1.0" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="6.0.1" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="2.2.0" />
-  </ItemGroup>
+    </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Oxygen.CommonTool\Oxygen.CommonTool.csproj" />
@@ -28,6 +28,7 @@
     <ProjectReference Include="..\Oxygen.ServerFlowControl\Oxygen.ServerFlowControl.csproj" />
     <ProjectReference Include="..\Oxygen.ServerProxyFactory\Oxygen.ServerProxyFactory.csproj" />
     <ProjectReference Include="..\Oxygen.ServerRegisterManage\Oxygen.ConsulServerRegisterManage.csproj" />
+    <ProjectReference Include="..\Oxygen.SkyApm\Oxygen.SkyApm.csproj" />
     <ProjectReference Include="..\Oxygen.ThreadSyncGenerator\Oxygen.ThreadSyncGenerator.csproj" />
   </ItemGroup>
 </Project>

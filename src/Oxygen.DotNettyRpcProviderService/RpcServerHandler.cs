@@ -2,6 +2,7 @@
 using DotNetty.Transport.Channels;
 using Oxygen.CommonTool;
 using Oxygen.CommonTool.Logger;
+using Oxygen.IRpcProviderService;
 using Oxygen.IServerProxyFactory;
 using System;
 using System.Linq;
@@ -29,14 +30,12 @@ namespace Oxygen.DotNettyRpcProviderService
         {
             try
             {
-                if (message is IByteBuffer buffer)
+                if (message is RpcGlobalMessageBase<object>)
                 {
-                    var data = new byte[buffer.ReadableBytes];
-                    buffer.ReadBytes(data);
-                    var localHanderResult = await _localProxyGenerator.Invoke(data);
-                    if (localHanderResult != null && localHanderResult.Any())
+                    var localHanderResult = await _localProxyGenerator.Invoke((RpcGlobalMessageBase<object>)message);
+                    if (localHanderResult != null)
                     {
-                        await context.WriteAsync(Unpooled.WrappedBuffer(localHanderResult));
+                        await context.WriteAsync(localHanderResult);
                     }
                 }
             }

@@ -18,13 +18,11 @@ namespace ApiGateWay.Controllers
     public class RouteGateController : ControllerBase
     {
         private readonly IServerProxyFactory _serverProxyFactory;
-        private readonly ISerialize _serialize;
         private IHttpContextAccessor _accessor;
         private CustomerInfo _customerInfo;
-        public RouteGateController(IServerProxyFactory serverProxyFactory, ISerialize serialize, IHttpContextAccessor accessor, CustomerInfo customerInfo)
+        public RouteGateController(IServerProxyFactory serverProxyFactory, IHttpContextAccessor accessor, CustomerInfo customerInfo)
         {
             _serverProxyFactory = serverProxyFactory;
-            _serialize = serialize;
             _accessor = accessor;
             _customerInfo = customerInfo;
         }

@@ -1,7 +1,9 @@
 ﻿using DotNetty.Buffers;
 using DotNetty.Transport.Channels;
 using Oxygen.CommonTool.Logger;
+using Oxygen.IRpcProviderService;
 using System;
+using System.Text;
 
 namespace Oxygen.DotNettyRpcProviderService
 {
@@ -26,12 +28,9 @@ namespace Oxygen.DotNettyRpcProviderService
         {
             try
             {
-                if (message is IByteBuffer buffer)
+                if (message is RpcGlobalMessageBase<object>)
                 {
-                    int length = buffer.ReadableBytes;
-                    var array = new byte[length];
-                    buffer.GetBytes(buffer.ReaderIndex, array, 0, length);
-                    _hander?.Invoke(array);
+                    _hander?.Invoke((RpcGlobalMessageBase<object>)message);
                 }
             }
             catch (Exception e)

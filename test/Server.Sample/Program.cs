@@ -32,21 +32,20 @@ namespace Server.Sample
                 //注入oxygen依赖
                 builder.RegisterOxygen();
                 //注入本地业务依赖
-                builder.RegisterType<UserLoginUseCase>().As<IUserLoginUseCase>().InstancePerLifetimeScope();
+                builder.RegisterType<UserLoginUseCase>().As<IUserLoginUseCase>().InstancePerDependency();
             })
             //注册成为oxygen服务节点
             .UseOxygenService(services => {
-                //注册oxygen配置节
+                //注册oxygen配置
                 services.ConfigureOxygen(Configuration);
-            })
-            .ConfigureServices(services =>
-            {
                 services.AddLogging(configure =>
                 {
                     configure.AddConsole();
                 });
                 services.AddAutofac();
             })
+            //在oxygen服务中插入apm代理
+            .AddOxygenAPM()
             .UseServiceProviderFactory(new AutofacServiceProviderFactory());
     }
 }

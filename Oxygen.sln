@@ -55,6 +55,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oxygen.ServerFlowControl.Co
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oxygen.ThreadSyncGenerator", "src\Oxygen.ThreadSyncGenerator\Oxygen.ThreadSyncGenerator.csproj", "{C1DEBD95-C079-4140-93E5-417F8AAE7613}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oxygen.SkyApm", "src\Oxygen.SkyApm\Oxygen.SkyApm.csproj", "{65474500-6539-4596-981A-6597724C8BBC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -157,6 +159,10 @@ Global
 		{C1DEBD95-C079-4140-93E5-417F8AAE7613}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C1DEBD95-C079-4140-93E5-417F8AAE7613}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C1DEBD95-C079-4140-93E5-417F8AAE7613}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65474500-6539-4596-981A-6597724C8BBC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65474500-6539-4596-981A-6597724C8BBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65474500-6539-4596-981A-6597724C8BBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65474500-6539-4596-981A-6597724C8BBC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -185,6 +191,7 @@ Global
 		{5C534CCF-4911-4565-A6B2-A91E788D4AB1} = {5E0BADCE-71FC-4950-ACFE-1340DD435402}
 		{5FA10198-D8FC-44FF-B7E5-FEA62303320B} = {5E0BADCE-71FC-4950-ACFE-1340DD435402}
 		{C1DEBD95-C079-4140-93E5-417F8AAE7613} = {5E0BADCE-71FC-4950-ACFE-1340DD435402}
+		{65474500-6539-4596-981A-6597724C8BBC} = {5E0BADCE-71FC-4950-ACFE-1340DD435402}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {83624657-71E1-4209-8A42-056014F3D0C5}

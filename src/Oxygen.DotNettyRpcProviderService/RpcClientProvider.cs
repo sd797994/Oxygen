@@ -17,7 +17,7 @@ using System.Net;
 using System.Threading.Tasks;
 namespace Oxygen.DotNettyRpcProviderService
 {
-    public delegate void ReceiveHander(byte[] input);
+    public delegate void ReceiveHander(RpcGlobalMessageBase<object> message);
 
     /// <summary>
     /// 客户端消息服务类
@@ -49,18 +49,25 @@ namespace Oxygen.DotNettyRpcProviderService
         /// <returns></returns>
         Bootstrap CreateBootStrap()
         {
-            return new Bootstrap()
-                .Group(new EventLoopGroup())
-                .Channel<TcpSocketChannel>()
-                .Option(ChannelOption.TcpNodelay, true)
-                .Option(ChannelOption.Allocator, PooledByteBufferAllocator.Default)
-                .Handler(new ActionChannelInitializer<ISocketChannel>(channel =>
-                {
-                    IChannelPipeline pipeline = channel.Pipeline;
-                    pipeline.AddLast(new LengthFieldPrepender(4));
-                    pipeline.AddLast(new LengthFieldBasedFrameDecoder(int.MaxValue, 0, 4, 0, 4));
-                    pipeline.AddLast(new RpcClientHandler(_logger, ReceiveMessage));
-                }));
+            IEventLoopGroup group;
+            var bootstrap = new Bootstrap();
+            group = new EventLoopGroup();
+            bootstrap.Channel<TcpChannel>();
+            bootstrap
+                        .Group(group)
+                        .Option(ChannelOption.TcpNodelay, true)
+                        .Option(ChannelOption.Allocator, PooledByteBufferAllocator.Default)
+                        .Option(ChannelOption.ConnectTimeout, new TimeSpan(0, 0, 5))
+                        .Handler(new ActionChannelInitializer<IChannel>(ch =>
+                        {
+                            var pipeline = ch.Pipeline;
+                            pipeline.AddLast(new LengthFieldPrepender(4));
+                            pipeline.AddLast(new LengthFieldBasedFrameDecoder(int.MaxValue, 0, 4, 0, 4));
+                            pipeline.AddLast(new MessageDecoder<RpcGlobalMessageBase<object>>(_serialize));
+                            pipeline.AddLast(new MessageEncoder<object>(_serialize));
+                            pipeline.AddLast(new RpcClientHandler(_logger, ReceiveMessage));
+                        }));
+            return bootstrap;
         }
 
         /// <summary>
@@ -70,9 +77,9 @@ namespace Oxygen.DotNettyRpcProviderService
         /// <param name="serverName"></param>
         /// <param name="path"></param>
         /// <returns></returns>
-        public async Task<string> CreateClient(IPEndPoint endPoint, string flowControlCfgKey)
+        public async Task<string> CreateClient(IPEndPoint endPoint)
         {
-            return await CreateChannel(endPoint, flowControlCfgKey);
+            return await CreateChannel(endPoint);
         }
 
         /// <summary>
@@ -102,8 +109,7 @@ namespace Oxygen.DotNettyRpcProviderService
                         };
                         sendMessage.Sign(GlobalCommon.SHA256Encrypt(taskId + OxygenSetting.SignKey));
                         var resultTask = RegisterResultCallbackAsync(taskId);
-                        var buffer = Unpooled.WrappedBuffer(_serialize.Serializes(sendMessage));
-                        await _channel.WriteAndFlushAsync(buffer);
+                        await _channel.WriteAndFlushAsync(sendMessage);
                         var resultBt = await resultTask;
                         if (resultBt != null && resultBt.Any())
                         {
@@ -127,11 +133,11 @@ namespace Oxygen.DotNettyRpcProviderService
         /// <param name="serverName"></param>
         /// <param name="port"></param>
         /// <returns></returns>
-        async Task<string> CreateChannel(IPEndPoint endpoint, string flowControlCfgKey)
+        async Task<string> CreateChannel(IPEndPoint endpoint)
         {
             try
             {
-                var channelKey = $"{endpoint.Address}{endpoint.Port}{flowControlCfgKey}";
+                var channelKey = $"{endpoint.Address}{endpoint.Port}";
                 if (Channels.TryGetValue(channelKey, out var channel))
                 {
                     if (!channel.Active)
@@ -169,11 +175,10 @@ namespace Oxygen.DotNettyRpcProviderService
         /// 消息回调处理
         /// </summary>
         /// <param name="input"></param>
-        void ReceiveMessage(byte[] input)
+        void ReceiveMessage(RpcGlobalMessageBase<object> message)
         {
-            if (input != null || input.Any())
+            if (message != null)
             {
-                var message = _serialize.Deserializes<RpcGlobalMessageBase<object>>(input);
                 switch (message.code)
                 {
                     case HttpStatusCode.OK:

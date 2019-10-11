@@ -16,7 +16,7 @@ namespace Oxygen.IRpcProviderService
         /// <param name="serverName"></param>
         /// <param name="path"></param>
         /// <returns></returns>
-        Task<string> CreateClient(IPEndPoint endPoint, string flowControlCfgKey);
+        Task<string> CreateClient(IPEndPoint endPoint);
 
         /// <summary>
         /// 发送消息

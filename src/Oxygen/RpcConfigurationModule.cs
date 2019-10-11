@@ -6,6 +6,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
 using Oxygen.CommonTool;
 using Oxygen.ServerFlowControl.Configure;
+using Oxygen.SkyApm.Extensions;
+using SkyApm.Agent.GeneralHost;
+using SkyApm.Utilities.DependencyInjection;
 using System;
 
 namespace Oxygen
@@ -81,6 +84,18 @@ namespace Oxygen
                 service.AddHostedService<OxygenClientService>();
             }
             return service;
+        }
+
+        public static IServiceCollection AddDashboard(this IServiceCollection service)
+        {
+            return service;
+        }
+
+        public static IHostBuilder AddOxygenAPM(this IHostBuilder builder)
+        {
+            return builder.AddSkyAPM()
+                //.ConfigureServices(services => { services.AddSkyApmExtensions().AddOxygen(); })
+                ;
         }
     }
 }

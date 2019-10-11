@@ -48,7 +48,7 @@ namespace Oxygen.ServerProxyFactory
                 var ipendpoint = await _flowControlCenter.GetFlowControlEndPointByServicePath(serviceName, configure, _customerInfo.Ip);
                 if (ipendpoint != null)
                 {
-                    var channelKey = await _clientProvider.CreateClient(ipendpoint, flowControlCfgKey);
+                    var channelKey = await _clientProvider.CreateClient(ipendpoint);
                     if (channelKey != null)
                     {
                         return await _clientProvider.SendMessage<TOut>(channelKey, ipendpoint, flowControlCfgKey, configure, serviceName, pathName, input);

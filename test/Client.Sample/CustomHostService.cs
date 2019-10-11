@@ -43,6 +43,8 @@ namespace Client.Sample
                 {
                     var userserver = await _proxyFactory.CreateProxy<IUserLoginUseCase>();
                     var result1 = await userserver.Register(new RegisterInput() { UserName = "admin" });
+                    //var remoteProxy = await _proxyFactory.CreateProxy("/api/ServerSample/UserLoginUseCase/register");
+                    //var result1 = await remoteProxy.SendAsync(new RegisterInput() { UserName = "admin" });
                     if (result1 == null)
                     {
                         Interlocked.Increment(ref fail);
@@ -100,10 +102,5 @@ namespace Client.Sample
         {
             await Task.CompletedTask;
         }
-    }
-
-    public class Test
-    {
-        public List<System.Net.IPEndPoint> endPoints { get; set; }
     }
 }
