@@ -5,10 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
 using Oxygen.CommonTool;
-using Oxygen.ServerFlowControl.Configure;
-using Oxygen.SkyApm.Extensions;
-using SkyApm.Agent.GeneralHost;
-using SkyApm.Utilities.DependencyInjection;
 using System;
 
 namespace Oxygen
@@ -36,14 +32,6 @@ namespace Oxygen
             builder.RegisterModule(new ServerProxyFactory.Module());
             //注入通用服务
             builder.RegisterModule(new CommonTool.Module());
-            //注入注册中心服务
-            builder.RegisterModule(new ConsulServerRegisterManage.Module());
-            //注入缓存服务
-            builder.RegisterModule(new RedisCache.Module());
-            //注入流控服务
-            builder.RegisterModule(new ServerFlowControl.Module());
-            //注入流控配置服务
-            builder.RegisterModule(new ServerFlowControl.Configure.Module());
             return builder;
         }
         /// <summary>
@@ -56,7 +44,7 @@ namespace Oxygen
         {
             CONFIGSERVICE = true;
             //注入线程同步服务
-            hostBuilder.UseOrleansSiloService().ConfigureServices(x => collection(x));
+            hostBuilder.ConfigureServices(x => collection(x));
             return hostBuilder;
         }
         /// <summary>
@@ -67,8 +55,6 @@ namespace Oxygen
         /// <returns></returns>
         public static IServiceCollection ConfigureOxygen(this IServiceCollection service, IConfiguration configuration)
         {
-            //注册默认周期管理
-            service.AddSingleton<IHostLifetime, ConsoleLifetime>();
             //注入默认配置节
             new OxygenSetting(configuration);
             if (CONFIGSERVICE)
@@ -84,18 +70,6 @@ namespace Oxygen
                 service.AddHostedService<OxygenClientService>();
             }
             return service;
-        }
-
-        public static IServiceCollection AddDashboard(this IServiceCollection service)
-        {
-            return service;
-        }
-
-        public static IHostBuilder AddOxygenAPM(this IHostBuilder builder)
-        {
-            return builder.AddSkyAPM()
-                //.ConfigureServices(services => { services.AddSkyApmExtensions().AddOxygen(); })
-                ;
         }
     }
 }

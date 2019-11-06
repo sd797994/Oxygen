@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Hosting;
-using Oxygen.IServerFlowControl;
-using Oxygen.IServerFlowControl.Configure;
+﻿using Autofac;
+using Microsoft.Extensions.Hosting;
+using Oxygen.CommonTool;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,12 +13,9 @@ namespace Oxygen
     public class OxygenClientService : IHostedService
     {
         private static bool _stopFlag = false;
-        private readonly IFlowControlCenter _flowControlCenter;
-        private readonly IEndPointConfigureManager _configureManage;
-        public OxygenClientService(IFlowControlCenter flowControlCenter, IEndPointConfigureManager configureManage)
+        public OxygenClientService(ILifetimeScope container)
         {
-            _flowControlCenter = flowControlCenter;
-            _configureManage = configureManage;
+            OxygenIocContainer.BuilderIocContainer(container);
             AppDomain.CurrentDomain.ProcessExit += ProcessExit;
         }
 
@@ -31,9 +28,6 @@ namespace Oxygen
             {
                 await _executingTask;
             }
-            _ = Task.Run(() => {
-                _flowControlCenter.RegisterConsumerResult();
-            });
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)

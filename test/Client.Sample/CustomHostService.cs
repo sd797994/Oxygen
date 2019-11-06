@@ -3,7 +3,6 @@ using Application.Interface.UseCase.Dto;
 using Microsoft.Extensions.Hosting;
 using Oxygen.CommonTool;
 using Oxygen.ISerializeService;
-using Oxygen.IServerFlowControl;
 using Oxygen.IServerProxyFactory;
 using System;
 using System.Collections;
@@ -39,7 +38,7 @@ namespace Client.Sample
                 sw.Start();
                 succ = 0;
                 fail = 0;
-                await fortest(0, callCount, async i =>
+                await fortest(1, callCount, async i =>
                 {
                     var userserver = await _proxyFactory.CreateProxy<IUserLoginUseCase>();
                     var result1 = await userserver.Register(new RegisterInput() { UserName = "admin" });
@@ -71,7 +70,7 @@ namespace Client.Sample
                 {
                     break;
                 }
-                else if(int.TryParse(returncode, out int newcount))
+                else if (int.TryParse(returncode, out int newcount))
                 {
                     callCount = newcount;
                 }

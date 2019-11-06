@@ -263,3 +263,5 @@ __pycache__/
 /test/Server.Sample/Properties/PublishProfiles
 /src/Oxygen/Properties/PublishProfiles
 /test/Client.Sample/Properties/PublishProfiles
+/k8s/ServerSample
+/k8s/ApiGateWay

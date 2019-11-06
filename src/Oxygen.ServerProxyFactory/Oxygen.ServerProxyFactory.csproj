@@ -8,17 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Autofac" Version="4.9.2" />
-    <PackageReference Include="MediatR" Version="6.0.0" />
-    <PackageReference Include="Polly" Version="7.1.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Oxygen.CommonTool\Oxygen.CommonTool.csproj" />
+    <ProjectReference Include="..\Oxygen.CsharpClientAgent\Oxygen.CsharpClientAgent.csproj" />
     <ProjectReference Include="..\Oxygen.IRpcProviderService\Oxygen.IRpcProviderService.csproj" />
     <ProjectReference Include="..\Oxygen.ISerializeService\Oxygen.ISerializeService.csproj" />
-    <ProjectReference Include="..\Oxygen.IServerFlowControl.Configure\Oxygen.IServerFlowControl.Configure.csproj" />
-    <ProjectReference Include="..\Oxygen.IServerFlowControl\Oxygen.IServerFlowControl.csproj" />
     <ProjectReference Include="..\Oxygen.IServerProxyFactory\Oxygen.IServerProxyFactory.csproj" />
   </ItemGroup>
 

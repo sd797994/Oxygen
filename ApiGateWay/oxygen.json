@@ -4,7 +4,7 @@
       "Address": "127.0.0.1",
       "Port": 8500,
       "ServerName": "ServerSample",
-      "ServerPort": null
+      "ServerPort": 80
     },
     "Redis": {
       "Address": "127.0.0.1",

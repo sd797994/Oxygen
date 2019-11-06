@@ -5,7 +5,7 @@ metadata:
   labels:
     app: serversample-dep
 spec: 
-  replicas: 4
+  replicas: 1
   selector:
     matchLabels:
       app: serversample-pod
@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: web
-          image: registry.cn-shenzhen.aliyuncs.com/gmmy/k8sapisample:oxysvrsmp
+          image: oxygen-k8s-srvsample:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 80
@@ -30,7 +30,7 @@ spec:
 apiVersion: v1
 kind: Service 
 metadata:
-  name: userservice
+  name: serversample
 spec:
   selector:
     app: serversample-pod
@@ -46,7 +46,7 @@ metadata:
   labels:
     app: apigateway-dep
 spec: 
-  replicas: 4
+  replicas: 1
   selector:
     matchLabels: 
       app: apigateway-pod
@@ -63,7 +63,7 @@ spec:
     spec:
       containers:
         - name: web
-          image: registry.cn-shenzhen.aliyuncs.com/gmmy/k8sapisample:oxyapiway
+          image: oxygen-k8s-gatesample:latest
           imagePullPolicy: Always 
           ports:
             - containerPort: 80

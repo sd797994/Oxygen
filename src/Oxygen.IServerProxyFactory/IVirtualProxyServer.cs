@@ -14,7 +14,7 @@ namespace Oxygen.IServerProxyFactory
         /// <param name="serverName"></param>
         /// <param name="pathName"></param>
         /// <param name="flowControlCfgKey"></param>
-        void Init(string serverName, string pathName, string flowControlCfgKey);
+        void Init(string serverName, string pathName);
         /// <summary>
         /// 通过虚拟代理发送请求
         /// </summary>

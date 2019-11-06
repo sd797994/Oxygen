@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace Oxygen.IServerProxyFactory
 {
@@ -17,6 +18,6 @@ namespace Oxygen.IServerProxyFactory
         /// <param name="FlowControlCfgKey"></param>
         /// <param name="pathName"></param>
         /// <returns></returns>
-        Task<TOut> SendAsync<TIn, TOut>(TIn input, string serviceName, string flowControlCfgKey, string pathName) where TOut : class;
+        Task<TOut> SendAsync<TIn, TOut>(TIn input, string serviceName, string pathName) where TOut : class;
     }
 }

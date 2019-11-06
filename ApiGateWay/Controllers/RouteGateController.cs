@@ -42,6 +42,10 @@ namespace ApiGateWay.Controllers
                         return new JsonResult(rempteResult);
                     }
                 }
+                else
+                {
+                    return Content("创建代理失败");
+                }
             }
             return Content("无返回值");
         }

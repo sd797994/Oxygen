@@ -1,11 +1,7 @@
-﻿using Microsoft.Extensions.Hosting;
-using Orleans;
+﻿using Autofac;
+using Microsoft.Extensions.Hosting;
 using Oxygen.CommonTool;
 using Oxygen.IRpcProviderService;
-using Oxygen.IServerFlowControl;
-using Oxygen.IServerFlowControl.Configure;
-using Oxygen.IServerRegisterManage;
-using Oxygen.ServerFlowControl.Configure;
 using System;
 using System.Runtime.Loader;
 using System.Threading;
@@ -20,16 +16,11 @@ namespace Oxygen
     {
         private readonly IRpcServerProvider _rpcServerProvider;
         private static bool _stopFlag = false;
-        private readonly IRegisterCenter _registerCenter;
-        private readonly IEndPointConfigureManager _configureManage;
-        private readonly IFlowControlCenter _flowControlCenter;
 
-        public OxygenHostService(IRpcServerProvider rpcServerProvider, IRegisterCenter registerCenter, IEndPointConfigureManager configureManage, IFlowControlCenter flowControlCenter)
+        public OxygenHostService(IRpcServerProvider rpcServerProvider, ILifetimeScope container)
         {
+            OxygenIocContainer.BuilderIocContainer(container);
             _rpcServerProvider = rpcServerProvider;
-            _registerCenter = registerCenter;
-            _configureManage = configureManage;
-            _flowControlCenter = flowControlCenter;
         }
 
         private Task _executingTask;
@@ -41,15 +32,7 @@ namespace Oxygen
             {
                 await _executingTask;
             }
-            var rpcEndPoint = await _rpcServerProvider.OpenServer();
-            if (await _registerCenter.RegisterService(OxygenSetting.ServerName, rpcEndPoint))
-            {
-                await Task.CompletedTask;
-            }
-            _ = Task.Run(() => {
-                _configureManage.SetCacheFromServices();
-                _flowControlCenter.RegisterConsumerResult();
-            });
+            await _rpcServerProvider.OpenServer();
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
@@ -76,8 +59,6 @@ namespace Oxygen
         {
             try
             {
-                await OrleanHostBuilder.CloseOrleansSiloService(async (root, key) => await _registerCenter.DelValueByKey(root, key));
-                await _registerCenter.UnRegisterService();
                 await _rpcServerProvider.CloseServer();
             }
             catch (Exception)

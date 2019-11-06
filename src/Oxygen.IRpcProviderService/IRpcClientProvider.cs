@@ -1,5 +1,4 @@
-﻿using Oxygen.IServerFlowControl.Configure;
-using System.Net;
+﻿using System.Net;
 using System.Threading.Tasks;
 
 namespace Oxygen.IRpcProviderService
@@ -16,7 +15,7 @@ namespace Oxygen.IRpcProviderService
         /// <param name="serverName"></param>
         /// <param name="path"></param>
         /// <returns></returns>
-        Task<string> CreateClient(IPEndPoint endPoint);
+        Task<bool> CreateClient(string serverName);
 
         /// <summary>
         /// 发送消息
@@ -28,6 +27,6 @@ namespace Oxygen.IRpcProviderService
         /// <param name="path"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        Task<T> SendMessage<T>(string channelKey, IPEndPoint endPoint, string flowControlCfgKey, ServiceConfigureInfo configure, string key, string path, object message) where T : class;
+        Task<T> SendMessage<T>(string serverName, string pathName, object input) where T : class;
     }
 }

@@ -20,6 +20,10 @@ namespace Oxygen.CommonTool
             {
                 ServerPort = int.Parse(configuration["Oxygen:Consul:ServerPort"]);
             }
+            else
+            {
+                ServerPort = 80;
+            }
             RedisAddress = $"{configuration["Oxygen:Redis:Address"]}:{configuration["Oxygen:Redis:Port"]}";
             RedisAddressEndPoint = new IPEndPoint(IPAddress.Parse(configuration["Oxygen:Redis:Address"]), int.Parse(configuration["Oxygen:Redis:Port"]));
             SignKey = configuration["Oxygen:Secret:SignKey"];
@@ -28,7 +32,7 @@ namespace Oxygen.CommonTool
         /// <summary>
         /// 服务端口
         /// </summary>
-        public static int? ServerPort;
+        public static int ServerPort;
         /// <summary>
         /// 服务名
         /// </summary>

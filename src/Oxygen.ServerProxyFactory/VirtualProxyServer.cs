@@ -20,15 +20,13 @@ namespace Oxygen.ServerProxyFactory
         /// <param name="serverName"></param>
         /// <param name="pathName"></param>
         /// <param name="flowControlCfgKey"></param>
-        public void Init(string serverName, string pathName, string flowControlCfgKey)
+        public void Init(string serverName, string pathName)
         {
             ServerName = serverName;
             PathName = pathName;
-            FlowControlCfgKey = flowControlCfgKey;
         }
         public string ServerName { get; set; }
         public string PathName { get; set; }
-        public string FlowControlCfgKey { get; set; }
 
         /// <summary>
         /// 通过虚拟代理发送请求
@@ -37,7 +35,7 @@ namespace Oxygen.ServerProxyFactory
         /// <returns></returns>
         public async Task<object> SendAsync(object input)
         {
-            return await _proxyGenerator.SendAsync<object, object>(input, ServerName, FlowControlCfgKey, PathName);
+            return await _proxyGenerator.SendAsync<object, object>(input, ServerName, PathName);
         }
     }
 }

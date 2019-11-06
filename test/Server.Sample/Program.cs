@@ -44,8 +44,6 @@ namespace Server.Sample
                 });
                 services.AddAutofac();
             })
-            //在oxygen服务中插入apm代理
-            .AddOxygenAPM()
             .UseServiceProviderFactory(new AutofacServiceProviderFactory());
     }
 }

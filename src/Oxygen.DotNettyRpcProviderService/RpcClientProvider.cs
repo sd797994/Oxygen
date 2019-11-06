@@ -2,18 +2,16 @@
 using DotNetty.Codecs;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
-using DotNetty.Transport.Channels.Sockets;
 using DotNetty.Transport.Libuv;
 using Oxygen.CommonTool;
 using Oxygen.CommonTool.Logger;
 using Oxygen.IRpcProviderService;
 using Oxygen.ISerializeService;
-using Oxygen.IServerFlowControl;
-using Oxygen.IServerFlowControl.Configure;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Net;
+using System.Reflection.Emit;
 using System.Threading.Tasks;
 namespace Oxygen.DotNettyRpcProviderService
 {
@@ -26,7 +24,6 @@ namespace Oxygen.DotNettyRpcProviderService
     {
         private readonly IOxygenLogger _logger;
         private readonly ISerialize _serialize;
-        private readonly IFlowControlCenter _flowControlCenter;
         private readonly CustomerInfo _customerInfo;
         public static readonly ConcurrentDictionary<Guid, TaskCompletionSource<byte[]>> TaskHookInfos =
             new ConcurrentDictionary<Guid, TaskCompletionSource<byte[]>>();
@@ -35,11 +32,10 @@ namespace Oxygen.DotNettyRpcProviderService
         static readonly ConcurrentDictionary<string, IChannel> Channels = new ConcurrentDictionary<string, IChannel>();
         #endregion
 
-        public RpcClientProvider(IOxygenLogger logger, ISerialize serialize, IFlowControlCenter flowControlCenter, CustomerInfo customerInfo)
+        public RpcClientProvider(IOxygenLogger logger, ISerialize serialize, CustomerInfo customerInfo)
         {
             _logger = logger;
             _serialize = serialize;
-            _flowControlCenter = flowControlCenter;
             _bootstrap = CreateBootStrap();
             _customerInfo = customerInfo;
         }
@@ -77,9 +73,54 @@ namespace Oxygen.DotNettyRpcProviderService
         /// <param name="serverName"></param>
         /// <param name="path"></param>
         /// <returns></returns>
-        public async Task<string> CreateClient(IPEndPoint endPoint)
+        public async Task<bool> CreateClient(string serverName)
         {
-            return await CreateChannel(endPoint);
+            try
+            {
+                if (Channels.TryGetValue(serverName, out var channel))
+                {
+                    if (!channel.Active)
+                    {
+                        await CloseChannel(channel);
+                        Channels.TryRemove(serverName, out channel);
+                        return await CreateNewChannel(serverName);
+                    }
+                    else
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                   return await CreateNewChannel(serverName);
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+        }
+        /// <summary>
+        /// 创建新的通道
+        /// </summary>
+        /// <param name="serverName"></param>
+        /// <returns></returns>
+        private async Task<bool> CreateNewChannel(string serverName)
+        {
+            var newChannel = await _bootstrap.ConnectAsync(serverName, OxygenSetting.ServerPort);
+            //var newChannel = await _bootstrap.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), OxygenSetting.ServerPort));
+            if (newChannel.Active)
+            {
+                Channels.TryAdd(serverName, newChannel);
+                return true;
+            }
+            else
+            {
+                await CloseChannel(newChannel);
+                Channels.TryRemove(serverName, out newChannel);
+                return false;
+            }
         }
 
         /// <summary>
@@ -90,87 +131,38 @@ namespace Oxygen.DotNettyRpcProviderService
         /// <param name="path"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        public async Task<T> SendMessage<T>(string channelKey, IPEndPoint endPoint, string flowControlCfgKey, ServiceConfigureInfo configure, string key, string path, object message) where T : class
+        public async Task<T> SendMessage<T>(string serverName, string pathName, object input) where T : class
         {
             T result = default;
-            if (Channels.TryGetValue(channelKey, out var _channel))
+            if (Channels.TryGetValue(serverName, out var _channel))
             {
                 try
                 {
-                    result = await _flowControlCenter.ExcuteAsync(key, endPoint, flowControlCfgKey, configure, async () =>
+                    var taskId = Guid.NewGuid();
+                    var sendMessage = new RpcGlobalMessageBase<object>
                     {
-                        var taskId = Guid.NewGuid();
-                        var sendMessage = new RpcGlobalMessageBase<object>
-                        {
-                            CustomerIp = _customerInfo.Ip,
-                            TaskId = taskId,
-                            Path = path,
-                            Message = message is string ? _serialize.Deserializes<object>(_serialize.SerializesJsonString((string)message)) : message
-                        };
-                        sendMessage.Sign(GlobalCommon.SHA256Encrypt(taskId + OxygenSetting.SignKey));
-                        var resultTask = RegisterResultCallbackAsync(taskId);
-                        await _channel.WriteAndFlushAsync(sendMessage);
-                        var resultBt = await resultTask;
-                        if (resultBt != null && resultBt.Any())
-                        {
-                            return _serialize.Deserializes<T>(resultBt);
-                        }
-                        return default;
-                    });
+                        CustomerIp = _customerInfo.Ip,
+                        TaskId = taskId,
+                        Path = pathName,
+                        Message = input is string ? _serialize.Deserializes<object>(_serialize.SerializesJsonString((string)input)) : input
+                    };
+                    var resultTask = RegisterResultCallbackAsync(taskId);
+                    await _channel.WriteAndFlushAsync(sendMessage);
+                    var resultBt = await resultTask;
+                    if (resultBt != null && resultBt.Any())
+                    {
+                        return _serialize.Deserializes<T>(resultBt);
+                    }
+                    return (T)default;
                 }
                 catch (Exception e)
                 {
-                    //ignore异常，等待polly处理
+                    _logger.LogError($"调用异常：{e.Message},调用堆栈{e.StackTrace.ToString()}");
                 }
             }
             return result;
         }
-
         #region 私有方法
-        /// <summary>
-        /// 创建通道
-        /// </summary>
-        /// <param name="serverName"></param>
-        /// <param name="port"></param>
-        /// <returns></returns>
-        async Task<string> CreateChannel(IPEndPoint endpoint)
-        {
-            try
-            {
-                var channelKey = $"{endpoint.Address}{endpoint.Port}";
-                if (Channels.TryGetValue(channelKey, out var channel))
-                {
-                    if (!channel.Active)
-                    {
-                        await CloseChannel(channel);
-                        Channels.TryRemove(channelKey, out channel);
-                    }
-                    else
-                    {
-                        return channelKey;
-                    }
-                }
-                else
-                {
-                    var newChannel = await _bootstrap.ConnectAsync(endpoint);
-                    if (newChannel.Active)
-                    {
-                        Channels.TryAdd(channelKey, newChannel);
-                        return channelKey;
-                    }
-                    else
-                    {
-                        await CloseChannel(channel);
-                        Channels.TryRemove(channelKey, out channel);
-                    }
-                }
-            }
-            catch(Exception)
-            {
-                return null;
-            }
-            return null;
-        }
         /// <summary>
         /// 消息回调处理
         /// </summary>

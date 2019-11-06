@@ -102,13 +102,10 @@ namespace Oxygen.CommonTool
             }
             return result;
         }
-
-
-        static Lazy<SHA256Managed> shamaanger = new Lazy<SHA256Managed>(() => new SHA256Managed());
         public static string SHA256Encrypt(string StrIn)
         {
             var tmpByte = Encoding.UTF8.GetBytes(StrIn);
-            var EncryptBytes = shamaanger.Value.ComputeHash(tmpByte);
+            var EncryptBytes = new SHA256Managed().ComputeHash(tmpByte);
             return Convert.ToBase64String(EncryptBytes);
         }
     }

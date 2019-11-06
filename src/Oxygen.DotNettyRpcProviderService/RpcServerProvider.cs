@@ -60,7 +60,7 @@ namespace Oxygen.DotNettyRpcProviderService
                         pipeline.AddLast(new MessageEncoder<object>(_serialize));
                         pipeline.AddLast(new RpcServerHandler(_logger, _localProxyGenerator));
                     }));
-            var port = OxygenSetting.ServerPort ?? GlobalCommon.GetFreePort();
+            var port = OxygenSetting.ServerPort;
             boundChannel = await _bootstrap.BindAsync(port);
             _logger.LogInfo($"bind tcp 0.0.0.0:{port} to listen");
             return new IPEndPoint(GlobalCommon.GetMachineIp(), port);

@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
 using System.Threading.Tasks;
-using MediatR;
+using Autofac;
+using Microsoft.Extensions.DependencyModel;
 using Oxygen.CommonTool;
 using Oxygen.CommonTool.Logger;
+using Oxygen.CsharpClientAgent;
+using Oxygen.IProxyClientBuilder;
 using Oxygen.IRpcProviderService;
 using Oxygen.ISerializeService;
 using Oxygen.IServerProxyFactory;
@@ -17,16 +22,12 @@ namespace Oxygen.ServerProxyFactory
     /// </summary>
     public class LocalProxyGenerator : ILocalProxyGenerator
     {
-        private readonly IMediator _mediator;
-        private static readonly Assembly MediatRAssembly = AppDomain.CurrentDomain.GetAssemblies()
-            .FirstOrDefault(x => x.FullName.Contains("LocalClient.g"));
-        private static readonly ConcurrentDictionary<string, Type> InstanceDictionary = new ConcurrentDictionary<string, Type>();
         private readonly IOxygenLogger _logger;
         private readonly ISerialize _serialize;
-        private readonly CustomerInfo _customerInfo;
-        public LocalProxyGenerator(IMediator mediator, IOxygenLogger logger, ISerialize serialize, CustomerInfo customerInfo)
+        private readonly CustomerInfo _customerInfo; 
+        private static readonly ConcurrentDictionary<string, ILocalMethodDelegate> InstanceDictionary = new ConcurrentDictionary<string, ILocalMethodDelegate>();
+        public LocalProxyGenerator(IOxygenLogger logger, ISerialize serialize, CustomerInfo customerInfo)
         {
-            _mediator = mediator;
             _logger = logger;
             _serialize = serialize;
             _customerInfo = customerInfo;
@@ -41,49 +42,51 @@ namespace Oxygen.ServerProxyFactory
         {
             if (message == null)
             {
-                _logger.LogError($"订阅者消息分发不能为空消息");
+                _logger.LogError($"消息分发不能为空消息");
                 return default;
             }
             else
             {
-                if (!message.CheckSign(GlobalCommon.SHA256Encrypt(message.TaskId + OxygenSetting.SignKey)))
-                {
-                    _logger.LogError($"验签失败,任务ID:{message.TaskId}");
-                    message.code = System.Net.HttpStatusCode.Unauthorized;
-                    return message;
-                }
-                if (!InstanceDictionary.TryGetValue(message.Path, out var messageType))
-                {
-                    _customerInfo.Ip = message.CustomerIp;
-                    messageType = MediatRAssembly.GetType($"Oxygen.MediatRProxyClientBuilder.ProxyInstance.{message.Path}");
-                    if (messageType != null)
-                    {
-                        InstanceDictionary.TryAdd(message.Path, messageType);
-                    }
-                }
-                if (messageType != null)
-                {
-                    message.Message = await Publish(_serialize.Deserializes(messageType, _serialize.Serializes(message.Message)));
-                    message.code = System.Net.HttpStatusCode.OK;
-                    return message;
-                }
-                else
-                {
-                    _logger.LogError($"未找到订阅者实例:{message.Path}");
-                    message.code = System.Net.HttpStatusCode.NotFound;
-                    return message;
-                }
+                message.Message = await Task.FromResult(ExcutePath(message.Path, _serialize.Serializes(message.Message)));
+                message.code = System.Net.HttpStatusCode.OK;
+                return message;
             }
         }
 
         /// <summary>
-        /// 发布消息
+        /// 执行本地方法
         /// </summary>
-        /// <param name="message"></param>
+        /// <param name="pathname"></param>
+        /// <param name="input"></param>
         /// <returns></returns>
-        private async Task<dynamic> Publish(dynamic message)
+        public object ExcutePath(string pathname, byte[] input)
         {
-            return await _mediator.Send(message);
+            if (InstanceDictionary.TryGetValue(pathname, out ILocalMethodDelegate methodDelegate))
+            {
+                return methodDelegate.Excute(_serialize.Deserializes(methodDelegate.ParmterType, input));
+            }
+            else
+            {
+                methodDelegate = CreateMethodDelegate(pathname);
+                if(InstanceDictionary.TryAdd(pathname, methodDelegate))
+                {
+                    return methodDelegate.Excute(_serialize.Deserializes(methodDelegate.ParmterType, input));
+                }
+            }
+            return null;
+        }
+        /// <summary>
+        /// 创建本地方法委托
+        /// </summary>
+        /// <returns></returns>
+        private ILocalMethodDelegate CreateMethodDelegate(string pathname)
+        {
+            var serviceName = pathname.Split('/')[0];
+            var methodName = pathname.Split('/')[1];
+            var type = RpcInterfaceType.Types.Value.AsEnumerable().FirstOrDefault(x=>x.Name.Contains(serviceName));
+            var instance = OxygenIocContainer.Resolve(type);
+            var method = type.GetMethod(methodName);
+            return (ILocalMethodDelegate)Activator.CreateInstance(typeof(LocalMethodDelegate<,>).MakeGenericType(method.GetParameters()[0].ParameterType, method.ReturnType), method, instance);
         }
     }
 }

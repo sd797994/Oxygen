@@ -1,5 +1,7 @@
 ﻿using Autofac;
+using Oxygen.CommonTool;
 using Oxygen.CommonTool.Logger;
+using Oxygen.CsharpClientAgent;
 using Oxygen.IServerProxyFactory;
 using System;
 using System.Collections.Concurrent;
@@ -15,14 +17,11 @@ namespace Oxygen.ServerProxyFactory
     public class ServerProxyFactory : IServerProxyFactory.IServerProxyFactory
     {
         private readonly ILifetimeScope _container;
-        private readonly IOxygenLogger _oxygenLogger;
         private static readonly ConcurrentDictionary<string, Type> InstanceDictionary = new ConcurrentDictionary<string, Type>();
-        private static readonly Assembly Assembly = AppDomain.CurrentDomain.GetAssemblies()
-            .FirstOrDefault(x => x.FullName.Contains("ProxyClient.g"));
-        public ServerProxyFactory(ILifetimeScope container, IOxygenLogger oxygenLogger)
+        private static readonly ConcurrentDictionary<string, string[]> InstanceParmDictionary = new ConcurrentDictionary<string, string[]>();
+        public ServerProxyFactory(ILifetimeScope container)
         {
             _container = container;
-            _oxygenLogger = oxygenLogger;
         }
 
         /// <summary>
@@ -35,19 +34,6 @@ namespace Oxygen.ServerProxyFactory
             if (_container.TryResolve(typeof(T), out var instance))
             {
                 return instance as T;
-            }
-            else
-            {
-                var className = $"{typeof(T).Name.Substring(1, typeof(T).Name.Length - 1)}_ProxyClient";
-                var type = GetProxtClient(className);
-                if (type != null)
-                {
-                    return Activator.CreateInstance(type) as T;
-                }
-                else
-                {
-                    _oxygenLogger.LogError($"未找到远程代理实例：{typeof(T).Name}");
-                }
             }
             return await Task.FromResult(default(T));
         }
@@ -69,18 +55,30 @@ namespace Oxygen.ServerProxyFactory
                         var vitual = instance as VirtualProxyServer;
                         if (vitual != null)
                         {
-                            var names = path.Split('/');
-                            if (names.Length == 4)
+                            if (InstanceParmDictionary.TryGetValue(path.ToLower(), out var messageType))
                             {
-                                if (names[0].ToLower().Equals("api"))
+                                vitual.Init(messageType[0], messageType[1]);
+                            }
+                            else
+                            {
+                                var names = path.Split('/');
+                                if (names.Length == 4)
                                 {
-                                    var className = $"{names[2]}_ProxyClient";
-                                    var type = GetProxtClient(className);
-                                    if (type != null)
+                                    if (names[0].ToLower().Equals("api"))
                                     {
-                                        var method = type.GetMethods().FirstOrDefault(x => x.Name.ToLower().Equals(names[3].ToLower()));
-                                        var pathName = $"{type.Name.Replace("_ProxyClient", "")}_{method?.GetParameters().FirstOrDefault().ParameterType.Name}";
-                                        vitual.Init(names[1], pathName, $"{type.Name.Replace("_ProxyClient", "")}{method.Name}");
+                                        var className = $"{names[2]}";
+                                        var type = GetProxyClient(className);
+                                        if (type != null)
+                                        {
+                                            var serviceName = (string)typeof(RemoteServiceAttribute).GetProperty("ServerName")
+                                                    ?.GetValue(type.GetCustomAttribute(typeof(RemoteServiceAttribute)));
+                                            var method = type.GetMethods().FirstOrDefault(x => x.Name.ToLower().Equals(names[3].ToLower()));
+                                            if (method != null)
+                                            {
+                                                InstanceParmDictionary.TryAdd(path.ToLower(),new[] { serviceName, $"{type.Name.Substring(1, type.Name.Length - 1)}/{method.Name}" });
+                                                vitual.Init(serviceName, $"{type.Name.Substring(1, type.Name.Length - 1)}/{method.Name}");
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -97,11 +95,11 @@ namespace Oxygen.ServerProxyFactory
         /// </summary>
         /// <param name="className"></param>
         /// <returns></returns>
-        Type GetProxtClient(string className)
+        Type GetProxyClient(string className)
         {
             if (!InstanceDictionary.TryGetValue(className, out var messageType))
             {
-                messageType = Assembly.GetTypes().FirstOrDefault(x => x.FullName.ToLower().Equals($"Oxygen.RemoteProxyClientBuilder.ProxyInstance.{className}".ToLower()));
+                messageType = RpcInterfaceType.Types.Value.FirstOrDefault(x => x.Name.ToLower().Contains(className.ToLower()));
                 if (messageType != null)
                 {
                     InstanceDictionary.TryAdd(className, messageType);

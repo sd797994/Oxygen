@@ -10,7 +10,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Oxygen;
-using SkyApm.Agent.GeneralHost;
 
 namespace Client.Sample
 {
@@ -46,8 +45,6 @@ namespace Client.Sample
                 services.AddHttpClient();
                 services.AddAutofac();
             })
-            //在oxygen服务中插入apm代理
-            .AddSkyAPM()
             .UseServiceProviderFactory(new AutofacServiceProviderFactory());
     }
 }
