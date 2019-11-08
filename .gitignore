@@ -265,3 +265,5 @@ __pycache__/
 /test/Client.Sample/Properties/PublishProfiles
 /k8s/ServerSample
 /k8s/ApiGateWay
+/nugetpack/lib
+*.nupkg

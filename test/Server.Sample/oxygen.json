@@ -1,17 +1,5 @@
 {
   "Oxygen": {
-    "Consul": {
-      "Address": "127.0.0.1",
-      "Port": 8500,
-      "ServerName": "ServerSample",
-      "ServerPort": 80
-    },
-    "Redis": {
-      "Address": "127.0.0.1",
-      "Port": 6379
-    },
-    "Secret": {
-      "SignKey": "QLKjiOn46WOzDv6mO6q77cr6ECy1u1K2TShuG2yIbApbAPaeBZ0vFUAa"
-    }
+    "ServerPort": 80
   }
 }
