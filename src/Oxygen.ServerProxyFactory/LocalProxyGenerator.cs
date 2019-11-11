@@ -47,7 +47,7 @@ namespace Oxygen.ServerProxyFactory
             }
             else
             {
-                message.Message = await Task.FromResult(ExcutePath(message.Path, _serialize.Serializes(message.Message)));
+                message.Message = await ExcutePath(message.Path, _serialize.Serializes(message.Message));
                 message.code = System.Net.HttpStatusCode.OK;
                 return message;
             }
@@ -59,18 +59,18 @@ namespace Oxygen.ServerProxyFactory
         /// <param name="pathname"></param>
         /// <param name="input"></param>
         /// <returns></returns>
-        public object ExcutePath(string pathname, byte[] input)
+        public async Task<object> ExcutePath(string pathname, byte[] input)
         {
             if (InstanceDictionary.TryGetValue(pathname, out ILocalMethodDelegate methodDelegate))
             {
-                return methodDelegate.Excute(_serialize.Deserializes(methodDelegate.ParmterType, input));
+                return await methodDelegate.Excute(_serialize.Deserializes(methodDelegate.ParmterType, input));
             }
             else
             {
                 methodDelegate = CreateMethodDelegate(pathname);
                 if(InstanceDictionary.TryAdd(pathname, methodDelegate))
                 {
-                    return methodDelegate.Excute(_serialize.Deserializes(methodDelegate.ParmterType, input));
+                    return await methodDelegate.Excute(_serialize.Deserializes(methodDelegate.ParmterType, input));
                 }
             }
             return null;
@@ -86,7 +86,7 @@ namespace Oxygen.ServerProxyFactory
             var type = RpcInterfaceType.Types.Value.AsEnumerable().FirstOrDefault(x=>x.Name.Contains(serviceName));
             var instance = OxygenIocContainer.Resolve(type);
             var method = type.GetMethod(methodName);
-            return (ILocalMethodDelegate)Activator.CreateInstance(typeof(LocalMethodDelegate<,>).MakeGenericType(method.GetParameters()[0].ParameterType, method.ReturnType), method, instance);
+            return (ILocalMethodDelegate)Activator.CreateInstance(typeof(LocalMethodDelegate<,>).MakeGenericType(method.GetParameters()[0].ParameterType, method.ReturnType.GetGenericArguments().FirstOrDefault()), method, instance);
         }
     }
 }

@@ -35,7 +35,7 @@ namespace Oxygen.DotNettyRpcProviderService
                     var localHanderResult = await _localProxyGenerator.Invoke((RpcGlobalMessageBase<object>)message);
                     if (localHanderResult != null)
                     {
-                        await context.WriteAsync(localHanderResult);
+                        await context.WriteAndFlushAsync(localHanderResult);
                     }
                 }
             }
@@ -44,12 +44,6 @@ namespace Oxygen.DotNettyRpcProviderService
                 _logger.LogError("服务端消息处理异常: " + e.Message);
             }
         }
-
-        /// <summary>
-        /// tcp消息回发
-        /// </summary>
-        /// <param name="context"></param>
-        public override void ChannelReadComplete(IChannelHandlerContext context) => context.Flush();
 
         /// <summary>
         /// tcp管道异常处理

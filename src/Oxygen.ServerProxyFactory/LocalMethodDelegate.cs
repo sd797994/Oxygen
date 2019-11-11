@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Oxygen.IProxyClientBuilder
 {
@@ -14,16 +15,16 @@ namespace Oxygen.IProxyClientBuilder
     /// <typeparam name="Tout"></typeparam>
     public class LocalMethodDelegate<Tin, Tout> : ILocalMethodDelegate
     {
-        private Func<Tin, Tout> localfunc;
+        private Func<Tin, Task<Tout>> localfunc;
         public Type ParmterType { get; set; }
         public LocalMethodDelegate(MethodInfo method, object instence)
         {
-            localfunc = (Func<Tin, Tout>)method.CreateDelegate(typeof(Func<Tin, Tout>), instence);
+            localfunc = (Func<Tin, Task<Tout>>)method.CreateDelegate(typeof(Func<Tin, Task<Tout>>), instence);
             ParmterType = typeof(Tin);
         }
-        public object Excute(object val)
+        public async Task<object> Excute(object val)
         {
-            return localfunc((Tin)val);
+            return await localfunc((Tin)val);
         }
     }
 }

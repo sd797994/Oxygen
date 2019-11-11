@@ -21,7 +21,7 @@ namespace Oxygen.ProxyClientBuilder
         /// <param name="builder"></param>
         public static void CreateRemoteProxyClientInstance(ContainerBuilder builder)
         {
-            var remote = RpcInterfaceType.Types.Value;
+            var remote = RpcInterfaceType.RemoteTypes.Value;
             if (remote != null && remote.Any())
             {
                 foreach (var type in remote)
