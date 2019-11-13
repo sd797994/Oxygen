@@ -24,14 +24,17 @@ namespace Oxygen.ServerProxyFactory
     {
         private readonly IOxygenLogger _logger;
         private readonly ISerialize _serialize;
-        private readonly CustomerInfo _customerInfo; 
-        private static readonly ConcurrentDictionary<string, ILocalMethodDelegate> InstanceDictionary = new ConcurrentDictionary<string, ILocalMethodDelegate>();
-        public LocalProxyGenerator(IOxygenLogger logger, ISerialize serialize, CustomerInfo customerInfo)
+        private readonly CustomerInfo _customerInfo;
+        private readonly ILifetimeScope container;
+        private static readonly ConcurrentDictionary<string, LocalMethodInfo> InstanceDictionary = new ConcurrentDictionary<string, LocalMethodInfo>();
+        public LocalProxyGenerator(IOxygenLogger logger, ISerialize serialize, CustomerInfo customerInfo, ILifetimeScope container)
         {
             _logger = logger;
             _serialize = serialize;
             _customerInfo = customerInfo;
+            this.container = container;
         }
+
 
         /// <summary>
         /// 消息分发处理
@@ -47,7 +50,10 @@ namespace Oxygen.ServerProxyFactory
             }
             else
             {
-                message.Message = await ExcutePath(message.Path, _serialize.Serializes(message.Message));
+                using (var scope = container.BeginLifetimeScope())
+                {
+                    message.Message = await ExcutePath(message.Path, _serialize.Serializes(message.Message), scope);
+                }
                 message.code = System.Net.HttpStatusCode.OK;
                 return message;
             }
@@ -59,34 +65,45 @@ namespace Oxygen.ServerProxyFactory
         /// <param name="pathname"></param>
         /// <param name="input"></param>
         /// <returns></returns>
-        public async Task<object> ExcutePath(string pathname, byte[] input)
+        public async Task<object> ExcutePath(string pathname, byte[] input, ILifetimeScope lifetimeScope)
         {
-            if (InstanceDictionary.TryGetValue(pathname, out ILocalMethodDelegate methodDelegate))
+            if (InstanceDictionary.TryGetValue(pathname, out LocalMethodInfo methodInfo))
             {
-                return await methodDelegate.Excute(_serialize.Deserializes(methodDelegate.ParmterType, input));
+                return await Build(methodInfo, lifetimeScope).Excute(_serialize.Deserializes(methodInfo.ParameterType, input));
             }
             else
             {
-                methodDelegate = CreateMethodDelegate(pathname);
-                if(InstanceDictionary.TryAdd(pathname, methodDelegate))
+                methodInfo = CreateLocalMethodInfo(pathname);
+                if (InstanceDictionary.TryAdd(pathname, methodInfo))
                 {
-                    return await methodDelegate.Excute(_serialize.Deserializes(methodDelegate.ParmterType, input));
+                    return await Build(methodInfo, lifetimeScope).Excute(_serialize.Deserializes(methodInfo.ParameterType, input));
                 }
             }
             return null;
         }
+
+        /// <summary>
+        /// 缓存本地方法类型信息
+        /// </summary>
+        /// <param name="pathname"></param>
+        /// <returns></returns>
+        private LocalMethodInfo CreateLocalMethodInfo(string pathname)
+        {
+            var serviceName = pathname.Split('/')[0];
+            var methodName = pathname.Split('/')[1];
+            var type = RpcInterfaceType.Types.Value.AsEnumerable().FirstOrDefault(x => x.Name.Contains(serviceName));
+            var method = type.GetMethod(methodName);
+            return new LocalMethodInfo() { Type = type, Method = type.GetMethod(methodName), ParameterType = method.GetParameters()[0].ParameterType, ReturnType = method.ReturnType.GetGenericArguments().FirstOrDefault() };
+        }
+
         /// <summary>
         /// 创建本地方法委托
         /// </summary>
         /// <returns></returns>
-        private ILocalMethodDelegate CreateMethodDelegate(string pathname)
+        static Type delegateType = typeof(LocalMethodDelegate<,>);
+        private ILocalMethodDelegate Build(LocalMethodInfo methodInfo, ILifetimeScope lifetimeScope)
         {
-            var serviceName = pathname.Split('/')[0];
-            var methodName = pathname.Split('/')[1];
-            var type = RpcInterfaceType.Types.Value.AsEnumerable().FirstOrDefault(x=>x.Name.Contains(serviceName));
-            var instance = OxygenIocContainer.Resolve(type);
-            var method = type.GetMethod(methodName);
-            return (ILocalMethodDelegate)Activator.CreateInstance(typeof(LocalMethodDelegate<,>).MakeGenericType(method.GetParameters()[0].ParameterType, method.ReturnType.GetGenericArguments().FirstOrDefault()), method, instance);
+            return ((ILocalMethodDelegate)Activator.CreateInstance(delegateType.MakeGenericType(methodInfo.ParameterType, methodInfo.ReturnType), methodInfo.Method, lifetimeScope.Resolve(methodInfo.Type)));
         }
     }
 }

@@ -102,4 +102,12 @@ namespace Client.Sample
             await Task.CompletedTask;
         }
     }
+    public class BaseDto
+    {
+        public Guid ID { get; set; }
+    }
+    public class AAA : BaseDto
+    {
+
+    }
 }
