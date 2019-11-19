@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Hosting;
 using Oxygen.CommonTool;
 using Oxygen.IRpcProviderService;
+using Oxygen.ServerProxyFactory;
 using System;
 using System.Runtime.Loader;
 using System.Threading;
@@ -33,6 +34,7 @@ namespace Oxygen
                 await _executingTask;
             }
             await _rpcServerProvider.OpenServer();
+            LocalProxyGenerator.LoadMethodDelegate();
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)

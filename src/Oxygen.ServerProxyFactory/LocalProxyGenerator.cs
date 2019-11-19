@@ -24,14 +24,12 @@ namespace Oxygen.ServerProxyFactory
     {
         private readonly IOxygenLogger _logger;
         private readonly ISerialize _serialize;
-        private readonly CustomerInfo _customerInfo;
         private readonly ILifetimeScope container;
-        private static readonly ConcurrentDictionary<string, LocalMethodInfo> InstanceDictionary = new ConcurrentDictionary<string, LocalMethodInfo>();
+        private static readonly ConcurrentDictionary<string, ILocalMethodDelegate> InstanceDictionary = new ConcurrentDictionary<string, ILocalMethodDelegate>();
         public LocalProxyGenerator(IOxygenLogger logger, ISerialize serialize, CustomerInfo customerInfo, ILifetimeScope container)
         {
             _logger = logger;
             _serialize = serialize;
-            _customerInfo = customerInfo;
             this.container = container;
         }
 
@@ -67,43 +65,38 @@ namespace Oxygen.ServerProxyFactory
         /// <returns></returns>
         public async Task<object> ExcutePath(string pathname, byte[] input, ILifetimeScope lifetimeScope)
         {
-            if (InstanceDictionary.TryGetValue(pathname, out LocalMethodInfo methodInfo))
+            if (InstanceDictionary.TryGetValue(pathname, out ILocalMethodDelegate methodDelegate))
             {
-                return await Build(methodInfo, lifetimeScope).Excute(_serialize.Deserializes(methodInfo.ParameterType, input));
-            }
-            else
-            {
-                methodInfo = CreateLocalMethodInfo(pathname);
-                if (InstanceDictionary.TryAdd(pathname, methodInfo))
-                {
-                    return await Build(methodInfo, lifetimeScope).Excute(_serialize.Deserializes(methodInfo.ParameterType, input));
-                }
+                methodDelegate.Build(lifetimeScope.Resolve(methodDelegate.Type));
+                return await methodDelegate.Excute(_serialize.Deserializes(methodDelegate.ParmterType, input));
             }
             return null;
         }
-
         /// <summary>
         /// 缓存本地方法类型信息
         /// </summary>
         /// <param name="pathname"></param>
         /// <returns></returns>
-        private LocalMethodInfo CreateLocalMethodInfo(string pathname)
+        public static void LoadMethodDelegate()
         {
-            var serviceName = pathname.Split('/')[0];
-            var methodName = pathname.Split('/')[1];
-            var type = RpcInterfaceType.Types.Value.AsEnumerable().FirstOrDefault(x => x.Name.Contains(serviceName));
-            var method = type.GetMethod(methodName);
-            return new LocalMethodInfo() { Type = type, Method = type.GetMethod(methodName), ParameterType = method.GetParameters()[0].ParameterType, ReturnType = method.ReturnType.GetGenericArguments().FirstOrDefault() };
+            foreach (var type in RpcInterfaceType.LocalTypes.Value)
+            {
+                foreach(var method in type.GetMethods())
+                {
+                    var delegateObj = CreateMethodDelegate(type, method, out string key);
+                    InstanceDictionary.TryAdd(key, delegateObj);
+                }
+            }
         }
 
         /// <summary>
         /// 创建本地方法委托
         /// </summary>
         /// <returns></returns>
-        static Type delegateType = typeof(LocalMethodDelegate<,>);
-        private ILocalMethodDelegate Build(LocalMethodInfo methodInfo, ILifetimeScope lifetimeScope)
+        private static ILocalMethodDelegate CreateMethodDelegate(Type localType,MethodInfo method,out string pathname)
         {
-            return ((ILocalMethodDelegate)Activator.CreateInstance(delegateType.MakeGenericType(methodInfo.ParameterType, methodInfo.ReturnType), methodInfo.Method, lifetimeScope.Resolve(methodInfo.Type)));
+            pathname = localType.Name + "/" + method.Name;
+            return (ILocalMethodDelegate)Activator.CreateInstance(typeof(LocalMethodDelegate<,>).MakeGenericType(method.GetParameters()[0].ParameterType, method.ReturnType.GetGenericArguments().FirstOrDefault()), method, localType);
         }
     }
 }

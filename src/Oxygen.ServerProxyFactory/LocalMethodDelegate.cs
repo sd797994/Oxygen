@@ -16,11 +16,18 @@ namespace Oxygen.IProxyClientBuilder
     public class LocalMethodDelegate<Tin, Tout> : ILocalMethodDelegate
     {
         private Func<Tin, Task<Tout>> localfunc;
+        public Type Type { get; set; }
         public Type ParmterType { get; set; }
-        public LocalMethodDelegate(MethodInfo method, object instence)
+        public MethodInfo Method { get; set; }
+        public LocalMethodDelegate(MethodInfo method,Type type)
         {
-            localfunc = (Func<Tin, Task<Tout>>)method.CreateDelegate(typeof(Func<Tin, Task<Tout>>), instence);
+            Method = method;
+            Type = type;
             ParmterType = typeof(Tin);
+        }
+        public void Build(object obj)
+        {
+            localfunc = (Func<Tin, Task<Tout>>)Method.CreateDelegate(typeof(Func<Tin, Task<Tout>>), obj);
         }
         public async Task<object> Excute(object val)
         {
