@@ -40,7 +40,7 @@ namespace Client.Sample
                 fail = 0;
                 await fortest(1, callCount, async i =>
                 {
-                    var userserver = await _proxyFactory.CreateProxy<IUserLoginUseCase>();
+                    var userserver = _proxyFactory.CreateProxy<IUserLoginUseCase>();
                     var result1 = await userserver.Register(new RegisterInput() { UserName = "admin" });
                     //var remoteProxy = await _proxyFactory.CreateProxy("/api/ServerSample/UserLoginUseCase/register");
                     //var result1 = await remoteProxy.SendAsync(new RegisterInput() { UserName = "admin" });

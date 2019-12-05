@@ -29,13 +29,13 @@ namespace Oxygen.ServerProxyFactory
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public async Task<T> CreateProxy<T>() where T : class
+        public T CreateProxy<T>() where T : class
         {
             if (_container.TryResolve(typeof(T), out var instance))
             {
                 return instance as T;
             }
-            return await Task.FromResult(default(T));
+            return default(T);
         }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace Oxygen.ServerProxyFactory
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public async Task<IVirtualProxyServer> CreateProxy(string path)
+        public IVirtualProxyServer CreateProxy(string path)
         {
             if (!string.IsNullOrEmpty(path))
             {
@@ -75,8 +75,8 @@ namespace Oxygen.ServerProxyFactory
                                             var method = type.GetMethods().FirstOrDefault(x => x.Name.ToLower().Equals(names[3].ToLower()));
                                             if (method != null)
                                             {
-                                                InstanceParmDictionary.TryAdd(path.ToLower(),new[] { serviceName, $"{type.Name.Substring(1, type.Name.Length - 1)}/{method.Name}" });
-                                                vitual.Init(serviceName, $"{type.Name.Substring(1, type.Name.Length - 1)}/{method.Name}");
+                                                InstanceParmDictionary.TryAdd(path.ToLower(),new[] { serviceName, $"{type.Name}/{method.Name}" });
+                                                vitual.Init(serviceName, $"{type.Name}/{method.Name}");
                                             }
                                         }
                                     }
@@ -87,7 +87,7 @@ namespace Oxygen.ServerProxyFactory
                     }
                 }
             }
-            return await Task.FromResult(default(IVirtualProxyServer));
+            return default(IVirtualProxyServer);
         }
 
         /// <summary>

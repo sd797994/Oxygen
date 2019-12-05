@@ -12,13 +12,13 @@ namespace Oxygen.IServerProxyFactory
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        Task<T> CreateProxy<T>() where T : class;
+        T CreateProxy<T>() where T : class;
 
         /// <summary>
         /// 通过路径创建代理
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        Task<IVirtualProxyServer> CreateProxy(string path);
+        IVirtualProxyServer CreateProxy(string path);
     }
 }

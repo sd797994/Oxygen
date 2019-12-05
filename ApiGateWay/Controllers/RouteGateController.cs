@@ -32,7 +32,7 @@ namespace ApiGateWay.Controllers
         {
             if (input != null)
             {
-                var remoteProxy = await _serverProxyFactory.CreateProxy(Request.Path);
+                var remoteProxy =  _serverProxyFactory.CreateProxy(Request.Path);
                 if (remoteProxy != null)
                 {
                     _customerInfo.Ip = new System.Net.IPEndPoint(_accessor.HttpContext.Connection.RemoteIpAddress, _accessor.HttpContext.Connection.RemotePort);
