@@ -18,7 +18,7 @@ namespace Oxygen.ServerProxyFactory
     {
         private readonly ILifetimeScope _container;
         private static readonly ConcurrentDictionary<string, Type> InstanceDictionary = new ConcurrentDictionary<string, Type>();
-        private static readonly ConcurrentDictionary<string, string[]> InstanceParmDictionary = new ConcurrentDictionary<string, string[]>();
+        private static readonly ConcurrentDictionary<string, (string[], Type)> InstanceParmDictionary = new ConcurrentDictionary<string, (string[], Type)>();
         public ServerProxyFactory(ILifetimeScope container)
         {
             _container = container;
@@ -57,7 +57,7 @@ namespace Oxygen.ServerProxyFactory
                         {
                             if (InstanceParmDictionary.TryGetValue(path.ToLower(), out var messageType))
                             {
-                                vitual.Init(messageType[0], messageType[1]);
+                                vitual.Init(messageType.Item1[0], messageType.Item1[1],messageType.Item2);
                             }
                             else
                             {
@@ -75,8 +75,9 @@ namespace Oxygen.ServerProxyFactory
                                             var method = type.GetMethods().FirstOrDefault(x => x.Name.ToLower().Equals(names[3].ToLower()));
                                             if (method != null)
                                             {
-                                                InstanceParmDictionary.TryAdd(path.ToLower(),new[] { serviceName, $"{type.Name}/{method.Name}" });
-                                                vitual.Init(serviceName, $"{type.Name}/{method.Name}");
+                                                var parmType = method.GetParameters().FirstOrDefault().ParameterType;
+                                                InstanceParmDictionary.TryAdd(path.ToLower(),(new[] { serviceName, $"{type.Name}/{method.Name}" }, parmType));
+                                                vitual.Init(serviceName, $"{type.Name}/{method.Name}", parmType);
                                             }
                                         }
                                     }

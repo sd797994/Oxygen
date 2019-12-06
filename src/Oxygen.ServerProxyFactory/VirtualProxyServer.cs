@@ -1,4 +1,5 @@
 ﻿using Oxygen.IServerProxyFactory;
+using System;
 using System.Threading.Tasks;
 
 namespace Oxygen.ServerProxyFactory
@@ -20,14 +21,15 @@ namespace Oxygen.ServerProxyFactory
         /// <param name="serverName"></param>
         /// <param name="pathName"></param>
         /// <param name="flowControlCfgKey"></param>
-        public void Init(string serverName, string pathName)
+        public void Init(string serverName, string pathName, Type inputType)
         {
             ServerName = serverName;
             PathName = pathName;
+            InputType = inputType;
         }
         public string ServerName { get; set; }
         public string PathName { get; set; }
-
+        public Type InputType { get; set; }
         /// <summary>
         /// 通过虚拟代理发送请求
         /// </summary>

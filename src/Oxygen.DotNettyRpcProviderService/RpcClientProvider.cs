@@ -108,8 +108,8 @@ namespace Oxygen.DotNettyRpcProviderService
         /// <returns></returns>
         private async Task<bool> CreateNewChannel(string serverName)
         {
-            var newChannel = await _bootstrap.ConnectAsync(serverName, OxygenSetting.ServerPort);
-            //var newChannel = await _bootstrap.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), OxygenSetting.ServerPort));
+            //var newChannel = await _bootstrap.ConnectAsync(serverName, OxygenSetting.ServerPort);
+            var newChannel = await _bootstrap.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), OxygenSetting.ServerPort));
             if (newChannel.Active)
             {
                 Channels.TryAdd(serverName, newChannel);

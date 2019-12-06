@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Oxygen.IServerProxyFactory
@@ -14,12 +15,13 @@ namespace Oxygen.IServerProxyFactory
         /// <param name="serverName"></param>
         /// <param name="pathName"></param>
         /// <param name="flowControlCfgKey"></param>
-        void Init(string serverName, string pathName);
+        void Init(string serverName, string pathName, Type inputType);
         /// <summary>
         /// 通过虚拟代理发送请求
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
         Task<object> SendAsync(object input);
+        Type InputType { get; set; }
     }
 }
