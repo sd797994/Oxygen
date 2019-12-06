@@ -1,9 +1,7 @@
 ﻿using Autofac;
-using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Hosting.Internal;
 using Oxygen.CommonTool;
 using System;
 
@@ -40,11 +38,11 @@ namespace Oxygen
         /// <param name="hostBuilder"></param>
         /// <param name="configuration"></param>
         /// <returns></returns>
-        public static IHostBuilder UseOxygenService(this IHostBuilder hostBuilder, Action<IServiceCollection> collection)
+        public static IHostBuilder UseOxygenService(this IHostBuilder hostBuilder, Action<HostBuilderContext, IServiceCollection> collection)
         {
             CONFIGSERVICE = true;
             //注入线程同步服务
-            hostBuilder.ConfigureServices(x => collection(x));
+            hostBuilder.ConfigureServices((a, b) => collection(a, b));
             return hostBuilder;
         }
         /// <summary>
@@ -59,8 +57,6 @@ namespace Oxygen
             new OxygenSetting(configuration);
             if (CONFIGSERVICE)
             {
-                //注入MediatR
-                service.AddMediatR();
                 //注入Host启动类
                 service.AddHostedService<OxygenHostService>();
             }

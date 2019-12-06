@@ -1,15 +1,12 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using Application.Interface;
-using Autofac;
-using Autofac.Configuration;
+﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Oxygen;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace Client.Sample
 {
@@ -43,7 +40,6 @@ namespace Client.Sample
                 });
                 services.AddHostedService<CustomHostService>();
                 services.AddHttpClient();
-                services.AddAutofac();
             })
             .UseServiceProviderFactory(new AutofacServiceProviderFactory());
     }

@@ -1,4 +1,4 @@
-Ôªøusing System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,13 +6,11 @@ using Autofac;
 using Autofac.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Oxygen;
 
 namespace ApiGateWay
@@ -29,16 +27,13 @@ namespace ApiGateWay
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //Ê≥®ÂÜåoxygenÈÖçÁΩÆËäÇ
             services.ConfigureOxygen(Configuration);
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddControllers().AddNewtonsoftJson();
         }
 
-
         public void ConfigureContainer(ContainerBuilder builder)
         {
-            //Ê≥®ÂÖ•oxygenÊúçÂä°
+            //◊¢»Îoxygen∑˛ŒÒ
             builder.RegisterOxygen();
             builder.RegisterModule(new ConfigurationModule(Configuration));
         }
@@ -49,7 +44,10 @@ namespace ApiGateWay
             {
                 app.UseDeveloperExceptionPage();
             }
+
             app.UseRouting();
+
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

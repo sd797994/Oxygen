@@ -12,6 +12,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Net;
 using System.Reflection.Emit;
+using System.Threading;
 using System.Threading.Tasks;
 namespace Oxygen.DotNettyRpcProviderService
 {
@@ -108,8 +109,8 @@ namespace Oxygen.DotNettyRpcProviderService
         /// <returns></returns>
         private async Task<bool> CreateNewChannel(string serverName)
         {
-            //var newChannel = await _bootstrap.ConnectAsync(serverName, OxygenSetting.ServerPort);
-            var newChannel = await _bootstrap.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), OxygenSetting.ServerPort));
+            var newChannel = await _bootstrap.ConnectAsync(serverName, OxygenSetting.ServerPort);
+            //var newChannel = await _bootstrap.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), OxygenSetting.ServerPort));
             if (newChannel.Active)
             {
                 Channels.TryAdd(serverName, newChannel);
@@ -197,7 +198,13 @@ namespace Oxygen.DotNettyRpcProviderService
         /// <returns></returns>
         async Task<byte[]> RegisterResultCallbackAsync(Guid id)
         {
-            var task = new TaskCompletionSource<byte[]>();
+            var task = new TaskCompletionSource<byte[]>(); 
+            var timeoutMs = 20000;
+            var ct = new CancellationTokenSource(timeoutMs);
+            ct.Token.Register(() => {
+                RemoveHook(id);
+                task.TrySetCanceled();
+            }, useSynchronizationContext: false);
             SetHook(id, task);
             try
             {

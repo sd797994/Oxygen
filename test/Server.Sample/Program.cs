@@ -35,7 +35,7 @@ namespace Server.Sample
                 builder.RegisterType<UserLoginUseCase>().As<IUserLoginUseCase>().InstancePerDependency();
             })
             //注册成为oxygen服务节点
-            .UseOxygenService(services => {
+            .UseOxygenService((context, services) => {
                 //注册oxygen配置
                 services.ConfigureOxygen(Configuration);
                 services.AddLogging(configure =>
