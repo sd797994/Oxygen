@@ -18,7 +18,8 @@ namespace Oxygen.ServerProxyFactory
     {
         private readonly ILifetimeScope _container;
         private static readonly ConcurrentDictionary<string, Type> InstanceDictionary = new ConcurrentDictionary<string, Type>();
-        private static readonly ConcurrentDictionary<string, (string[], Type)> InstanceParmDictionary = new ConcurrentDictionary<string, (string[], Type)>();
+        private static readonly ConcurrentDictionary<string, (string[], Type, Type)> InstanceParmDictionary = 
+            new ConcurrentDictionary<string, (string[], Type, Type)>();
         public ServerProxyFactory(ILifetimeScope container)
         {
             _container = container;
@@ -57,7 +58,7 @@ namespace Oxygen.ServerProxyFactory
                         {
                             if (InstanceParmDictionary.TryGetValue(path.ToLower(), out var messageType))
                             {
-                                vitual.Init(messageType.Item1[0], messageType.Item1[1],messageType.Item2);
+                                vitual.Init(messageType.Item1[0], messageType.Item1[1], messageType.Item2, messageType.Item3);
                             }
                             else
                             {
@@ -68,6 +69,7 @@ namespace Oxygen.ServerProxyFactory
                                     {
                                         var className = $"{names[2]}";
                                         var type = GetProxyClient(className);
+                                        _container.TryResolve(type, out object remoteProxyDecorator);
                                         if (type != null)
                                         {
                                             var serviceName = (string)typeof(RemoteServiceAttribute).GetProperty("ServerName")
@@ -76,8 +78,9 @@ namespace Oxygen.ServerProxyFactory
                                             if (method != null)
                                             {
                                                 var parmType = method.GetParameters().FirstOrDefault().ParameterType;
-                                                InstanceParmDictionary.TryAdd(path.ToLower(),(new[] { serviceName, $"{type.Name}/{method.Name}" }, parmType));
-                                                vitual.Init(serviceName, $"{type.Name}/{method.Name}", parmType);
+                                                var returnType = method.ReturnType.GenericTypeArguments[0];
+                                                InstanceParmDictionary.TryAdd(path.ToLower(),(new[] { serviceName, $"{type.Name}/{method.Name}" }, parmType, returnType));
+                                                vitual.Init(serviceName, $"{type.Name}/{method.Name}", parmType, returnType);
                                             }
                                         }
                                     }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Oxygen.IProxyClientBuilder
+namespace Oxygen.IServerProxyFactory
 {
     public interface IRemoteMethodDelegate
     {

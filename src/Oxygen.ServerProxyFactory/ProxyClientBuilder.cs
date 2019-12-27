@@ -2,19 +2,22 @@
 using Microsoft.Extensions.DependencyModel;
 using Oxygen.CommonTool;
 using Oxygen.CsharpClientAgent;
+using Oxygen.IServerProxyFactory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
 
-namespace Oxygen.ProxyClientBuilder
+namespace Oxygen.ServerProxyFactory
 {
     /// <summary>
     /// 代理服务创建类
     /// </summary>
     public class ProxyClientBuilder
     {
+        public static readonly Lazy<IRemoteProxyGenerator> ProxyGenerator = new Lazy<IRemoteProxyGenerator>(() => OxygenIocContainer.Resolve<IRemoteProxyGenerator>());
+        public static Dictionary<string, MethodDelegateInfo> Remotemethods = new Dictionary<string, MethodDelegateInfo>();
         /// <summary>
         /// 为远程服务构建代理类
         /// </summary>

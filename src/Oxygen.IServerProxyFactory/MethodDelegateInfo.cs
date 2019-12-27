@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 
-namespace Oxygen.IProxyClientBuilder
+namespace Oxygen.IServerProxyFactory
 {
     public class MethodDelegateInfo
     {

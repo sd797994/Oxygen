@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Oxygen.IRpcProviderService
@@ -28,5 +29,6 @@ namespace Oxygen.IRpcProviderService
         /// <param name="message"></param>
         /// <returns></returns>
         Task<T> SendMessage<T>(string serverName, string pathName, object input) where T : class;
+        Task<object> SendMessage(string serverName, string pathName, object input, Type returnType);
     }
 }

@@ -19,7 +19,6 @@
     <ProjectReference Include="..\Oxygen.ISerializeService\Oxygen.ISerializeService.csproj" />
     <ProjectReference Include="..\Oxygen.IServerProxyFactory\Oxygen.IServerProxyFactory.csproj" />
     <ProjectReference Include="..\Oxygen.MessagePackSerializeService\Oxygen.MessagePackSerializeService.csproj" />
-    <ProjectReference Include="..\Oxygen.ProxyClientBuilder\Oxygen.ProxyClientBuilder.csproj" />
     <ProjectReference Include="..\Oxygen.ServerProxyFactory\Oxygen.ServerProxyFactory.csproj" />
   </ItemGroup>
 </Project>

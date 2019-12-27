@@ -10,6 +10,8 @@ namespace Oxygen.ServerProxyFactory
             builder.RegisterAssemblyTypes(ThisAssembly)
                 .AsImplementedInterfaces()
                 .InstancePerLifetimeScope();
+            //注入远程代理服务
+            ProxyClientBuilder.CreateRemoteProxyClientInstance(builder);
         }
     }
 }

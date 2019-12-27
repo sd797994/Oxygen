@@ -22,8 +22,6 @@ namespace Oxygen
         {
             //注入rpc服务
             builder.RegisterModule(new DotNettyRpcProviderService.Module());
-            //注入代理构造服务
-            builder.RegisterModule(new ProxyClientBuilder.Module());
             //注入序列化服务
             builder.RegisterModule(new MessagePackSerializeService.Module());
             //注入代理工厂

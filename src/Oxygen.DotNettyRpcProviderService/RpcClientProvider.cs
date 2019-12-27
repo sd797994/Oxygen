@@ -134,6 +134,24 @@ namespace Oxygen.DotNettyRpcProviderService
         /// <returns></returns>
         public async Task<T> SendMessage<T>(string serverName, string pathName, object input) where T : class
         {
+            return await SendMessage<T>(serverName, pathName, input, null);
+        }
+        public async Task<object> SendMessage(string serverName, string pathName, object input, Type returnType)
+        {
+            return await SendMessage<object>(serverName, pathName, input, returnType);
+        }
+        #region 私有方法
+        /// <summary>
+        /// 发送消息到远程服务器
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="serverName"></param>
+        /// <param name="pathName"></param>
+        /// <param name="input"></param>
+        /// <param name="returnType"></param>
+        /// <returns></returns>
+        private async Task<T> SendMessage<T>(string serverName, string pathName, object input, Type returnType) where T : class
+        {
             T result = default;
             if (Channels.TryGetValue(serverName, out var _channel))
             {
@@ -152,7 +170,10 @@ namespace Oxygen.DotNettyRpcProviderService
                     var resultBt = await resultTask;
                     if (resultBt != null && resultBt.Any())
                     {
-                        return _serialize.Deserializes<T>(resultBt);
+                        if (returnType == null)
+                            return _serialize.Deserializes<T>(resultBt);
+                        else
+                            return _serialize.Deserializes(returnType, resultBt) as T;
                     }
                     return (T)default;
                 }
@@ -163,7 +184,6 @@ namespace Oxygen.DotNettyRpcProviderService
             }
             return result;
         }
-        #region 私有方法
         /// <summary>
         /// 消息回调处理
         /// </summary>

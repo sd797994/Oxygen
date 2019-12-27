@@ -8,12 +8,10 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace Oxygen.ProxyClientBuilder
+namespace Oxygen.ServerProxyFactory
 {
     public class RemoteProxyDecorator<T> : DispatchProxy
     {
-        private static readonly Lazy<IRemoteProxyGenerator> _proxyGenerator = new Lazy<IRemoteProxyGenerator>(() => OxygenIocContainer.Resolve<IRemoteProxyGenerator>());
-        private static Dictionary<string, MethodDelegateInfo> remotemethods = new Dictionary<string, MethodDelegateInfo>();
         public T Create()
         {
             object proxy = Create<T, RemoteProxyDecorator<T>>();
@@ -29,16 +27,16 @@ namespace Oxygen.ProxyClientBuilder
                     PathName = $"{type.Name}/{method.Name}",
                     MethodInfo = typeof(IRemoteProxyGenerator).GetMethod("SendAsync").MakeGenericMethod(method.GetParameters()[0].ParameterType, method.ReturnParameter.ParameterType.GenericTypeArguments[0])
                 };
-                remotemethods.Add(method.Name + string.Join("", method.GetParameters().Select(x => x.Name)), tmpmod);
+                ProxyClientBuilder.Remotemethods.Add(method.Name + string.Join("", method.GetParameters().Select(x => x.Name)), tmpmod);
             }
             return (T)proxy;
         }
 
         IRemoteMethodDelegate GetProxy(string key, out string ServiceName, out string PathName)
         {
-            var remotemethod = remotemethods.First(x => x.Key.Equals(key)).Value;
+            var remotemethod = ProxyClientBuilder.Remotemethods.First(x => x.Key.Equals(key)).Value;
             if (remotemethod.MethodDelegate == null)
-                remotemethod.MethodDelegate = (IRemoteMethodDelegate)Activator.CreateInstance(typeof(RemoteMethodDelegate<,>).MakeGenericType(remotemethod.MethodInfo.GetParameters()[0].ParameterType, remotemethod.MethodInfo.ReturnType), remotemethod.MethodInfo, _proxyGenerator.Value);
+                remotemethod.MethodDelegate = (IRemoteMethodDelegate)Activator.CreateInstance(typeof(RemoteMethodDelegate<,>).MakeGenericType(remotemethod.MethodInfo.GetParameters()[0].ParameterType, remotemethod.MethodInfo.ReturnType), remotemethod.MethodInfo, ProxyClientBuilder.ProxyGenerator.Value);
             ServiceName = remotemethod.ServiceName;
             PathName = remotemethod.PathName;
             return remotemethod.MethodDelegate;

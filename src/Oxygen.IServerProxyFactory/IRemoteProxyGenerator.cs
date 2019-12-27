@@ -19,5 +19,6 @@ namespace Oxygen.IServerProxyFactory
         /// <param name="pathName"></param>
         /// <returns></returns>
         Task<TOut> SendAsync<TIn, TOut>(TIn input, string serviceName, string pathName) where TOut : class;
+        Task<object> SendObjAsync<TIn>(TIn input, Type OutType, string serviceName, string pathName);
     }
 }

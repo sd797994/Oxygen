@@ -1,5 +1,6 @@
 ﻿using Oxygen.IServerProxyFactory;
 using System;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Oxygen.ServerProxyFactory
@@ -21,15 +22,17 @@ namespace Oxygen.ServerProxyFactory
         /// <param name="serverName"></param>
         /// <param name="pathName"></param>
         /// <param name="flowControlCfgKey"></param>
-        public void Init(string serverName, string pathName, Type inputType)
+        public void Init(string serverName, string pathName, Type inputType, Type returnType)
         {
             ServerName = serverName;
             PathName = pathName;
             InputType = inputType;
+            ReturnType = returnType;
         }
         public string ServerName { get; set; }
         public string PathName { get; set; }
         public Type InputType { get; set; }
+        public Type ReturnType { get; set; }
         /// <summary>
         /// 通过虚拟代理发送请求
         /// </summary>
@@ -37,7 +40,7 @@ namespace Oxygen.ServerProxyFactory
         /// <returns></returns>
         public async Task<object> SendAsync(object input)
         {
-            return await _proxyGenerator.SendAsync<object, object>(input, ServerName, PathName);
+            return await _proxyGenerator.SendObjAsync(input, ReturnType, ServerName, PathName);
         }
     }
 }

@@ -34,11 +34,23 @@ namespace Oxygen.ServerProxyFactory
         /// <returns></returns>
         public async Task<TOut> SendAsync<TIn, TOut>(TIn input, string serviceName, string pathName) where TOut : class
         {
+            return await SendAsync<TIn, TOut>(input, serviceName, pathName, null);
+        }
+        public async Task<object> SendObjAsync<TIn>(TIn input, Type OutType, string serviceName, string pathName)
+        {
+            return await SendAsync<TIn, object>(input, serviceName, pathName, OutType);
+        }
+
+        private async Task<TOut> SendAsync<TIn, TOut>(TIn input, string serviceName, string pathName, Type OutType = null) where TOut : class
+        {
             try
             {
                 if (await _clientProvider.CreateClient(serviceName))
                 {
-                    return await _clientProvider.SendMessage<TOut>(serviceName, pathName, input);
+                    if (OutType == null)
+                        return await _clientProvider.SendMessage<TOut>(serviceName, pathName, input);
+                    else
+                        return await _clientProvider.SendMessage(serviceName, pathName, input, OutType) as TOut;
                 }
                 else
                 {
