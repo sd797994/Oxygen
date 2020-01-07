@@ -129,7 +129,4 @@ private readonly IServerProxyFactory _proxyFactory;
 
 MIT
 
-[1]: https://www.github.com/sd797994/oxygen "Oxygen"
-[2]: https://www.jianshu.com/p/c726ed03562a "这里"
-[3]: https://www.github.com/dotnetcore/cap "CAP"
 [1]: https://github.com/sd797994/Oxygen-EshopSample "简易案例"
