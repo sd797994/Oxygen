@@ -4,6 +4,7 @@ using Oxygen.CommonTool;
 using Oxygen.CsharpClientAgent;
 using Oxygen.IServerProxyFactory;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -17,7 +18,7 @@ namespace Oxygen.ServerProxyFactory
     public class ProxyClientBuilder
     {
         public static readonly Lazy<IRemoteProxyGenerator> ProxyGenerator = new Lazy<IRemoteProxyGenerator>(() => OxygenIocContainer.Resolve<IRemoteProxyGenerator>());
-        public static Dictionary<string, MethodDelegateInfo> Remotemethods = new Dictionary<string, MethodDelegateInfo>();
+        public static ConcurrentDictionary<string, MethodDelegateInfo> Remotemethods = new ConcurrentDictionary<string, MethodDelegateInfo>();
         /// <summary>
         /// 为远程服务构建代理类
         /// </summary>

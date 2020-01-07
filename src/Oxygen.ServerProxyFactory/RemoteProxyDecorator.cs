@@ -1,4 +1,6 @@
-﻿using Oxygen.CommonTool;
+﻿using Microsoft.Extensions.Logging;
+using Oxygen.CommonTool;
+using Oxygen.CommonTool.Logger;
 using Oxygen.CsharpClientAgent;
 using Oxygen.IProxyClientBuilder;
 using Oxygen.IServerProxyFactory;
@@ -12,6 +14,7 @@ namespace Oxygen.ServerProxyFactory
 {
     public class RemoteProxyDecorator<T> : DispatchProxy
     {
+        private readonly Lazy<IOxygenLogger> logger = new Lazy<IOxygenLogger>(() => OxygenIocContainer.Resolve<IOxygenLogger>());
         public T Create()
         {
             object proxy = Create<T, RemoteProxyDecorator<T>>();
@@ -27,7 +30,10 @@ namespace Oxygen.ServerProxyFactory
                     PathName = $"{type.Name}/{method.Name}",
                     MethodInfo = typeof(IRemoteProxyGenerator).GetMethod("SendAsync").MakeGenericMethod(method.GetParameters()[0].ParameterType, method.ReturnParameter.ParameterType.GenericTypeArguments[0])
                 };
-                ProxyClientBuilder.Remotemethods.Add(method.Name + string.Join("", method.GetParameters().Select(x => x.Name)), tmpmod);
+                if(!ProxyClientBuilder.Remotemethods.TryAdd($"{tmpmod.PathName}", tmpmod))
+                {
+                    logger.Value.LogError($"无法为远程代理添加同名服务{tmpmod.PathName},请确保服务名全局唯一");
+                }
             }
             return (T)proxy;
         }
@@ -43,8 +49,7 @@ namespace Oxygen.ServerProxyFactory
         }
         protected override object Invoke(MethodInfo targetMethod, object[] args)
         {
-            var key = targetMethod.Name + string.Join("", targetMethod.GetParameters().Select(y => y.Name));
-            return GetProxy(key, out string ServiceName, out string PathName).Excute(args[0], ServiceName, PathName);
+            return GetProxy($"{targetMethod.DeclaringType.Name}/{targetMethod.Name}", out string ServiceName, out string PathName).Excute(args[0], ServiceName, PathName);
         }
     }
 }
