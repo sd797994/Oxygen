@@ -1,7 +1,9 @@
 ﻿using DotNetty.Buffers;
+using DotNetty.Codecs.Http;
 using DotNetty.Transport.Channels;
 using Oxygen.CommonTool.Logger;
 using Oxygen.IRpcProviderService;
+using Oxygen.ISerializeService;
 using System;
 using System.Text;
 
@@ -14,10 +16,14 @@ namespace Oxygen.DotNettyRpcProviderService
     {
         private event ReceiveHander _hander;
         private readonly IOxygenLogger _logger;
-        public RpcClientHandler(IOxygenLogger logger, ReceiveHander hander)
+        private readonly ISerialize _serialize;
+        private readonly ProtocolMessageBuilder protocolMessageBuilder;
+        public RpcClientHandler(IOxygenLogger logger, ISerialize serialize, ReceiveHander hander)
         {
             _logger = logger;
+            _serialize = serialize;
             _hander = hander;
+            protocolMessageBuilder = new ProtocolMessageBuilder(_serialize);
         }
         /// <summary>
         /// 从tcp管道接受消息
@@ -28,10 +34,7 @@ namespace Oxygen.DotNettyRpcProviderService
         {
             try
             {
-                if (message is RpcGlobalMessageBase<object>)
-                {
-                    _hander?.Invoke((RpcGlobalMessageBase<object>)message);
-                }
+                _hander?.Invoke(protocolMessageBuilder.GetReceiveMessage(message));
             }
             catch (Exception e)
             {

@@ -121,7 +121,7 @@ namespace Oxygen.MessagePackSerializeService
             }
             catch (Exception e)
             {
-                _logger.LogError($"反序化对象失败：{e.Message}");
+                _logger.LogError($"反序化对象失败：{e.Message}，消息体：{input}");
             }
             return default(T);
         }

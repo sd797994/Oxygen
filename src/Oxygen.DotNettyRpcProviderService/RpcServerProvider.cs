@@ -1,5 +1,6 @@
 ﻿using DotNetty.Buffers;
 using DotNetty.Codecs;
+using DotNetty.Codecs.Http;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Libuv;
@@ -10,6 +11,7 @@ using Oxygen.ISerializeService;
 using Oxygen.IServerProxyFactory;
 using System;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace Oxygen.DotNettyRpcProviderService
@@ -20,8 +22,6 @@ namespace Oxygen.DotNettyRpcProviderService
     public class RpcServerProvider : IRpcServerProvider
     {
         private readonly IOxygenLogger _logger;
-        private readonly ILocalProxyGenerator _localProxyGenerator;
-        private readonly ISerialize _serialize;
         #region dotnetty相关
         IEventLoopGroup _bossGroup;
         IEventLoopGroup _workerGroup;
@@ -32,8 +32,7 @@ namespace Oxygen.DotNettyRpcProviderService
         public RpcServerProvider(IOxygenLogger logger,ILocalProxyGenerator localProxyGenerator, ISerialize serialize)
         {
             _logger = logger;
-            _localProxyGenerator = localProxyGenerator;
-            _serialize = serialize;
+            _bootstrap = new BootstrapFactory(logger, serialize).CreateServerBootstrap(localProxyGenerator);
         }
 
         /// <summary>
@@ -42,24 +41,6 @@ namespace Oxygen.DotNettyRpcProviderService
         /// <returns></returns>
         public async Task<IPEndPoint> OpenServer()
         {
-            var dispatcher = new DispatcherEventLoopGroup();
-            _bossGroup = dispatcher;
-            _workerGroup = new WorkerEventLoopGroup(dispatcher);
-            _bootstrap = new ServerBootstrap()
-                    .Channel<TcpServerChannel>()
-                    .Group(_bossGroup, _workerGroup)
-                    .Option(ChannelOption.SoBacklog, 100)
-                    .ChildOption(ChannelOption.Allocator, PooledByteBufferAllocator.Default)
-                    .ChildOption(ChannelOption.ConnectTimeout, new TimeSpan(0, 0, 5))
-                    .ChildHandler(new ActionChannelInitializer<IChannel>(channel =>
-                    {
-                        var pipeline = channel.Pipeline;
-                        pipeline.AddLast(new LengthFieldPrepender(4));
-                        pipeline.AddLast(new LengthFieldBasedFrameDecoder(int.MaxValue, 0, 4, 0, 4));
-                        pipeline.AddLast(new MessageDecoder<RpcGlobalMessageBase<object>>(_serialize));
-                        pipeline.AddLast(new MessageEncoder<object>(_serialize));
-                        pipeline.AddLast(new RpcServerHandler(_logger, _localProxyGenerator));
-                    }));
             var port = OxygenSetting.ServerPort;
             boundChannel = await _bootstrap.BindAsync(port);
             _logger.LogInfo($"bind tcp 0.0.0.0:{port} to listen");

@@ -1,11 +1,17 @@
 ﻿using DotNetty.Buffers;
+using DotNetty.Codecs.Http;
+using DotNetty.Codecs.Http.Multipart;
+using DotNetty.Common;
+using DotNetty.Common.Utilities;
 using DotNetty.Transport.Channels;
 using Oxygen.CommonTool;
 using Oxygen.CommonTool.Logger;
 using Oxygen.IRpcProviderService;
+using Oxygen.ISerializeService;
 using Oxygen.IServerProxyFactory;
 using System;
 using System.Linq;
+using System.Text;
 
 namespace Oxygen.DotNettyRpcProviderService
 {
@@ -16,10 +22,14 @@ namespace Oxygen.DotNettyRpcProviderService
     {
         private readonly IOxygenLogger _logger;
         private readonly ILocalProxyGenerator _localProxyGenerator;
-        public RpcServerHandler(IOxygenLogger logger, ILocalProxyGenerator localProxyGenerator)
+        private readonly ISerialize _serialize;
+        private readonly ProtocolMessageBuilder protocolMessageBuilder;
+        public RpcServerHandler(IOxygenLogger logger, ILocalProxyGenerator localProxyGenerator, ISerialize serialize)
         {
             _logger = logger;
             _localProxyGenerator = localProxyGenerator;
+            _serialize = serialize;
+            protocolMessageBuilder = new ProtocolMessageBuilder(_serialize);
         }
         /// <summary>
         /// 从tcp管道接受消息
@@ -30,13 +40,11 @@ namespace Oxygen.DotNettyRpcProviderService
         {
             try
             {
-                if (message is RpcGlobalMessageBase<object>)
+                var messageobj = protocolMessageBuilder.GetReceiveMessage(message);
+                var localHanderResult = await _localProxyGenerator.Invoke(messageobj);
+                if (localHanderResult != null)
                 {
-                    var localHanderResult = await _localProxyGenerator.Invoke((RpcGlobalMessageBase<object>)message);
-                    if (localHanderResult != null)
-                    {
-                        await context.WriteAndFlushAsync(localHanderResult);
-                    }
+                    await context.WriteAndFlushAsync(protocolMessageBuilder.GetServerSendMessage(localHanderResult));
                 }
             }
             catch (Exception e)

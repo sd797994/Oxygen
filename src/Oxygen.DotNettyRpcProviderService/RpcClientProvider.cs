@@ -1,5 +1,7 @@
 ﻿using DotNetty.Buffers;
 using DotNetty.Codecs;
+using DotNetty.Codecs.Http;
+using DotNetty.Common.Utilities;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Libuv;
@@ -12,6 +14,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Net;
 using System.Reflection.Emit;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 namespace Oxygen.DotNettyRpcProviderService
@@ -28,6 +31,7 @@ namespace Oxygen.DotNettyRpcProviderService
         private readonly CustomerInfo _customerInfo;
         public static readonly ConcurrentDictionary<Guid, TaskCompletionSource<byte[]>> TaskHookInfos =
             new ConcurrentDictionary<Guid, TaskCompletionSource<byte[]>>();
+        private readonly ProtocolMessageBuilder protocolMessageBuilder;
         #region dotnetty相关
         static Bootstrap _bootstrap;
         static readonly ConcurrentDictionary<string, IChannel> Channels = new ConcurrentDictionary<string, IChannel>();
@@ -37,34 +41,9 @@ namespace Oxygen.DotNettyRpcProviderService
         {
             _logger = logger;
             _serialize = serialize;
-            _bootstrap = CreateBootStrap();
+            _bootstrap = new BootstrapFactory(logger, serialize).CreateClientBootstrap(ReceiveMessage);
+            protocolMessageBuilder = new ProtocolMessageBuilder(serialize);
             _customerInfo = customerInfo;
-        }
-        /// <summary>
-        /// 创建Bootstrap
-        /// </summary>
-        /// <returns></returns>
-        Bootstrap CreateBootStrap()
-        {
-            IEventLoopGroup group;
-            var bootstrap = new Bootstrap();
-            group = new EventLoopGroup();
-            bootstrap.Channel<TcpChannel>();
-            bootstrap
-                        .Group(group)
-                        .Option(ChannelOption.TcpNodelay, true)
-                        .Option(ChannelOption.Allocator, PooledByteBufferAllocator.Default)
-                        .Option(ChannelOption.ConnectTimeout, new TimeSpan(0, 0, 5))
-                        .Handler(new ActionChannelInitializer<IChannel>(ch =>
-                        {
-                            var pipeline = ch.Pipeline;
-                            pipeline.AddLast(new LengthFieldPrepender(4));
-                            pipeline.AddLast(new LengthFieldBasedFrameDecoder(int.MaxValue, 0, 4, 0, 4));
-                            pipeline.AddLast(new MessageDecoder<RpcGlobalMessageBase<object>>(_serialize));
-                            pipeline.AddLast(new MessageEncoder<object>(_serialize));
-                            pipeline.AddLast(new RpcClientHandler(_logger, ReceiveMessage));
-                        }));
-            return bootstrap;
         }
 
         /// <summary>
@@ -158,13 +137,7 @@ namespace Oxygen.DotNettyRpcProviderService
                 try
                 {
                     var taskId = Guid.NewGuid();
-                    var sendMessage = new RpcGlobalMessageBase<object>
-                    {
-                        CustomerIp = _customerInfo.Ip,
-                        TaskId = taskId,
-                        Path = pathName,
-                        Message = input is string ? _serialize.Deserializes<object>(_serialize.SerializesJsonString((string)input)) : input
-                    };
+                    var sendMessage = protocolMessageBuilder.GetClientSendMessage(taskId, serverName, pathName, input);
                     var resultTask = RegisterResultCallbackAsync(taskId);
                     await _channel.WriteAndFlushAsync(sendMessage);
                     var resultBt = await resultTask;

@@ -18,12 +18,20 @@ namespace Oxygen.CommonTool
             {
                 ServerPort = 80;
             }
+            if (!string.IsNullOrWhiteSpace(configuration["Oxygen:ProtocolType"]))
+            {
+                ProtocolType = (EnumProtocolType)int.Parse(configuration["Oxygen:ProtocolType"]);
+            }
+            else
+            {
+                ProtocolType = EnumProtocolType.TCP;
+            }
         }
-        #region 注册中心相关
         /// <summary>
         /// 服务端口
         /// </summary>
         public static int ServerPort;
-        #endregion
+
+        public static EnumProtocolType ProtocolType;
     }
 }
