@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Oxygen</id>
-    <version>0.1.4</version>
+    <version>0.1.6</version>
     <title>Oxygen</title>
     <authors>yuping zeng</authors>
     <owners>yuping zeng</owners>
@@ -23,6 +23,7 @@
     <dependency id="Microsoft.Extensions.Hosting.Abstractions" version="3.1.0" />
     <dependency id="DotNetty.Handlers" version="0.6.0" />
     <dependency id="DotNetty.Transport.Libuv" version="0.6.0" />
+    <dependency id="DotNetty.Codecs.Http" version="0.6.0" />
   </dependencies>
   </metadata>
   <files>
