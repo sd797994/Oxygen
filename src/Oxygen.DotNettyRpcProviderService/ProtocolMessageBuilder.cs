@@ -27,7 +27,8 @@ namespace Oxygen.DotNettyRpcProviderService
         /// <param name="pathName"></param>
         /// <param name="input"></param>
         /// <returns></returns>
-        public object GetClientSendMessage(Guid taskId, string serverName, string pathName, object input)
+
+        public object GetClientSendMessage(Guid taskId, string serverName, string pathName, object input, Dictionary<string, string> traceHeaders = null)
         {
             var sendMessage = new RpcGlobalMessageBase<object>
             {
@@ -39,10 +40,11 @@ namespace Oxygen.DotNettyRpcProviderService
             {
                 case EnumProtocolType.HTTP11:
                     byte[] json = Encoding.UTF8.GetBytes(_serialize.SerializesJson(sendMessage));
-                    var request = new DefaultFullHttpRequest(DotNetty.Codecs.Http.HttpVersion.Http11, HttpMethod.Post, $"http://{serverName}", Unpooled.WrappedBuffer(json), false);
+                    var request = new DefaultFullHttpRequest(HttpVersion.Http11, HttpMethod.Post, $"http://{serverName}", Unpooled.WrappedBuffer(json), false);
                     HttpHeaders headers = request.Headers;
                     headers.Set(HttpHeaderNames.ContentType, AsciiString.Cached("application/json"));
                     headers.Set(HttpHeaderNames.ContentLength, AsciiString.Cached($"{json.Length}"));
+                    TraceHeaderHelper.BuildTraceHeader(headers, traceHeaders);
                     return request;
                 case EnumProtocolType.TCP:
                 default:
@@ -54,12 +56,11 @@ namespace Oxygen.DotNettyRpcProviderService
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        public object GetServerSendMessage(RpcGlobalMessageBase<object> message)
+        public object GetServerSendMessage(RpcGlobalMessageBase<object> message, Dictionary<string, string> traceHeaders = null)
         {
             switch (OxygenSetting.ProtocolType)
             {
                 case EnumProtocolType.HTTP11:
-
                     byte[] json = Encoding.UTF8.GetBytes(_serialize.SerializesJson(message));
                     var response = new DefaultFullHttpResponse(HttpVersion.Http11, HttpResponseStatus.OK, Unpooled.WrappedBuffer(json), false);
                     HttpHeaders headers = response.Headers;
@@ -67,6 +68,7 @@ namespace Oxygen.DotNettyRpcProviderService
                     headers.Set(HttpHeaderNames.Server, "dotnetty");
                     headers.Set(HttpHeaderNames.Date, AsciiString.Cached($"{DateTime.UtcNow.DayOfWeek}, {DateTime.UtcNow:dd MMM yyyy HH:mm:ss z}"));
                     headers.Set(HttpHeaderNames.ContentLength, AsciiString.Cached($"{json.Length}"));
+                    TraceHeaderHelper.BuildTraceHeader(headers, traceHeaders);
                     return response;
                 case EnumProtocolType.TCP:
                 default:
@@ -77,17 +79,23 @@ namespace Oxygen.DotNettyRpcProviderService
         /// 构造接收消息体
         /// </summary>
         /// <returns></returns>
-        public RpcGlobalMessageBase<object> GetReceiveMessage(object message)
+        public (RpcGlobalMessageBase<object> messageBase, Dictionary<string, string> traceHeaders) GetReceiveMessage(object message)
         {
             if (message is IHttpContent)
             {
                 var buf = ((IHttpContent)message).Content;
                 var jsonstr = buf.ToString(Encoding.UTF8);
-                return _serialize.DeserializesJson<RpcGlobalMessageBase<object>>(jsonstr);
+                Dictionary<string, string> traceHeaders = default;
+                if (message is IFullHttpRequest)
+                {
+                    var headers = ((IFullHttpRequest)message).Headers;
+                    traceHeaders = TraceHeaderHelper.GetTraceHeaders(headers);
+                }
+                return (_serialize.DeserializesJson<RpcGlobalMessageBase<object>>(jsonstr), traceHeaders);
             }
             else if (message is RpcGlobalMessageBase<object>)
             {
-                return (RpcGlobalMessageBase<object>)message;
+                return ((RpcGlobalMessageBase<object>)message,null);
             }
             return default;
         }

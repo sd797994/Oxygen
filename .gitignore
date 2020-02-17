@@ -267,3 +267,5 @@ __pycache__/
 /k8s/ApiGateWay
 /nugetpack/lib
 *.nupkg
+/k8s/ClientSample
+/k8s/ServerBSample

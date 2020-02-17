@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -28,7 +29,7 @@ namespace Oxygen.IRpcProviderService
         /// <param name="path"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        Task<T> SendMessage<T>(string serverName, string pathName, object input) where T : class;
-        Task<object> SendMessage(string serverName, string pathName, object input, Type returnType);
+        Task<T> SendMessage<T>(string serverName, string pathName, object input, Dictionary<string, string> traceHeaders = null) where T : class;
+        Task<object> SendMessage(string serverName, string pathName, object input, Type returnType, Dictionary<string, string> traceHeaders = null);
     }
 }

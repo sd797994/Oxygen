@@ -1,8 +1,10 @@
-﻿using Oxygen.CommonTool;
+﻿using Autofac;
+using Oxygen.CommonTool;
 using Oxygen.CommonTool.Logger;
 using Oxygen.IRpcProviderService;
 using Oxygen.IServerProxyFactory;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Oxygen.ServerProxyFactory
@@ -14,12 +16,12 @@ namespace Oxygen.ServerProxyFactory
     {
         private readonly IRpcClientProvider _clientProvider;
         private readonly IOxygenLogger _oxygenLogger;
-        private readonly CustomerInfo _customerInfo;
+        private readonly CustomerInfo customerInfo;
         public RemoteProxyGenerator(IRpcClientProvider clientProvider, IOxygenLogger oxygenLogger, CustomerInfo customerInfo)
         {
             _clientProvider = clientProvider;
             _oxygenLogger = oxygenLogger;
-            _customerInfo = customerInfo;
+            this.customerInfo = customerInfo;
         }
 
         /// <summary>
@@ -32,25 +34,24 @@ namespace Oxygen.ServerProxyFactory
         /// <param name="FlowControlCfgKey"></param>
         /// <param name="pathName"></param>
         /// <returns></returns>
-        public async Task<TOut> SendAsync<TIn, TOut>(TIn input, string serviceName, string pathName) where TOut : class
+        public async Task<TOut> SendAsync<TIn, TOut>(TIn input, Dictionary<string, string> traceHeaders, string serviceName, string pathName) where TOut : class
         {
-            return await SendAsync<TIn, TOut>(input, serviceName, pathName, null);
+            return await SendAsync<TIn, TOut>(input, serviceName, pathName, null, traceHeaders);
         }
         public async Task<object> SendObjAsync<TIn>(TIn input, Type OutType, string serviceName, string pathName)
         {
-            return await SendAsync<TIn, object>(input, serviceName, pathName, OutType);
+            return await SendAsync<TIn, object>(input, serviceName, pathName, OutType, null);
         }
-
-        private async Task<TOut> SendAsync<TIn, TOut>(TIn input, string serviceName, string pathName, Type OutType = null) where TOut : class
+        private async Task<TOut> SendAsync<TIn, TOut>(TIn input, string serviceName, string pathName, Type OutType = null, Dictionary<string, string> traceHeaders = null) where TOut : class
         {
             try
             {
                 if (await _clientProvider.CreateClient(serviceName))
                 {
                     if (OutType == null)
-                        return await _clientProvider.SendMessage<TOut>(serviceName, pathName, input);
+                        return await _clientProvider.SendMessage<TOut>(serviceName, pathName, input, traceHeaders ?? customerInfo.TraceHeaders);
                     else
-                        return await _clientProvider.SendMessage(serviceName, pathName, input, OutType) as TOut;
+                        return await _clientProvider.SendMessage(serviceName, pathName, input, OutType, traceHeaders ?? customerInfo.TraceHeaders) as TOut;
                 }
                 else
                 {

@@ -6,6 +6,6 @@ namespace Oxygen.IServerProxyFactory
 {
     public interface IRemoteMethodDelegate
     {
-        object Excute(object val, string serviceName, string pathName);
+        object Excute(object val, Dictionary<string, string> traceHeaders, string serviceName, string pathName);
     }
 }

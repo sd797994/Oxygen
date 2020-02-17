@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 using Oxygen.CommonTool;
 using Oxygen.IServerProxyFactory;
 using System.Collections.Generic;
@@ -12,9 +13,13 @@ namespace ApiGateWay.Controllers
     public class RouteGateController : ControllerBase
     {
         private readonly IServerProxyFactory _serverProxyFactory;
-        public RouteGateController(IServerProxyFactory serverProxyFactory)
+        private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly CustomerInfo customerInfo;
+        public RouteGateController(IServerProxyFactory serverProxyFactory, IHttpContextAccessor httpContextAccessor, CustomerInfo customerInfo)
         {
             _serverProxyFactory = serverProxyFactory;
+            this.httpContextAccessor = httpContextAccessor;
+            this.customerInfo = customerInfo;
         }
         // GET api/values
         [HttpPost]
@@ -25,6 +30,8 @@ namespace ApiGateWay.Controllers
                 var remoteProxy =  _serverProxyFactory.CreateProxy(Request.Path);
                 if (remoteProxy != null)
                 {
+                    //为客户端信息添加追踪头
+                    customerInfo.TraceHeaders = TraceHeaderHelper.GetTraceHeaders(httpContextAccessor.HttpContext.Request.Headers);
                     var rempteResult = await remoteProxy.SendAsync(input);
                     if (rempteResult != null)
                     {

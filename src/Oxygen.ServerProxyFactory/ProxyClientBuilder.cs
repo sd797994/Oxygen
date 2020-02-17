@@ -30,15 +30,15 @@ namespace Oxygen.ServerProxyFactory
             {
                 foreach (var type in remote)
                 {
-                    builder.RegisterInstance(CreateTypeInstance(type)).As(type);
+                    builder.Register(x=>CreateTypeInstance(type)).As(type).InstancePerLifetimeScope().PropertiesAutowired();
                 }
             }
         }
 
         public static object CreateTypeInstance(Type interfaceType)
         {
-            var targetType = typeof(RemoteProxyDecorator<>).MakeGenericType(interfaceType);
-            return targetType.GetMethod("Create").Invoke(Activator.CreateInstance(targetType), null);
+            var targetType = typeof(RemoteProxyDecoratorBuilder);
+            return targetType.GetMethod("Create").MakeGenericMethod(interfaceType).Invoke(Activator.CreateInstance(targetType), null);
         }
     }
 }

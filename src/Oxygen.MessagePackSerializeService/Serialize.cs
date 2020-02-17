@@ -13,15 +13,15 @@ namespace Oxygen.MessagePackSerializeService
     public class Serialize : ISerialize
     {
         private readonly IOxygenLogger _logger;
-        public static Lazy<bool> loadConfig = new Lazy<bool>(()=> {
-            CompositeResolver.RegisterAndSetAsDefault(
+        public static Lazy<MessagePackSerializerOptions> loadConfig = new Lazy<MessagePackSerializerOptions>(() =>
+        {
+            return MessagePackSerializerOptions.Standard.WithResolver(CompositeResolver.Create(
                NativeDateTimeResolver.Instance,
-               ContractlessStandardResolverAllowPrivate.Instance);
-            return true;
+               ContractlessStandardResolverAllowPrivate.Instance,
+               StandardResolver.Instance));
         });
         public Serialize(IOxygenLogger logger)
         {
-            _ = loadConfig.Value;
             _logger = logger;
         }
         /// <summary>
@@ -36,7 +36,7 @@ namespace Oxygen.MessagePackSerializeService
                 return default(byte[]);
             try
             {
-                return MessagePackSerializer.Serialize(input);
+                return MessagePackSerializer.Serialize(input, loadConfig.Value);
             }
             catch (Exception e)
             {
@@ -56,7 +56,7 @@ namespace Oxygen.MessagePackSerializeService
                 return default(string);
             try
             {
-                return MessagePackSerializer.ToJson(input);
+                return MessagePackSerializer.ConvertToJson(MessagePackSerializer.Serialize(input, loadConfig.Value), loadConfig.Value);
             }
             catch (Exception e)
             {
@@ -75,7 +75,7 @@ namespace Oxygen.MessagePackSerializeService
                 return default(byte[]);
             try
             {
-                return MessagePackSerializer.FromJson(jsonStr);
+                return MessagePackSerializer.ConvertFromJson(jsonStr, loadConfig.Value);
             }
             catch (Exception e)
             {
@@ -96,7 +96,7 @@ namespace Oxygen.MessagePackSerializeService
                 return default(T);
             try
             {
-                return MessagePackSerializer.Deserialize<T>(input);
+                return MessagePackSerializer.Deserialize<T>(input, loadConfig.Value);
             }
             catch (Exception e)
             {
@@ -117,7 +117,7 @@ namespace Oxygen.MessagePackSerializeService
                 return default(T);
             try
             {
-                return MessagePackSerializer.Deserialize<T>(SerializesJsonString(input));
+                return MessagePackSerializer.Deserialize<T>(SerializesJsonString(input), loadConfig.Value);
             }
             catch (Exception e)
             {
@@ -137,7 +137,7 @@ namespace Oxygen.MessagePackSerializeService
                 return default(byte[]);
             try
             {
-                return MessagePackSerializer.NonGeneric.Serialize(type, input);
+                return MessagePackSerializer.Serialize(type, input, loadConfig.Value);
             }
             catch (Exception e)
             {
@@ -152,7 +152,7 @@ namespace Oxygen.MessagePackSerializeService
                 return null;
             try
             {
-                return MessagePackSerializer.NonGeneric.Deserialize(type, input);
+                return MessagePackSerializer.Deserialize(type, input, loadConfig.Value);
             }
             catch (Exception e)
             {

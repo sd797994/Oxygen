@@ -15,14 +15,14 @@ namespace Oxygen.ServerProxyFactory
     /// <typeparam name="Tout"></typeparam>
     public class RemoteMethodDelegate<Tin, Tout> : IRemoteMethodDelegate where Tout : Task
     {
-        private Func<Tin, string, string, Tout> proxyfunc;
+        private Func<Tin, Dictionary<string, string>, string, string, Tout> proxyfunc;
         public RemoteMethodDelegate(MethodInfo method, object instence)
         {
-            proxyfunc = (Func<Tin, string, string, Tout>)method.CreateDelegate(typeof(Func<Tin, string, string, Tout>), instence);
+            proxyfunc = (Func<Tin, Dictionary<string, string>, string, string, Tout>)method.CreateDelegate(typeof(Func<Tin, Dictionary<string, string>, string, string, Tout>), instence);
         }
-        public object Excute(object val, string serviceName, string pathName)
+        public object Excute(object val, Dictionary<string, string> traceHeaders, string serviceName, string pathName)
         {
-            return proxyfunc((Tin)val, serviceName, pathName);
+            return proxyfunc((Tin)val, traceHeaders, serviceName, pathName);
         }
     }
 }

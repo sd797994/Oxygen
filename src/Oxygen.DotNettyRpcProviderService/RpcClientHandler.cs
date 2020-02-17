@@ -1,6 +1,7 @@
 ﻿using DotNetty.Buffers;
 using DotNetty.Codecs.Http;
 using DotNetty.Transport.Channels;
+using Oxygen.CommonTool;
 using Oxygen.CommonTool.Logger;
 using Oxygen.IRpcProviderService;
 using Oxygen.ISerializeService;
@@ -34,7 +35,7 @@ namespace Oxygen.DotNettyRpcProviderService
         {
             try
             {
-                _hander?.Invoke(protocolMessageBuilder.GetReceiveMessage(message));
+                _hander?.Invoke(protocolMessageBuilder.GetReceiveMessage(message).messageBase);
             }
             catch (Exception e)
             {

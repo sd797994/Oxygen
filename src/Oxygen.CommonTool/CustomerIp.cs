@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using System;
+using System.Collections.Generic;
+using System.Net;
 
 namespace Oxygen.CommonTool
 {
@@ -11,5 +13,9 @@ namespace Oxygen.CommonTool
         /// 客户端IP
         /// </summary>
         public IPEndPoint Ip { get; set; }
+        /// <summary>
+        /// 客户端追踪http头
+        /// </summary>
+        public Dictionary<string, string> TraceHeaders { get; set; }
     }
 }

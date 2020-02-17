@@ -11,6 +11,7 @@ using Oxygen.IRpcProviderService;
 using Oxygen.ISerializeService;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection.Emit;
@@ -28,7 +29,6 @@ namespace Oxygen.DotNettyRpcProviderService
     {
         private readonly IOxygenLogger _logger;
         private readonly ISerialize _serialize;
-        private readonly CustomerInfo _customerInfo;
         public static readonly ConcurrentDictionary<Guid, TaskCompletionSource<byte[]>> TaskHookInfos =
             new ConcurrentDictionary<Guid, TaskCompletionSource<byte[]>>();
         private readonly ProtocolMessageBuilder protocolMessageBuilder;
@@ -37,13 +37,12 @@ namespace Oxygen.DotNettyRpcProviderService
         static readonly ConcurrentDictionary<string, IChannel> Channels = new ConcurrentDictionary<string, IChannel>();
         #endregion
 
-        public RpcClientProvider(IOxygenLogger logger, ISerialize serialize, CustomerInfo customerInfo)
+        public RpcClientProvider(IOxygenLogger logger, ISerialize serialize)
         {
             _logger = logger;
             _serialize = serialize;
             _bootstrap = new BootstrapFactory(logger, serialize).CreateClientBootstrap(ReceiveMessage);
             protocolMessageBuilder = new ProtocolMessageBuilder(serialize);
-            _customerInfo = customerInfo;
         }
 
         /// <summary>
@@ -111,13 +110,13 @@ namespace Oxygen.DotNettyRpcProviderService
         /// <param name="path"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        public async Task<T> SendMessage<T>(string serverName, string pathName, object input) where T : class
+        public async Task<T> SendMessage<T>(string serverName, string pathName, object input, Dictionary<string, string> traceHeaders = null) where T : class
         {
-            return await SendMessage<T>(serverName, pathName, input, null);
+            return await SendMessage<T>(serverName, pathName, input, null, traceHeaders);
         }
-        public async Task<object> SendMessage(string serverName, string pathName, object input, Type returnType)
+        public async Task<object> SendMessage(string serverName, string pathName, object input, Type returnType, Dictionary<string, string> traceHeaders = null)
         {
-            return await SendMessage<object>(serverName, pathName, input, returnType);
+            return await SendMessage<object>(serverName, pathName, input, returnType, traceHeaders);
         }
         #region 私有方法
         /// <summary>
@@ -129,7 +128,7 @@ namespace Oxygen.DotNettyRpcProviderService
         /// <param name="input"></param>
         /// <param name="returnType"></param>
         /// <returns></returns>
-        private async Task<T> SendMessage<T>(string serverName, string pathName, object input, Type returnType) where T : class
+        private async Task<T> SendMessage<T>(string serverName, string pathName, object input, Type returnType, Dictionary<string, string> traceHeaders = null) where T : class
         {
             T result = default;
             if (Channels.TryGetValue(serverName, out var _channel))
@@ -137,7 +136,7 @@ namespace Oxygen.DotNettyRpcProviderService
                 try
                 {
                     var taskId = Guid.NewGuid();
-                    var sendMessage = protocolMessageBuilder.GetClientSendMessage(taskId, serverName, pathName, input);
+                    var sendMessage = protocolMessageBuilder.GetClientSendMessage(taskId, serverName, pathName, input, traceHeaders);
                     var resultTask = RegisterResultCallbackAsync(taskId);
                     await _channel.WriteAndFlushAsync(sendMessage);
                     var resultBt = await resultTask;
@@ -148,7 +147,7 @@ namespace Oxygen.DotNettyRpcProviderService
                         else
                             return _serialize.Deserializes(returnType, resultBt) as T;
                     }
-                    return (T)default;
+                    return default;
                 }
                 catch (Exception e)
                 {

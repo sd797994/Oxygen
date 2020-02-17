@@ -26,7 +26,7 @@ namespace Oxygen.ServerProxyFactory
         private readonly ISerialize _serialize;
         private readonly ILifetimeScope container;
         private static readonly ConcurrentDictionary<string, ILocalMethodDelegate> InstanceDictionary = new ConcurrentDictionary<string, ILocalMethodDelegate>();
-        public LocalProxyGenerator(IOxygenLogger logger, ISerialize serialize, CustomerInfo customerInfo, ILifetimeScope container)
+        public LocalProxyGenerator(IOxygenLogger logger, ISerialize serialize, ILifetimeScope container)
         {
             _logger = logger;
             _serialize = serialize;
@@ -39,9 +39,9 @@ namespace Oxygen.ServerProxyFactory
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        public async Task<RpcGlobalMessageBase<object>> Invoke(RpcGlobalMessageBase<object> message)
+        public async Task<RpcGlobalMessageBase<object>> Invoke((RpcGlobalMessageBase<object> messageBase, Dictionary<string, string> traceHeaders) body)
         {
-            if (message == null)
+            if (body.messageBase == null)
             {
                 _logger.LogError($"消息分发不能为空消息");
                 return default;
@@ -50,10 +50,10 @@ namespace Oxygen.ServerProxyFactory
             {
                 using (var scope = container.BeginLifetimeScope())
                 {
-                    message.Message = await ExcutePath(message.Path, _serialize.Serializes(message.Message), scope);
+                    body.messageBase.Message = await ExcutePath(body.messageBase.Path, _serialize.Serializes(body.messageBase.Message), scope, body.traceHeaders);
                 }
-                message.code = System.Net.HttpStatusCode.OK;
-                return message;
+                body.messageBase.code = System.Net.HttpStatusCode.OK;
+                return body.messageBase;
             }
         }
 
@@ -63,10 +63,12 @@ namespace Oxygen.ServerProxyFactory
         /// <param name="pathname"></param>
         /// <param name="input"></param>
         /// <returns></returns>
-        public async Task<object> ExcutePath(string pathname, byte[] input, ILifetimeScope lifetimeScope)
+        public async Task<object> ExcutePath(string pathname, byte[] input, ILifetimeScope lifetimeScope, Dictionary<string, string> traceHeaders)
         {
             if (InstanceDictionary.TryGetValue(pathname, out ILocalMethodDelegate methodDelegate))
             {
+                var custominfo = lifetimeScope.Resolve<CustomerInfo>();
+                custominfo.TraceHeaders = traceHeaders;
                 methodDelegate.Build(lifetimeScope.Resolve(methodDelegate.Type));
                 return await methodDelegate.Excute(_serialize.Deserializes(methodDelegate.ParmterType, input));
             }
