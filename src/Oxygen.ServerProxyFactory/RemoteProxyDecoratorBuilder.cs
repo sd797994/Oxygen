@@ -15,7 +15,6 @@ namespace Oxygen.ServerProxyFactory
     {
         private static readonly Lazy<IOxygenLogger> logger = new Lazy<IOxygenLogger>(() => OxygenIocContainer.Resolve<IOxygenLogger>());
         public static ConcurrentDictionary<string, MethodDelegateInfo> Remotemethods = new ConcurrentDictionary<string, MethodDelegateInfo>();
-        public static Lazy<IRemoteProxyGenerator> ProxyGenerator = new Lazy<IRemoteProxyGenerator>(OxygenIocContainer.Resolve<IRemoteProxyGenerator>());
         public T CreateProxyInstance<T>()
         {
             return DispatchProxy.Create<T, RemoteProxyDecorator<T>>();

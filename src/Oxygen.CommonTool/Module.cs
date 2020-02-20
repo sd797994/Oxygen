@@ -10,7 +10,7 @@ namespace Oxygen.CommonTool
                 .AsImplementedInterfaces()
                 .InstancePerLifetimeScope();
             //注入scope作用域的CustomerInfo用于传递客户端请求信息
-            builder.RegisterType<CustomerInfo>().As<CustomerInfo>().InstancePerLifetimeScope().PropertiesAutowired();
+            builder.RegisterType<CustomerInfo>().As<CustomerInfo>().InstancePerLifetimeScope();
         }
     }
 }

@@ -14,7 +14,7 @@ namespace Oxygen.ServerProxyFactory
             var remotemethod = RemoteProxyDecoratorBuilder.Remotemethods.First(x => x.Key.Equals(key)).Value;
             if (remotemethod.MethodDelegate == null)
                 remotemethod.MethodDelegate = (IRemoteMethodDelegate)Activator.CreateInstance(typeof(RemoteMethodDelegate<,>).MakeGenericType(remotemethod.MethodInfo.GetParameters()[0].ParameterType, remotemethod.MethodInfo.ReturnType), remotemethod.MethodInfo,
-                    RemoteProxyDecoratorBuilder.ProxyGenerator.Value
+                    OxygenIocContainer.Resolve<IRemoteProxyGenerator>()
                     );
             ServiceName = remotemethod.ServiceName;
             PathName = remotemethod.PathName;
