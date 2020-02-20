@@ -2,29 +2,32 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 
 namespace Oxygen.CommonTool
 {
     public class OxygenIocContainer
     {
-        private static ILifetimeScope _container;
-
+        private static AsyncLocal<ILifetimeScope> Current = new AsyncLocal<ILifetimeScope>();
         public static void BuilderIocContainer(ILifetimeScope container)
         {
-            _container = container;
+            Current.Value = container;
         }
-
+        public static void DisposeIocContainer()
+        {
+            Current.Value = null;
+        }
         public static T Resolve<T>()
         {
             try
             {
-                if (_container == null)
+                if (Current == null)
                 {
                     throw new Exception("IOC实例化出错!");
                 }
                 else
                 {
-                    return _container.Resolve<T>();
+                    return Current.Value.Resolve<T>();
                 }
             }
             catch (Exception ex)
@@ -36,13 +39,13 @@ namespace Oxygen.CommonTool
         {
             try
             {
-                if (_container == null)
+                if (Current == null)
                 {
                     throw new Exception("IOC实例化出错!");
                 }
                 else
                 {
-                    return _container.Resolve(type);
+                    return Current.Value.Resolve(type);
                 }
             }
             catch (Exception ex)

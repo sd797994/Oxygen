@@ -1,4 +1,5 @@
-﻿using Oxygen.IProxyClientBuilder;
+﻿using Oxygen.CommonTool;
+using Oxygen.IProxyClientBuilder;
 using Oxygen.IServerProxyFactory;
 using System;
 using System.Collections.Generic;
@@ -20,9 +21,10 @@ namespace Oxygen.ServerProxyFactory
         {
             proxyfunc = (Func<Tin, Dictionary<string, string>, string, string, Tout>)method.CreateDelegate(typeof(Func<Tin, Dictionary<string, string>, string, string, Tout>), instence);
         }
-        public object Excute(object val, Dictionary<string, string> traceHeaders, string serviceName, string pathName)
+        public object Excute(object val, string serviceName, string pathName)
         {
-            return proxyfunc((Tin)val, traceHeaders, serviceName, pathName);
+            CustomerInfo customer = OxygenIocContainer.Resolve<CustomerInfo>();
+            return proxyfunc((Tin)val, customer.TraceHeaders, serviceName, pathName);
         }
     }
 }

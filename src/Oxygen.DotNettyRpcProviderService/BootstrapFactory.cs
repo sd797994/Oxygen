@@ -106,8 +106,7 @@ namespace Oxygen.DotNettyRpcProviderService
                     break;
                 case EnumProtocolType.TCP:
                 default:
-                    _bootstrap.Channel<TcpServerChannel>()
-                    .Group(_bossGroup, _workerGroup)
+                    _bootstrap
                     .Option(ChannelOption.SoBacklog, 100)
                     .ChildOption(ChannelOption.Allocator, PooledByteBufferAllocator.Default)
                     .ChildOption(ChannelOption.ConnectTimeout, new TimeSpan(0, 0, 5))

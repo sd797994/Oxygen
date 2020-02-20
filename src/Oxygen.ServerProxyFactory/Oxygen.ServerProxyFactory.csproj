@@ -8,17 +8,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Threading" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Oxygen.CommonTool\Oxygen.CommonTool.csproj" />
     <ProjectReference Include="..\Oxygen.CsharpClientAgent\Oxygen.CsharpClientAgent.csproj" />
     <ProjectReference Include="..\Oxygen.IRpcProviderService\Oxygen.IRpcProviderService.csproj" />
     <ProjectReference Include="..\Oxygen.ISerializeService\Oxygen.ISerializeService.csproj" />
     <ProjectReference Include="..\Oxygen.IServerProxyFactory\Oxygen.IServerProxyFactory.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Microsoft.CSharp">
-      <HintPath>C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.netcore.app\2.2.0\ref\netcoreapp2.2\Microsoft.CSharp.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 </Project>

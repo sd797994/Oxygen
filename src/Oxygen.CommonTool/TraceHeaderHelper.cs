@@ -21,16 +21,30 @@ namespace Oxygen.CommonTool
                     result.Add(trace, val);
                 }
             }
+            foreach(var customer in OxygenSetting.CustomHeader)
+            {
+                if (headers.TryGetAsString(new AsciiString(customer), out string val))
+                {
+                    result.Add(customer, val);
+                }
+            }
             return result;
         }
         public static Dictionary<string, string> GetTraceHeaders(IHeaderDictionary headers)
         {
             var result = new Dictionary<string, string>();
-            foreach (var header in traceHeader)
+            foreach (var trace in traceHeader)
             {
-                if (headers.TryGetValue(header, out StringValues val))
+                if (headers.TryGetValue(trace, out StringValues val))
                 {
-                    result.Add(header, val.ToString());
+                    result.Add(trace, val.ToString());
+                }
+            }
+            foreach (var customer in OxygenSetting.CustomHeader)
+            {
+                if (headers.TryGetValue(customer, out StringValues val))
+                {
+                    result.Add(customer, val);
                 }
             }
             return result;

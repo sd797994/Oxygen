@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 
 namespace Oxygen.CommonTool
@@ -26,6 +28,14 @@ namespace Oxygen.CommonTool
             {
                 ProtocolType = EnumProtocolType.TCP;
             }
+            if (!string.IsNullOrWhiteSpace(configuration["Oxygen:CustomHeader"]))
+            {
+                CustomHeader = configuration["Oxygen:CustomHeader"].Split(",").ToList();
+            }
+            else
+            {
+                CustomHeader = new List<string>();
+            }
         }
         /// <summary>
         /// 服务端口
@@ -33,5 +43,7 @@ namespace Oxygen.CommonTool
         public static int ServerPort;
 
         public static EnumProtocolType ProtocolType;
+
+        public static List<string> CustomHeader;
     }
 }

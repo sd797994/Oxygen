@@ -46,6 +46,7 @@ namespace Oxygen
 
         public async Task ExecuteAsync()
         {
+            OxygenIocContainer.DisposeIocContainer();
             await Task.Delay(5000);
         }
     }

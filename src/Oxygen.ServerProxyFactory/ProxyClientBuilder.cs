@@ -17,8 +17,6 @@ namespace Oxygen.ServerProxyFactory
     /// </summary>
     public class ProxyClientBuilder
     {
-        public static readonly Lazy<IRemoteProxyGenerator> ProxyGenerator = new Lazy<IRemoteProxyGenerator>(() => OxygenIocContainer.Resolve<IRemoteProxyGenerator>());
-        public static ConcurrentDictionary<string, MethodDelegateInfo> Remotemethods = new ConcurrentDictionary<string, MethodDelegateInfo>();
         /// <summary>
         /// 为远程服务构建代理类
         /// </summary>
@@ -30,15 +28,15 @@ namespace Oxygen.ServerProxyFactory
             {
                 foreach (var type in remote)
                 {
-                    builder.Register(x=>CreateTypeInstance(type)).As(type).InstancePerLifetimeScope().PropertiesAutowired();
+                    RemoteProxyDecoratorBuilder.RegisterProxyInDic(type);
+                    builder.RegisterInstance(CreateTypeInstance(type)).As(type);
                 }
             }
         }
-
         public static object CreateTypeInstance(Type interfaceType)
         {
             var targetType = typeof(RemoteProxyDecoratorBuilder);
-            return targetType.GetMethod("Create").MakeGenericMethod(interfaceType).Invoke(Activator.CreateInstance(targetType), null);
+            return targetType.GetMethod("CreateProxyInstance").MakeGenericMethod(interfaceType).Invoke(Activator.CreateInstance(targetType), null);            
         }
     }
 }

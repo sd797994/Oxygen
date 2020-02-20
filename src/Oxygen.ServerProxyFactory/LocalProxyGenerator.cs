@@ -50,7 +50,9 @@ namespace Oxygen.ServerProxyFactory
             {
                 using (var scope = container.BeginLifetimeScope())
                 {
-                    body.messageBase.Message = await ExcutePath(body.messageBase.Path, _serialize.Serializes(body.messageBase.Message), scope, body.traceHeaders);
+                    OxygenIocContainer.BuilderIocContainer(scope);//仅在当前请求内创建上下文模型
+                    body.messageBase.Message = await ExcutePath(body.messageBase.Path, _serialize.Serializes(body.messageBase.Message), body.traceHeaders);
+                    OxygenIocContainer.DisposeIocContainer();//注销上下文
                 }
                 body.messageBase.code = System.Net.HttpStatusCode.OK;
                 return body.messageBase;
@@ -63,13 +65,13 @@ namespace Oxygen.ServerProxyFactory
         /// <param name="pathname"></param>
         /// <param name="input"></param>
         /// <returns></returns>
-        public async Task<object> ExcutePath(string pathname, byte[] input, ILifetimeScope lifetimeScope, Dictionary<string, string> traceHeaders)
+        public async Task<object> ExcutePath(string pathname, byte[] input, Dictionary<string, string> traceHeaders)
         {
             if (InstanceDictionary.TryGetValue(pathname, out ILocalMethodDelegate methodDelegate))
             {
-                var custominfo = lifetimeScope.Resolve<CustomerInfo>();
+                var custominfo = OxygenIocContainer.Resolve<CustomerInfo>();
                 custominfo.TraceHeaders = traceHeaders;
-                methodDelegate.Build(lifetimeScope.Resolve(methodDelegate.Type));
+                methodDelegate.Build(OxygenIocContainer.Resolve(methodDelegate.Type));
                 return await methodDelegate.Excute(_serialize.Deserializes(methodDelegate.ParmterType, input));
             }
             return null;

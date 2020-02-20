@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Oxygen</id>
-    <version>0.1.7</version>
+    <version>0.2.0</version>
     <title>Oxygen</title>
     <authors>yuping zeng</authors>
     <owners>yuping zeng</owners>
@@ -15,15 +15,17 @@
     <copyright>Copyright 2019</copyright>
     <tags></tags>
   <dependencies>
-    <dependency id="Autofac" version="4.9.4" />
-    <dependency id="Microsoft.Extensions.DependencyModel" version="3.1.0" />
-    <dependency id="Microsoft.Extensions.Logging.Console" version="3.1.0" />
+    <dependency id="Autofac" version="5.1.2" />
+    <dependency id="Microsoft.AspNetCore.Http.Features" version="3.1.1" />
+    <dependency id="Microsoft.Extensions.Hosting.Abstractions" version="3.1.1" />
+    <dependency id="Microsoft.Extensions.DependencyModel" version="3.1.1" />
+    <dependency id="Microsoft.Extensions.Logging.Console" version="3.1.1" />
     <dependency id="System.Runtime.Loader" version="4.3.0" />
-    <dependency id="MessagePack" version="1.8.80" />
-    <dependency id="Microsoft.Extensions.Hosting.Abstractions" version="3.1.0" />
+    <dependency id="DotNetty.Codecs.Http" version="0.6.0" />
     <dependency id="DotNetty.Handlers" version="0.6.0" />
     <dependency id="DotNetty.Transport.Libuv" version="0.6.0" />
     <dependency id="DotNetty.Codecs.Http" version="0.6.0" />
+    <dependency id="MessagePack" version="2.1.90" />
   </dependencies>
   </metadata>
   <files>

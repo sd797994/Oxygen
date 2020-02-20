@@ -18,9 +18,8 @@ namespace Oxygen
         private readonly IRpcServerProvider _rpcServerProvider;
         private static bool _stopFlag = false;
 
-        public OxygenHostService(IRpcServerProvider rpcServerProvider, ILifetimeScope container)
+        public OxygenHostService(IRpcServerProvider rpcServerProvider)
         {
-            OxygenIocContainer.BuilderIocContainer(container);
             _rpcServerProvider = rpcServerProvider;
         }
 
