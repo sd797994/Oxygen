@@ -269,3 +269,4 @@ __pycache__/
 *.nupkg
 /k8s/ClientSample
 /k8s/ServerBSample
+/nugetpack/lib-debugger

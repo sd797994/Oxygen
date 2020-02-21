@@ -69,8 +69,7 @@ namespace Oxygen.ServerProxyFactory
         {
             if (InstanceDictionary.TryGetValue(pathname, out ILocalMethodDelegate methodDelegate))
             {
-                var custominfo = OxygenIocContainer.Resolve<CustomerInfo>();
-                custominfo.TraceHeaders = traceHeaders;
+                OxygenIocContainer.Resolve<CustomerInfo>().SetTraceHeader(traceHeaders);
                 methodDelegate.Build(OxygenIocContainer.Resolve(methodDelegate.Type));
                 return await methodDelegate.Excute(_serialize.Deserializes(methodDelegate.ParmterType, input));
             }

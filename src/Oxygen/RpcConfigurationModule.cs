@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -64,6 +65,17 @@ namespace Oxygen
                 service.AddHostedService<OxygenClientService>();
             }
             return service;
+        }
+        /// <summary>
+        /// 注册oxygen mesh追踪头管道
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <returns></returns>
+
+        public static IApplicationBuilder UseOxygenTrace(this IApplicationBuilder builder)
+        {
+            builder.UseMiddleware<RequestMiddleware>();
+            return builder;
         }
     }
 }

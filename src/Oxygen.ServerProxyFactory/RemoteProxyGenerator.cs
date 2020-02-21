@@ -16,12 +16,10 @@ namespace Oxygen.ServerProxyFactory
     {
         private readonly IRpcClientProvider _clientProvider;
         private readonly IOxygenLogger _oxygenLogger;
-        private readonly CustomerInfo customerInfo;
-        public RemoteProxyGenerator(IRpcClientProvider clientProvider, IOxygenLogger oxygenLogger, CustomerInfo customerInfo)
+        public RemoteProxyGenerator(IRpcClientProvider clientProvider, IOxygenLogger oxygenLogger)
         {
             _clientProvider = clientProvider;
             _oxygenLogger = oxygenLogger;
-            this.customerInfo = customerInfo;
         }
 
         /// <summary>
@@ -49,9 +47,9 @@ namespace Oxygen.ServerProxyFactory
                 if (await _clientProvider.CreateClient(serviceName))
                 {
                     if (OutType == null)
-                        return await _clientProvider.SendMessage<TOut>(serviceName, pathName, input, traceHeaders ?? customerInfo.TraceHeaders);
+                        return await _clientProvider.SendMessage<TOut>(serviceName, pathName, input, traceHeaders ?? OxygenIocContainer.Resolve<CustomerInfo>().TraceHeaders);
                     else
-                        return await _clientProvider.SendMessage(serviceName, pathName, input, OutType, traceHeaders ?? customerInfo.TraceHeaders) as TOut;
+                        return await _clientProvider.SendMessage(serviceName, pathName, input, OutType, traceHeaders ?? OxygenIocContainer.Resolve<CustomerInfo>().TraceHeaders) as TOut;
                 }
                 else
                 {

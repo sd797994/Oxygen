@@ -47,11 +47,12 @@ namespace ApiGateWay
             {
                 app.UseDeveloperExceptionPage();
             }
+            //添加mesh组件追踪头管道
+            app.UseOxygenTrace();
 
             app.UseRouting();
 
             app.UseAuthorization();
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

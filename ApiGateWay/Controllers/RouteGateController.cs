@@ -13,13 +13,9 @@ namespace ApiGateWay.Controllers
     public class RouteGateController : ControllerBase
     {
         private readonly IServerProxyFactory _serverProxyFactory;
-        private readonly IHttpContextAccessor httpContextAccessor;
-        private readonly CustomerInfo customerInfo;
-        public RouteGateController(IServerProxyFactory serverProxyFactory, IHttpContextAccessor httpContextAccessor, CustomerInfo customerInfo)
+        public RouteGateController(IServerProxyFactory serverProxyFactory)
         {
             _serverProxyFactory = serverProxyFactory;
-            this.httpContextAccessor = httpContextAccessor;
-            this.customerInfo = customerInfo;
         }
         // GET api/values
         [HttpPost]
@@ -30,8 +26,6 @@ namespace ApiGateWay.Controllers
                 var remoteProxy =  _serverProxyFactory.CreateProxy(Request.Path);
                 if (remoteProxy != null)
                 {
-                    //为客户端信息添加追踪头
-                    customerInfo.TraceHeaders = TraceHeaderHelper.GetTraceHeaders(httpContextAccessor.HttpContext.Request.Headers);
                     var rempteResult = await remoteProxy.SendAsync(input);
                     if (rempteResult != null)
                     {

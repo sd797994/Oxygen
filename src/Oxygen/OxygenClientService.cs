@@ -32,6 +32,7 @@ namespace Oxygen
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
+            OxygenIocContainer.DisposeIocContainer();
             await Task.WhenAny(_executingTask, Task.Delay(Timeout.Infinite, cancellationToken));
             _stopFlag = true;
         }
@@ -46,7 +47,6 @@ namespace Oxygen
 
         public async Task ExecuteAsync()
         {
-            OxygenIocContainer.DisposeIocContainer();
             await Task.Delay(5000);
         }
     }

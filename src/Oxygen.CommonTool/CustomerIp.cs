@@ -16,6 +16,11 @@ namespace Oxygen.CommonTool
         /// <summary>
         /// 客户端追踪http头
         /// </summary>
-        public Dictionary<string, string> TraceHeaders { get; set; }
+        public Dictionary<string, string> TraceHeaders { get; private set; }
+
+        public void SetTraceHeader(Dictionary<string, string> traceHeaders)
+        {
+            TraceHeaders = traceHeaders;
+        }
     }
 }

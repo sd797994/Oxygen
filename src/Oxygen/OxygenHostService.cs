@@ -18,8 +18,9 @@ namespace Oxygen
         private readonly IRpcServerProvider _rpcServerProvider;
         private static bool _stopFlag = false;
 
-        public OxygenHostService(IRpcServerProvider rpcServerProvider)
+        public OxygenHostService(IRpcServerProvider rpcServerProvider, ILifetimeScope container)
         {
+            OxygenIocContainer.BuilderIocContainer(container);
             _rpcServerProvider = rpcServerProvider;
         }
 
@@ -39,6 +40,7 @@ namespace Oxygen
         public async Task StopAsync(CancellationToken cancellationToken)
         {
             await CloseOxygenService();
+            OxygenIocContainer.DisposeIocContainer();
             await Task.WhenAny(_executingTask, Task.Delay(Timeout.Infinite, cancellationToken));
             _stopFlag = true;
         }
