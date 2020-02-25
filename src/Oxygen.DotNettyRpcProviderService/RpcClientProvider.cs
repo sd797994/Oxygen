@@ -190,13 +190,7 @@ namespace Oxygen.DotNettyRpcProviderService
         /// <returns></returns>
         async Task<byte[]> RegisterResultCallbackAsync(Guid id)
         {
-            var task = new TaskCompletionSource<byte[]>(); 
-            var timeoutMs = 20000;
-            var ct = new CancellationTokenSource(timeoutMs);
-            ct.Token.Register(() => {
-                RemoveHook(id);
-                task.TrySetCanceled();
-            }, useSynchronizationContext: false);
+            var task = new TaskCompletionSource<byte[]>();
             SetHook(id, task);
             try
             {
