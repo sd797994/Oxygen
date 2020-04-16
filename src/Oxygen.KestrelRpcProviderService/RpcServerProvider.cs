@@ -41,7 +41,7 @@ namespace Oxygen.KestrelRpcProviderService
             var builder = new WebHostBuilder()
                    .UseKestrel(options =>
                    {
-                       options.Listen(IPAddress.Any, 81, listenOptions =>
+                       options.Listen(IPAddress.Any, port, listenOptions =>
                        {
                            listenOptions.Protocols = HttpProtocols.Http2;
                        });

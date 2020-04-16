@@ -1,4 +1,5 @@
-﻿using Oxygen.CommonTool.Logger;
+﻿using Oxygen.CommonTool;
+using Oxygen.CommonTool.Logger;
 using Oxygen.IRpcProviderService;
 using Oxygen.ISerializeService;
 using System;
@@ -49,7 +50,7 @@ namespace Oxygen.KestrelRpcProviderService
                     var taskId = Guid.NewGuid();
                     var sendMessage = protocolMessageBuilder.GetClientSendMessage(taskId, serverName, pathName, input, traceHeaders);
                     var responseMessage = await _httpclient.SendAsync(sendMessage);
-                    if (responseMessage != null)
+                    if (responseMessage != null && responseMessage.StatusCode == HttpStatusCode.OK)
                     {
                         var resultBt = ReceiveMessage(await responseMessage.Content.ReadAsByteArrayAsync());
                         if (returnType == null)
@@ -57,11 +58,15 @@ namespace Oxygen.KestrelRpcProviderService
                         else
                             return _serialize.Deserializes(returnType, resultBt) as T;
                     }
+                    else
+                    {
+                        _logger.LogError($"客户端调用http请求异常,状态码：{responseMessage?.StatusCode}");
+                    }
                     return default;
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError($"调用异常：{e.Message},调用堆栈{e.StackTrace.ToString()}");
+                    _logger.LogError($"客户端调用异常：{e.Message},接口地址：http://{serverName}:{OxygenSetting.ServerPort}/{pathName},调用堆栈{e.StackTrace.ToString()}");
                 }
             }
             return result;
