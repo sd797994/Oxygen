@@ -1,6 +1,6 @@
 ![Image text](https://raw.githubusercontent.com/sd797994/Oxygen/dev-k8s/icon/icon.png)
 
-Oxygen 是一款基于.netcore3.1 的针对k8s平台的分布式服务框架，这里可以下载[简易案例][1]
+Oxygen 是一款基于.netcore3.1 的针对k8s平台的分布式服务框架，目前支持基于istio的服务网格实现微服务，这里可以下载[简易案例][1]
 ## 系统要求
 
 * window10 / centos7.5 +
@@ -10,14 +10,14 @@ Oxygen 是一款基于.netcore3.1 的针对k8s平台的分布式服务框架，�
 * kubernetes 1.14.8 + (docker for windows) /linux kubernetes 
 * dotnetcore3.1 + vs2019 + nuget
 ## 特色
-* 基于dotnetty实现的高性能远程过程调用代理(RPC)
+* 基于dotnetty/kestrel实现的高性能远程过程调用代理(RPC)，支持多种主流协议(tcp/http1.1/http2.0)
 * 基于Messagepack实现的类型序列化/反序列化
-* 采用k8s自带的dns服务实现服务注册发现
+* 采用k8s自带的dns服务实现服务注册发现,集成istio默认的追踪头实现分布式链路追踪以及自定义追踪头实现金丝雀灰度发布等等(必须选择http协议)
 ## 安装
 * 创建两个默认的控制台程序，并通过nuget安装oxygen:
 
 ```bash
-Install-Package Oxygen -Version 0.1.4
+Install-Package Oxygen -Version 0.1.4(可登录nuget获取最新版本)
 ```
 
 * 在根目录创建oxygen.json并注入oxygen需要的端口配置(用于服务间通讯)
@@ -25,7 +25,9 @@ Install-Package Oxygen -Version 0.1.4
 ```bash
 {
   "Oxygen": {
-    "ServerPort": 80
+    "ServerPort": 80, //服务间通讯端口号,在k8s环境下必须所有容器一致,以确保调用
+    "ProtocolType": 2, //通讯协议目前支持tcp/http1.1/http2.0分别对应0/1/2
+    "CustomHeader": "canaryver" //自定义追踪头，可用于实现金丝雀发布
   }
 }
 ```
@@ -92,7 +94,7 @@ Install-Package Oxygen -Version 0.1.4
 
 * 创建一个接口项目，Oxygen.CsharpClientAgent
 ```bash
-Install-Package Oxygen.CsharpClientAgent -Version 0.0.2
+Install-Package Oxygen.CsharpClientAgent -Version 0.0.2(可登录nuget获取最新版本)
 ```
 * 定义对应的服务接口，并打上暴露rpc服务的标记
 ```bash
