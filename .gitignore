@@ -270,3 +270,4 @@ __pycache__/
 /k8s/ClientSample
 /k8s/ServerBSample
 /nugetpack/lib-debugger
+/.sonarqube

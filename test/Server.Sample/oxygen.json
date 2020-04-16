@@ -1,7 +1,7 @@
 {
   "Oxygen": {
     "ServerPort": 80,
-    "ProtocolType": 1,
+    "ProtocolType": 2,
     "CustomHeader": "canaryver"
   }
 }

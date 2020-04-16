@@ -63,6 +63,16 @@ namespace Oxygen.CommonTool
                 }
             }
         }
+        public static void BuildTraceHeader(System.Net.Http.Headers.HttpHeaders headers, Dictionary<string, string> traceObj = null)
+        {
+            if (traceObj != null && traceObj.Count > 0)
+            {
+                foreach (var obj in traceObj)
+                {
+                    headers.Add(obj.Key, obj.Value);
+                }
+            }
+        }
     }
     /// <summary>
     /// 追踪头中间件

@@ -7,6 +7,7 @@ namespace Oxygen.CommonTool
     public enum EnumProtocolType
     {
         TCP = 0,
-        HTTP11 = 1
+        HTTP11 = 1,
+        HTTP2 = 2
     }
 }

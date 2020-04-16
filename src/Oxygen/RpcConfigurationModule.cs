@@ -22,7 +22,17 @@ namespace Oxygen
         public static ContainerBuilder RegisterOxygen(this ContainerBuilder builder)
         {
             //注入rpc服务
-            builder.RegisterModule(new DotNettyRpcProviderService.Module());
+            switch (OxygenSetting.ProtocolType)
+            {
+                case EnumProtocolType.TCP:
+                case EnumProtocolType.HTTP11:
+                default:
+                    builder.RegisterModule(new DotNettyRpcProviderService.Module());
+                    break;
+                case EnumProtocolType.HTTP2:
+                    builder.RegisterModule(new KestrelRpcProviderService.Module());
+                    break;
+            }
             //注入序列化服务
             builder.RegisterModule(new MessagePackSerializeService.Module());
             //注入代理工厂
@@ -50,21 +60,21 @@ namespace Oxygen
         /// <param name="service"></param>
         /// <param name="configuration"></param>
         /// <returns></returns>
-        public static IServiceCollection ConfigureOxygen(this IServiceCollection service, IConfiguration configuration)
+        public static IServiceCollection ConfigureOxygen(this IServiceCollection services, IConfiguration configuration)
         {
             //注入默认配置节
             new OxygenSetting(configuration);
             if (CONFIGSERVICE)
             {
                 //注入Host启动类
-                service.AddHostedService<OxygenHostService>();
+                services.AddHostedService<OxygenHostService>();
             }
             else
             {
                 //注入Client启动类
-                service.AddHostedService<OxygenClientService>();
+                services.AddHostedService<OxygenClientService>();
             }
-            return service;
+            return services;
         }
         /// <summary>
         /// 注册oxygen mesh追踪头管道

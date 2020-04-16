@@ -39,10 +39,10 @@ namespace Oxygen.DotNettyRpcProviderService
             switch (OxygenSetting.ProtocolType)
             {
                 case EnumProtocolType.HTTP11:
-                    byte[] json = Encoding.UTF8.GetBytes(_serialize.SerializesJson(sendMessage));
+                    byte[] json = _serialize.Serializes(sendMessage);
                     var request = new DefaultFullHttpRequest(HttpVersion.Http11, HttpMethod.Post, $"http://{serverName}", Unpooled.WrappedBuffer(json), false);
                     HttpHeaders headers = request.Headers;
-                    headers.Set(HttpHeaderNames.ContentType, AsciiString.Cached("application/json"));
+                    headers.Set(HttpHeaderNames.ContentType, AsciiString.Cached("application/x-msgpack"));
                     headers.Set(HttpHeaderNames.ContentLength, AsciiString.Cached($"{json.Length}"));
                     TraceHeaderHelper.BuildTraceHeader(headers, traceHeaders);
                     return request;
@@ -61,10 +61,10 @@ namespace Oxygen.DotNettyRpcProviderService
             switch (OxygenSetting.ProtocolType)
             {
                 case EnumProtocolType.HTTP11:
-                    byte[] json = Encoding.UTF8.GetBytes(_serialize.SerializesJson(message));
+                    byte[] json = _serialize.Serializes(message);
                     var response = new DefaultFullHttpResponse(HttpVersion.Http11, HttpResponseStatus.OK, Unpooled.WrappedBuffer(json), false);
                     HttpHeaders headers = response.Headers;
-                    headers.Set(HttpHeaderNames.ContentType, AsciiString.Cached("application/json"));
+                    headers.Set(HttpHeaderNames.ContentType, AsciiString.Cached("application/x-msgpack"));
                     headers.Set(HttpHeaderNames.Server, "dotnetty");
                     headers.Set(HttpHeaderNames.Date, AsciiString.Cached($"{DateTime.UtcNow.DayOfWeek}, {DateTime.UtcNow:dd MMM yyyy HH:mm:ss z}"));
                     headers.Set(HttpHeaderNames.ContentLength, AsciiString.Cached($"{json.Length}"));
@@ -84,14 +84,17 @@ namespace Oxygen.DotNettyRpcProviderService
             if (message is IHttpContent)
             {
                 var buf = ((IHttpContent)message).Content;
-                var jsonstr = buf.ToString(Encoding.UTF8);
+                byte[] array;
+                int length = buf.ReadableBytes;
+                array = new byte[length];
+                buf.GetBytes(buf.ReaderIndex, array);
                 Dictionary<string, string> traceHeaders = default;
                 if (message is IFullHttpRequest)
                 {
                     var headers = ((IFullHttpRequest)message).Headers;
                     traceHeaders = TraceHeaderHelper.GetTraceHeaders(headers);
                 }
-                return (_serialize.DeserializesJson<RpcGlobalMessageBase<object>>(jsonstr), traceHeaders);
+                return (_serialize.Deserializes<RpcGlobalMessageBase<object>>(array), traceHeaders);
             }
             else if (message is RpcGlobalMessageBase<object>)
             {

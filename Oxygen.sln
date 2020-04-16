@@ -42,6 +42,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "icon", "icon", "{35180843-9
 		icon\icon.png = icon\icon.png
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oxygen.KestrelRpcProviderService", "src\Oxygen.KestrelRpcProviderService\Oxygen.KestrelRpcProviderService.csproj", "{13B70208-AE21-44FE-98A6-FA42852445A7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -104,6 +106,10 @@ Global
 		{1137DDF2-FBEF-4192-B911-D3D60592D453}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1137DDF2-FBEF-4192-B911-D3D60592D453}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1137DDF2-FBEF-4192-B911-D3D60592D453}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13B70208-AE21-44FE-98A6-FA42852445A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13B70208-AE21-44FE-98A6-FA42852445A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13B70208-AE21-44FE-98A6-FA42852445A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13B70208-AE21-44FE-98A6-FA42852445A7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -123,6 +129,7 @@ Global
 		{283FB71D-FBFA-4502-91C2-D866ABF2194D} = {E813619C-7632-46E8-B571-30D642D13D99}
 		{CB011875-E267-4E0E-8901-BEDB433E2603} = {E813619C-7632-46E8-B571-30D642D13D99}
 		{E8853DE6-584D-494E-ABC0-8BEDC937532C} = {E813619C-7632-46E8-B571-30D642D13D99}
+		{13B70208-AE21-44FE-98A6-FA42852445A7} = {5E0BADCE-71FC-4950-ACFE-1340DD435402}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {83624657-71E1-4209-8A42-056014F3D0C5}
