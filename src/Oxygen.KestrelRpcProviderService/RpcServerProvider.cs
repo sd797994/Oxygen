@@ -35,7 +35,7 @@ namespace Oxygen.KestrelRpcProviderService
         /// 启动kestrel服务器
         /// </summary>
         /// <returns></returns>
-        public async Task<IPEndPoint> OpenServer()
+        public async Task<IPEndPoint> OpenServer(Action<object> middlewarebuilder = null)
         {
             var port = OxygenSetting.ServerPort;
             var builder = new WebHostBuilder()
@@ -43,16 +43,16 @@ namespace Oxygen.KestrelRpcProviderService
                    {
                        options.Listen(IPAddress.Any, port, listenOptions =>
                        {
-                           listenOptions.Protocols = HttpProtocols.Http2;
+                           listenOptions.Protocols = OxygenSetting.ProtocolType == EnumProtocolType.HTTP11 ? HttpProtocols.Http1 : HttpProtocols.Http2;
                        });
                    })
                    .Configure(app =>new RpcServerHandler(_serialize, _localProxyGenerator, _logger).BuildHandler(app));
+            middlewarebuilder?.Invoke(builder);
             Host = builder.Build();
             await Host.StartAsync();
             _logger.LogInfo($"bind tcp 0.0.0.0:{port} to listen");
             return new IPEndPoint(GlobalCommon.GetMachineIp(), port);
         }
-
         /// <summary>
         /// 关闭kestrel服务器
         /// </summary>

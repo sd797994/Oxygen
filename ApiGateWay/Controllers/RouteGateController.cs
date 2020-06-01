@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Oxygen.CommonTool;
+using Oxygen.IDaprActorProvider;
 using Oxygen.IServerProxyFactory;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -23,7 +24,7 @@ namespace ApiGateWay.Controllers
         {
             if (input != null)
             {
-                var remoteProxy =  _serverProxyFactory.CreateProxy(Request.Path);
+                var remoteProxy = _serverProxyFactory.CreateProxy(Request.Path);
                 if (remoteProxy != null)
                 {
                     var rempteResult = await remoteProxy.SendAsync(input);

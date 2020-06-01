@@ -23,7 +23,8 @@ namespace Oxygen.KestrelRpcProviderService
             _logger = logger;
             _serialize = serialize;
             protocolMessageBuilder = new ProtocolMessageBuilder(serialize);
-            AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);//非https环境下设置上下文支持http2连接
+            if (OxygenSetting.ProtocolType == EnumProtocolType.HTTP2)
+                AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);//非https环境下设置上下文支持http2连接
         }
         public async Task<bool> CreateClient(string serverName)
         {

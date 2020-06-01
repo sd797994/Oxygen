@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Oxygen.IRpcProviderService
@@ -12,7 +13,7 @@ namespace Oxygen.IRpcProviderService
         /// 启动tcp服务
         /// </summary>
         /// <returns></returns>
-        Task<IPEndPoint> OpenServer();
+        Task<IPEndPoint> OpenServer(Action<object> middlewarebuilder = null);
 
         /// <summary>
         /// 关闭tcp服务

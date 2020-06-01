@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Microsoft.Extensions.Hosting;
 using Oxygen.CommonTool;
+using Oxygen.DaprActorProvider;
 using Oxygen.IRpcProviderService;
 using Oxygen.ServerProxyFactory;
 using System;
@@ -33,7 +34,10 @@ namespace Oxygen
             {
                 await _executingTask;
             }
-            await _rpcServerProvider.OpenServer();
+            if (OxygenSetting.OpenActor)
+                await _rpcServerProvider.OpenServer((x) => ActorServiceBuilder.RegisterActorMiddleware(x));
+            else
+                await _rpcServerProvider.OpenServer();
             LocalProxyGenerator.LoadMethodDelegate();
         }
 

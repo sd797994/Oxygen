@@ -1,7 +1,9 @@
 ﻿using Application.Interface;
+using Application.Interface.Interfaces;
 using Application.Interface.UseCase.Dto;
 using Microsoft.Extensions.Hosting;
 using Oxygen.CommonTool;
+using Oxygen.IDaprActorProvider;
 using Oxygen.ISerializeService;
 using Oxygen.IServerProxyFactory;
 using System;
@@ -40,7 +42,7 @@ namespace Client.Sample
                 fail = 0;
                 await fortest(1, callCount, async i =>
                 {
-                    var userserver = _proxyFactory.CreateProxy<IUserLoginUseCase>();
+                    var userserver = _proxyFactory.CreateProxy<IUserActorService>(1);
                     var result1 = await userserver.Register(new RegisterInput() { UserName = "admin" });
                     //var remoteProxy = _proxyFactory.CreateProxy("/api/ServerSample/UserLoginUseCase/register");
                     //var result1 = await remoteProxy.SendAsync(new RegisterInput() { UserName = "admin" });

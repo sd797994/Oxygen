@@ -3,5 +3,5 @@ dotnet build -c release -o ..\..\nugetpack\lib
 cd ..\..\nugetpack\lib\
 del /a /f /s /q  "*.pdb" "*.json"
 cd ..\
-.\updatenuspec.exe
+.\nugetpack.exe
 nuget pack Oxygen.nuspec

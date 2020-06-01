@@ -36,11 +36,11 @@ namespace Oxygen.KestrelRpcProviderService
                 await handle(http);
             });
         }
-        public async Task handle(HttpContext http) 
+        public async Task handle(HttpContext http)
         {
             try
             {
-                var messageobj = protocolMessageBuilder.GetReceiveMessage(http);
+                var messageobj = await protocolMessageBuilder.GetReceiveMessage(http);
                 var localHanderResult = await _localProxyGenerator.Invoke(messageobj);
                 if (localHanderResult != null)
                 {

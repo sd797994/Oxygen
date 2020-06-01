@@ -39,7 +39,7 @@ namespace Oxygen.DotNettyRpcProviderService
         /// 启动tcp服务
         /// </summary>
         /// <returns></returns>
-        public async Task<IPEndPoint> OpenServer()
+        public async Task<IPEndPoint> OpenServer(Action<object> action)
         {
             var port = OxygenSetting.ServerPort;
             boundChannel = await _bootstrap.BindAsync(port);

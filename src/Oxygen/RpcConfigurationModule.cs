@@ -22,15 +22,24 @@ namespace Oxygen
         public static ContainerBuilder RegisterOxygen(this ContainerBuilder builder)
         {
             //注入rpc服务
-            switch (OxygenSetting.ProtocolType)
+            switch (OxygenSetting.MeshType)
             {
-                case EnumProtocolType.TCP:
-                case EnumProtocolType.HTTP11:
-                default:
-                    builder.RegisterModule(new DotNettyRpcProviderService.Module());
+                case EnumMeshType.None:
+                case EnumMeshType.Istio:
+                    switch (OxygenSetting.ProtocolType)
+                    {
+                        case EnumProtocolType.TCP:
+                        case EnumProtocolType.HTTP11:
+                        default:
+                            builder.RegisterModule(new DotNettyRpcProviderService.Module());
+                            break;
+                        case EnumProtocolType.HTTP2:
+                            builder.RegisterModule(new KestrelRpcProviderService.Module());
+                            break;
+                    }
                     break;
-                case EnumProtocolType.HTTP2:
-                    builder.RegisterModule(new KestrelRpcProviderService.Module());
+                case EnumMeshType.Dapr:
+                    builder.RegisterModule(new KestrelRpcProviderService.Module());//dapr目前仅支持kestrel(集成actor)
                     break;
             }
             //注入序列化服务

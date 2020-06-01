@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Oxygen</id>
-    <version>0.2.5</version>
+    <version>0.2.6</version>
     <title>Oxygen</title>
     <authors>yuping zeng</authors>
     <owners>yuping zeng</owners>
@@ -13,16 +13,24 @@
     <description>a sample rpc framework from .net core + k8s</description>
     <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
     <copyright>Copyright 2019</copyright>
-    <tags></tags>
+    <tags>
+    </tags>
     <dependencies>
+      <dependency id="Autofac.Configuration" version="5.1.0" />
+      <dependency id="Autofac.Extensions.DependencyInjection" version="6.0.0" />
+      <dependency id="Microsoft.AspNetCore.Mvc.NewtonsoftJson" version="3.1.4" />
       <dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.2.0" />
-      <dependency id="Microsoft.Extensions.Hosting.Abstractions" version="3.1.3" />
-      <dependency id="Autofac" version="5.1.2" />
-      <dependency id="Microsoft.AspNetCore.Http.Features" version="3.1.3" />
-      <dependency id="Microsoft.Extensions.DependencyModel" version="3.1.3" />
-      <dependency id="Microsoft.Extensions.Logging.Console" version="3.1.3" />
+      <dependency id="Microsoft.Extensions.Hosting.Abstractions" version="3.1.4" />
+      <dependency id="Autofac" version="5.2.0" />
+      <dependency id="Microsoft.AspNetCore.Http.Features" version="3.1.4" />
+      <dependency id="Microsoft.Extensions.DependencyModel" version="3.1.4" />
+      <dependency id="Microsoft.Extensions.Logging.Console" version="3.1.4" />
       <dependency id="System.Runtime.Loader" version="4.3.0" />
       <dependency id="DotNetty.Codecs.Http" version="0.6.0" />
+      <dependency id="Autofac.Extras.DynamicProxy" version="5.0.0" />
+      <dependency id="Dapr.Actors.AspNetCore" version="0.7.0-preview01" />
+      <dependency id="MediatR" version="8.0.1" />
+      <dependency id="MediatR.Extensions.Microsoft.DependencyInjection" version="8.0.0" />
       <dependency id="DotNetty.Handlers" version="0.6.0" />
       <dependency id="DotNetty.Transport.Libuv" version="0.6.0" />
       <dependency id="Microsoft.AspNetCore.Hosting" version="2.2.7" />
