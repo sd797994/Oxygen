@@ -44,7 +44,7 @@ namespace Client.Sample
                 {
                     var userserver = _proxyFactory.CreateProxy<IUserActorService>(1);
                     var result1 = await userserver.Register(new RegisterInput() { UserName = "admin" });
-                    //var remoteProxy = _proxyFactory.CreateProxy("/api/ServerSample/UserLoginUseCase/register");
+                    //var remoteProxy = _proxyFactory.CreateProxy("/api/serversample/UserLoginUseCase/register");
                     //var result1 = await remoteProxy.SendAsync(new RegisterInput() { UserName = "admin" });
                     if (result1 == null)
                     {

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Application.Interface
 {
-    [RemoteService("ServerSample")]
+    [RemoteService("serversample")]
     public interface IUserLoginUseCase
     {
         Task<ApplicationBaseResult> Login(LoginInput input);

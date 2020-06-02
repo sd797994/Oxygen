@@ -21,7 +21,7 @@ spec:
         app: serversample-pod
       annotations:
         dapr.io/enabled: "true"
-        dapr.io/id: "ServerSample"
+        dapr.io/id: "serversample"
         dapr.io/port: "80"
     spec:
       containers:
