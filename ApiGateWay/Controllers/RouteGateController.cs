@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Oxygen.CommonTool;
-using Oxygen.IDaprActorProvider;
 using Oxygen.IServerProxyFactory;
 using System.Collections.Generic;
 using System.Threading.Tasks;

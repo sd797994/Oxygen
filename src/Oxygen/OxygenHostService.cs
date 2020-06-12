@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using MediatR;
 using Microsoft.Extensions.Hosting;
 using Oxygen.CommonTool;
 using Oxygen.DaprActorProvider;
@@ -18,10 +19,11 @@ namespace Oxygen
     {
         private readonly IRpcServerProvider _rpcServerProvider;
         private static bool _stopFlag = false;
-
+        private readonly ILifetimeScope _container;
         public OxygenHostService(IRpcServerProvider rpcServerProvider, ILifetimeScope container)
         {
             OxygenIocContainer.BuilderIocContainer(container);
+            _container = container;
             _rpcServerProvider = rpcServerProvider;
         }
 
@@ -35,7 +37,7 @@ namespace Oxygen
                 await _executingTask;
             }
             if (OxygenSetting.OpenActor)
-                await _rpcServerProvider.OpenServer((x) => ActorServiceBuilder.RegisterActorMiddleware(x));
+                await _rpcServerProvider.OpenServer((x) => ActorServiceBuilder.RegisterActorMiddleware(x, _container));
             else
                 await _rpcServerProvider.OpenServer();
             LocalProxyGenerator.LoadMethodDelegate();

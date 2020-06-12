@@ -36,7 +36,7 @@ namespace Oxygen.KestrelRpcProviderService
                 await handle(http);
             });
         }
-        public async Task handle(HttpContext http)
+        private async Task handle(HttpContext http)
         {
             try
             {

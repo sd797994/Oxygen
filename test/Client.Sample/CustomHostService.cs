@@ -3,7 +3,7 @@ using Application.Interface.Interfaces;
 using Application.Interface.UseCase.Dto;
 using Microsoft.Extensions.Hosting;
 using Oxygen.CommonTool;
-using Oxygen.IDaprActorProvider;
+using Oxygen.DaprActorProvider;
 using Oxygen.ISerializeService;
 using Oxygen.IServerProxyFactory;
 using System;

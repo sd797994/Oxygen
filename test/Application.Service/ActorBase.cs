@@ -1,7 +1,9 @@
 ﻿using Application.Interface;
+using Autofac;
 using Dapr.Actors;
 using Dapr.Actors.Runtime;
 using Oxygen.DaprActorProvider;
+using Oxygen.DaprActorProvider.Aspect;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,9 +11,9 @@ using System.Threading.Tasks;
 
 namespace Application.Service
 {
-    public abstract class ActorBase : OxygenActor
+    public abstract class ActorBase<T> : OxygenActor<T>
     {
-        public ActorBase(ActorService service, ActorId id) : base(service, id) { }
+        public ActorBase(ActorService service, ActorId id, ILifetimeScope container) : base(service, id, container) { }
 
         public async Task<ApplicationBaseResult> DoAsync(Func<ApplicationBaseResult, Task> runMethod)
         {

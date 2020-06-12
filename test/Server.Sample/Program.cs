@@ -31,11 +31,13 @@ namespace Server.Sample
             {
                 //注入oxygen依赖
                 builder.RegisterOxygen();
-                //注入本地业务依赖
-                builder.RegisterType<UserLoginUseCase>().As<IUserLoginUseCase>().InstancePerDependency();
+                //注入本地业务依赖 
+                builder.RegisterType<UserLoginUseCase>().As<IUserLoginUseCase>().InstancePerLifetimeScope();
+
             })
             //注册成为oxygen服务节点
-            .UseOxygenService((context, services) => {
+            .UseOxygenService((context, services) =>
+            {
                 //注册oxygen配置
                 services.ConfigureOxygen(Configuration);
                 services.AddLogging(configure =>

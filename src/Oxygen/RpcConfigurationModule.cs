@@ -39,7 +39,8 @@ namespace Oxygen
                     }
                     break;
                 case EnumMeshType.Dapr:
-                    builder.RegisterModule(new KestrelRpcProviderService.Module());//dapr目前仅支持kestrel(集成actor)
+                    builder.RegisterModule(new KestrelRpcProviderService.Module());//dapr目前仅支持kestrel
+                    builder.RegisterModule(new DaprActorProvider.Module());//加载dapr actor
                     break;
             }
             //注入序列化服务

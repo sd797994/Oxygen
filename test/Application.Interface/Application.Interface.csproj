@@ -7,8 +7,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Oxygen.CsharpClientAgent\Oxygen.CsharpClientAgent.csproj" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <PackageReference Include="Dapr.Actors" Version="0.7.0-preview01" />
+    <PackageReference Include="AspectCore.Extensions.DependencyInjection" Version="2.1.0" />
   </ItemGroup>
 </Project>

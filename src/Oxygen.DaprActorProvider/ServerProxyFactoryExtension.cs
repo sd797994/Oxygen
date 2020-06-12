@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Oxygen.IDaprActorProvider
+namespace Oxygen.DaprActorProvider
 {
     public static class ServerProxyFactoryExtension
     {
@@ -26,7 +26,7 @@ namespace Oxygen.IDaprActorProvider
             }
             else
             {
-                var actorProxy = ActorProxy.Create<T>(new ActorId(key.ToString()), typeof(T).Name[1..]);
+                var actorProxy = ActorProxy.Create<T>(new ActorId(key.ToString()), $"Proxy_{typeof(T).Name[1..]}");
                 ActorDir.Value.TryAdd($"{name}{key}", actorProxy);
                 return actorProxy;
             }
