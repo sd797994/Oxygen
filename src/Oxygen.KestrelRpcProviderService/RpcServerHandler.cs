@@ -31,10 +31,7 @@ namespace Oxygen.KestrelRpcProviderService
         }
         public void BuildHandler(IApplicationBuilder app)
         {
-            app.Run(async http =>
-            {
-                await handle(http);
-            });
+            app.MapWhen(contxt => contxt.Request.Method == "POST", appbuilder => appbuilder.Run(async http => await handle(http)));
         }
         private async Task handle(HttpContext http)
         {
@@ -47,10 +44,15 @@ namespace Oxygen.KestrelRpcProviderService
                     byte[] json = _serialize.Serializes(localHanderResult);
                     await http.Response.Body.WriteAsync(json, 0, json.Length);
                 }
+                else
+                {
+                    await http.Response.Body.WriteAsync(new byte[] { }, 0, 0);
+                }
             }
             catch (Exception e)
             {
                 _logger.LogError("服务端消息处理异常: " + e.Message);
+                await http.Response.Body.WriteAsync(new byte[] { }, 0, 0);
             }
         }
     }

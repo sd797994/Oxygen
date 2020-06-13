@@ -9,7 +9,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Dapr.Actors" Version="0.7.0-preview01" />
+    <PackageReference Include="Dapr.Actors" Version="0.8.0-preview01" />
     <PackageReference Include="AspectCore.Extensions.DependencyInjection" Version="2.1.0" />
   </ItemGroup>
 </Project>
