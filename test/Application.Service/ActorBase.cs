@@ -3,10 +3,7 @@ using Autofac;
 using Dapr.Actors;
 using Dapr.Actors.Runtime;
 using Oxygen.DaprActorProvider;
-using Oxygen.DaprActorProvider.Aspect;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Application.Service

@@ -1,11 +1,7 @@
 ﻿using Dapr.Actors;
 using Dapr.Actors.Client;
-using Oxygen.IServerProxyFactory;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Oxygen.DaprActorProvider
 {
@@ -26,7 +22,7 @@ namespace Oxygen.DaprActorProvider
             }
             else
             {
-                var actorProxy = ActorProxy.Create<T>(new ActorId(key.ToString()), $"Proxy_{typeof(T).Name[1..]}");
+                var actorProxy = ActorProxy.Create<T>(new ActorId(key.ToString()), name);
                 ActorDir.Value.TryAdd($"{name}{key}", actorProxy);
                 return actorProxy;
             }

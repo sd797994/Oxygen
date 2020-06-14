@@ -7,10 +7,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Oxygen.CommonTool;
 using Oxygen.CommonTool.Logger;
-using Oxygen.DaprActorProvider.Aspect;
+using Oxygen.DaprActorProvider.StateManage;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -20,22 +21,13 @@ namespace Oxygen.DaprActorProvider
 {
     public class ActorServiceBuilder
     {
-        static Dictionary<string,Type> proxyTypes = new Dictionary<string, Type>();
-
         /// <summary>
-        /// 创建代理服务类型用于稍后注册actor代理
+        /// 注册actor到容器并提供中介者用于自动保存
         /// </summary>
         /// <param name="builder"></param>
-        public static void RegisterActorToContainer()
+        public static void RegisterActorToContainer(ContainerBuilder builder)
         {
-            RpcInterfaceType.ActorTypes.Value?.Where(x => x.classType != null).ToList().ForEach(type => proxyTypes.TryAdd(type.interfaceType.FullName, new ProxyActorBuilder(type.interfaceType, type.classType).CreateType()));
-        }
-        /// <summary>
-        /// 注册代理的中介者处理程序
-        /// </summary>
-        /// <param name="builder"></param>
-        public static void RegisterProxyMediatR(ContainerBuilder builder)
-        {
+            RpcInterfaceType.ActorTypes.Value.Where(x => x.classType != null).ToList().ForEach(x => builder.RegisterType(x.classType).As(x.interfaceType));
             builder.RegisterType<Mediator>().As<IMediator>().InstancePerLifetimeScope();
             builder.RegisterAssemblyTypes(typeof(ActorStateSubscriber).GetTypeInfo().Assembly).AsClosedTypesOf(typeof(INotificationHandler<>)).AsImplementedInterfaces();
             builder.Register<ServiceFactory>(ctx =>
@@ -45,13 +37,12 @@ namespace Oxygen.DaprActorProvider
             });
         }
         /// <summary>
-        /// 注册actor中间件
+        /// 通过actorruntime 注册actor
         /// </summary>
         /// <param name="builder"></param>
         public static void RegisterActorMiddleware(object builder, ILifetimeScope container)
         {
-            var webbuilder = (IWebHostBuilder)builder;
-            webbuilder.UseActors(x => RegisterActor(x, container));
+            ((IWebHostBuilder)builder).UseActors(x => RegisterActor(x, container));
         }
         /// <summary>
         /// 注册所有的actor服务
@@ -64,12 +55,11 @@ namespace Oxygen.DaprActorProvider
             {
                 foreach (var type in remote.Where(x => x.classType != null))
                 {
-                    var proxyType = proxyTypes.FirstOrDefault(x => x.Key.Equals(type.interfaceType.FullName)).Value;
                     Func<ActorTypeInformation, ActorService> createFunc = (info) => new ActorService(info, (actorService, actorId) =>
                     {
-                        return Activator.CreateInstance(proxyType, new object[] { actorService, actorId, container }) as Actor;
+                        return container.Resolve(type.interfaceType, new TypedParameter(typeof(ActorService), actorService), new TypedParameter(typeof(ActorId), actorId), new TypedParameter(typeof(ILifetimeScope), container)) as Actor;
                     });
-                    typeof(ActorRuntime).GetMethod("RegisterActor").MakeGenericMethod(proxyType).Invoke(runtime, new object[] { createFunc });
+                    typeof(ActorRuntime).GetMethod("RegisterActor").MakeGenericMethod(type.classType).Invoke(runtime, new object[] { createFunc });
                 }
             }
         }

@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Oxygen.DaprActorProvider.Aspect
+namespace Oxygen.DaprActorProvider.StateManage
 {
     /// <summary>
     /// 状态保存订阅器
