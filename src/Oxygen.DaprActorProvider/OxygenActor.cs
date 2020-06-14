@@ -10,11 +10,13 @@ namespace Oxygen.DaprActorProvider
     public abstract class OxygenActorBase : Actor
     {
         protected object baseinstance { get; set; }
+        public bool AutoSave { get; set; }
         public OxygenActorBase(ActorService actorService, ActorId actorId)
               : base(actorService, actorId)
         {
 
         }
+        protected abstract Task SaveInstance();
     }
     public abstract class OxygenActor<T> : OxygenActorBase
     {
@@ -27,7 +29,7 @@ namespace Oxygen.DaprActorProvider
             this.container = container;
         }
         private T _instance;
-        public new T instance { get { return _instance; } protected set { _instance = value; baseinstance = value; } }
+        public T instance { get { return _instance; } protected set { _instance = value; baseinstance = value; } }
         /// <summary>
         /// actor被创建，需要从持久化设备恢复之前的状态
         /// </summary>
@@ -60,10 +62,9 @@ namespace Oxygen.DaprActorProvider
         /// <returns></returns>
         protected override Task OnPostActorMethodAsync(ActorMethodContext actorMethodContext)
         {
-            return Task.Run(async () =>
-            {
-                await container.Resolve<IMediator>().Publish(new ActorStateMessage(this));
-            });
+            if (AutoSave)
+                return Task.Run(async () => await container.Resolve<IMediator>().Publish(new ActorStateMessage(this)));
+            return Task.CompletedTask;
         }
     }
 }

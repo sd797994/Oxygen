@@ -16,12 +16,17 @@ namespace Oxygen.DaprActorProvider.StateManage
     {
         public static Lazy<PropertyInfo> StateManagerProperty = new Lazy<PropertyInfo>(() => typeof(Actor).GetProperty("StateManager", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
         public static Lazy<PropertyInfo> ActorInstanceProperty = new Lazy<PropertyInfo>(() => typeof(OxygenActorBase).GetProperty("baseinstance", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
+        public static Lazy<MethodInfo> InstanceSaveMethod = new Lazy<MethodInfo>(() => typeof(OxygenActorBase).GetMethod("SaveInstance", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
+        Func<Task> localfunc;
         public async Task Handle(ActorStateMessage request, CancellationToken cancellationToken)
         {
             var actor = request.Actor;
             var stateManager = StateManagerProperty.Value.GetValue(actor);
             var instance = ActorInstanceProperty.Value.GetValue(actor);
             await ((IActorStateManager)stateManager).TryAddStateAsync(actor.Id.GetId(), instance);
+            if (localfunc == null)
+                localfunc = (Func<Task>)InstanceSaveMethod.Value.CreateDelegate(typeof(Func<Task>), actor);
+            await localfunc();
         }
     }
 }

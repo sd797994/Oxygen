@@ -57,5 +57,14 @@ namespace Application.Service.Actor
                 }
             });
         }
+        /// <summary>
+        /// 提供抽象方法SaveInstance的实现用于自动保存时调用仓储进行持久化
+        /// </summary>
+        /// <returns></returns>
+        protected override async Task SaveInstance()
+        {
+            //在真实环境中调用repo进行数据持久化
+            Console.WriteLine("SaveInstance success");
+        }
     }
 }

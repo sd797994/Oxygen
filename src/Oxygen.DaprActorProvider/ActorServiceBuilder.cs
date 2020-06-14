@@ -57,7 +57,9 @@ namespace Oxygen.DaprActorProvider
                 {
                     Func<ActorTypeInformation, ActorService> createFunc = (info) => new ActorService(info, (actorService, actorId) =>
                     {
-                        return container.Resolve(type.interfaceType, new TypedParameter(typeof(ActorService), actorService), new TypedParameter(typeof(ActorId), actorId), new TypedParameter(typeof(ILifetimeScope), container)) as Actor;
+                        var actorInstance = container.Resolve(type.interfaceType, new TypedParameter(typeof(ActorService), actorService), new TypedParameter(typeof(ActorId), actorId), new TypedParameter(typeof(ILifetimeScope), container)) as OxygenActorBase;
+                        actorInstance.AutoSave = type.autoSave;
+                        return actorInstance;
                     });
                     typeof(ActorRuntime).GetMethod("RegisterActor").MakeGenericMethod(type.classType).Invoke(runtime, new object[] { createFunc });
                 }
