@@ -19,4 +19,8 @@ namespace Oxygen.CsharpClientAgent
             this.AutoSave = AutoSave;
         }
     }
+    public abstract class ActorModel
+    {
+        public abstract string Key { get; set; }
+    }
 }

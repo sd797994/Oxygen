@@ -44,6 +44,13 @@ namespace Oxygen.ISerializeService
         /// <param name="input"></param>
         /// <returns></returns>
         T DeserializesJson<T>(string input);
+        /// <summary>
+        /// 反序列化JSON字符串为object
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        object DeserializesJson(Type type,string input);
 
         /// <summary>
         /// 序列化

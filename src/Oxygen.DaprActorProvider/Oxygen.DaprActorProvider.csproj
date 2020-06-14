@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Oxygen.CommonTool\Oxygen.CommonTool.csproj" />
-    <ProjectReference Include="..\Oxygen.KestrelRpcProviderService\Oxygen.KestrelRpcProviderService.csproj" />
+    <ProjectReference Include="..\Oxygen.ISerializeService\Oxygen.ISerializeService.csproj" />
+    <ProjectReference Include="..\Oxygen.IServerProxyFactory\Oxygen.IServerProxyFactory.csproj" />
   </ItemGroup>
 </Project>

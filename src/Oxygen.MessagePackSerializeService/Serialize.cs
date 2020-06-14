@@ -127,6 +127,26 @@ namespace Oxygen.MessagePackSerializeService
             return default(T);
         }
         /// <summary>
+        /// 序列化JSON字符串为object
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public object DeserializesJson(Type type, string input)
+        {
+            if (input == null || !input.Any())
+                return default;
+            try
+            {
+                return MessagePackSerializer.Deserialize(type, SerializesJsonString(input));
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"反序化对象失败：{e.Message}，消息体：{input}");
+            }
+            return default;
+        }
+        /// <summary>
         /// 序列化
         /// </summary>
         /// <param name="type"></param>
