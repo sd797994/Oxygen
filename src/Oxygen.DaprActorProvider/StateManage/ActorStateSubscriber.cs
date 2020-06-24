@@ -23,10 +23,13 @@ namespace Oxygen.DaprActorProvider.StateManage
             var actor = request.Actor;
             var stateManager = StateManagerProperty.Value.GetValue(actor);
             var instance = ActorInstanceProperty.Value.GetValue(actor);
-            await ((IActorStateManager)stateManager).TryAddStateAsync(actor.Id.GetId(), instance);
-            if (localfunc == null)
-                localfunc = (Func<Task>)InstanceSaveMethod.Value.CreateDelegate(typeof(Func<Task>), actor);
-            await localfunc();
+            await ((IActorStateManager)stateManager).AddOrUpdateStateAsync(actor.Id.GetId(), instance, (x, y) => y);
+            if (request.AutoSave)
+            {
+                if (localfunc == null)
+                    localfunc = (Func<Task>)InstanceSaveMethod.Value.CreateDelegate(typeof(Func<Task>), actor);
+                await localfunc();
+            }
         }
     }
 }

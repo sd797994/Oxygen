@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Oxygen.CommonTool;
+using Oxygen.DaprActorProvider;
 using Oxygen.IServerProxyFactory;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -26,10 +28,17 @@ namespace ApiGateWay.Controllers
                 var remoteProxy = _serverProxyFactory.CreateProxy(Request.Path);
                 if (remoteProxy != null)
                 {
-                    var rempteResult = await remoteProxy.SendAsync(input);
-                    if (rempteResult != null)
+                    try
                     {
-                        return new JsonResult(rempteResult);
+                        var rempteResult = await remoteProxy.SendAsync(input);
+                        if (rempteResult != null)
+                        {
+                            return new JsonResult(rempteResult);
+                        }
+                    }
+                    catch(Exception e)
+                    {
+                        return Content($"调用远程服务失败，原因：{e.Message}");
                     }
                 }
                 else

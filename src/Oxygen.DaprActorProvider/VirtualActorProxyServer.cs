@@ -22,14 +22,23 @@ namespace Oxygen.DaprActorProvider
         string method { get; set; }
         string actorType { get; set; }
         string actorId { get; set; }
+        public bool CreateSuccess = false;
         HttpClient client;
-        public VirtualActorProxyServer(string method,string actorType,string actorId)
+        public VirtualActorProxyServer(string method, string actorType, string actorId)
         {
             this.method = method;
             this.actorType = actorType;
             this.actorId = actorId;
-            this.InputType = RpcInterfaceType.ActorTypes.Value.FirstOrDefault(x => x.interfaceType.Name.Equals($"I{actorType}")).interfaceType.GetMethod(method).GetParameters()[0].ParameterType;
-            this.client = new HttpClient();
+            try
+            {
+                this.InputType = RpcInterfaceType.ActorTypes.Value.FirstOrDefault(x => x.interfaceType.Name.Equals($"I{actorType}")).interfaceType.GetMethod(method).GetParameters()[0].ParameterType;
+                this.client = new HttpClient(); 
+                CreateSuccess = true;
+            }
+            catch(Exception)
+            {
+
+            }
         }
         public Type InputType { get; set; }
 
@@ -55,7 +64,7 @@ namespace Oxygen.DaprActorProvider
         HttpRequestMessage GetClientSendMessage(object input,string actorType,string actorId,string method)
         {
             var json = serialize.Value.SerializesJson(input);
-            actorId = string.IsNullOrEmpty(actorId) ? (serialize.Value.DeserializesJson(InputType, json) as ActorModel).Key : actorId;
+            actorId = string.IsNullOrEmpty(actorId) ? (serialize.Value.DeserializesJson(InputType, json) as ActorModel).GetKey() : actorId;
             var url = $"http://localhost:3500/v1.0/actors/{actorType}/{actorId}/method/{method}";
             var request = new HttpRequestMessage(HttpMethod.Post, url) { Version = new Version(1, 1) };
             request.Content = new StringContent(json);

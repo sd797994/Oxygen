@@ -48,6 +48,7 @@ namespace Application.Service
             if (OxygenSetting.OpenActor)
             {
                 var actorService = serverProxyFactory.CreateProxy<IUserActorService>("1");
+                input.SaveChanges = true;
                 return await actorService.Register(input);
             }
             else

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Application.Interface.Interfaces
 {
 
-    [ActorService(true)]
+    [ActorService(false)]
     public interface IUserActorService : IActor
     {
         Task<ApplicationBaseResult> Login(LoginInput input);

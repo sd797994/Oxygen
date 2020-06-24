@@ -59,6 +59,7 @@ namespace Oxygen.ServerProxyFactory
                             if (InstanceParmDictionary.TryGetValue(path.ToLower(), out var messageType))
                             {
                                 vitual.Init(messageType.Item1[0], messageType.Item1[1], messageType.Item2, messageType.Item3);
+                                return vitual;
                             }
                             else
                             {
@@ -69,29 +70,29 @@ namespace Oxygen.ServerProxyFactory
                                     {
                                         var className = $"{names[2]}";
                                         var type = GetProxyClient(className);
-                                        _container.TryResolve(type, out object remoteProxyDecorator);
                                         if (type != null)
                                         {
+                                            //_container.TryResolve(type, out object remoteProxyDecorator);
                                             var serviceName = (string)typeof(RemoteServiceAttribute).GetProperty("ServerName")
-                                                    ?.GetValue(type.GetCustomAttribute(typeof(RemoteServiceAttribute)));
+                                                        ?.GetValue(type.GetCustomAttribute(typeof(RemoteServiceAttribute)));
                                             var method = type.GetMethods().FirstOrDefault(x => x.Name.ToLower().Equals(names[3].ToLower()));
                                             if (method != null)
                                             {
                                                 var parmType = method.GetParameters().FirstOrDefault().ParameterType;
                                                 var returnType = method.ReturnType.GenericTypeArguments[0];
-                                                InstanceParmDictionary.TryAdd(path.ToLower(),(new[] { serviceName, $"{type.Name}/{method.Name}" }, parmType, returnType));
+                                                InstanceParmDictionary.TryAdd(path.ToLower(), (new[] { serviceName, $"{type.Name}/{method.Name}" }, parmType, returnType));
                                                 vitual.Init(serviceName, $"{type.Name}/{method.Name}", parmType, returnType);
+                                                return vitual;
                                             }
                                         }
                                     }
                                 }
                             }
                         }
-                        return vitual;
                     }
                 }
             }
-            return default(IVirtualProxyServer);
+            return default;
         }
 
         /// <summary>

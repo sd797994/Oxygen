@@ -12,6 +12,7 @@ namespace Oxygen.DaprActorProvider.StateManage
         {
             Actor = (Actor)actor;
         }
+        public bool AutoSave { get; set; }
         public Actor Actor { get; set; }
         public IActorStateManager StateManager { get; set; }
     }

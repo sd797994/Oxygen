@@ -18,7 +18,7 @@ namespace Application.Service.Actor
         public UserActorService(ActorService service, ActorId id, ILifetimeScope container) : base(service, id, container) {  }
         public async Task<ApplicationBaseResult> Login(LoginInput input)
         {
-            return await DoAsync(async (x) =>
+            return await DoAsync(input.SaveChanges, async (x) =>
             {
                 await Task.Delay(0);
                 if (instance != null && instance.UserName.Equals(input.UserName))
@@ -36,7 +36,7 @@ namespace Application.Service.Actor
 
         public async Task<ApplicationBaseResult> Register(RegisterInput input)
         {
-            return await DoAsync(async (x) =>
+            return await DoAsync(input.SaveChanges, async (x) =>
             {
                 await Task.Delay(0);
                 if (string.IsNullOrEmpty(input.UserName))

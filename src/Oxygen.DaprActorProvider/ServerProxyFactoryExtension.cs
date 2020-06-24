@@ -56,7 +56,10 @@ namespace Oxygen.DaprActorProvider
                             var ActorType = names[2];
                             var Method = names[3];
                             var actorProxy = new VirtualActorProxyServer(Method, ActorType, key.ToString());
-                            ActorProxyDir.Value.TryAdd($"{path.ToLower()}", actorProxy);
+                            if (actorProxy.CreateSuccess)
+                                ActorProxyDir.Value.TryAdd($"{path.ToLower()}", actorProxy);
+                            else
+                                return default;
                             return actorProxy;
                         }
                     }

@@ -12,13 +12,15 @@ namespace Application.Service
     {
         public ActorBase(ActorService service, ActorId id, ILifetimeScope container) : base(service, id, container) { }
 
-        public async Task<ApplicationBaseResult> DoAsync(Func<ApplicationBaseResult, Task> runMethod)
+        public async Task<ApplicationBaseResult> DoAsync(bool saveChanges, Func<ApplicationBaseResult, Task> runMethod)
         {
             var result = new ApplicationBaseResult();
             try
             {
                 await runMethod(result);
                 result.Code = 0;
+                if (saveChanges)
+                    await base.SaveAll(true);
             }
             catch (Exception e)
             {
