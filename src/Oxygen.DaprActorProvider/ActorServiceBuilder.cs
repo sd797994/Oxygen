@@ -27,7 +27,7 @@ namespace Oxygen.DaprActorProvider
         /// <param name="builder"></param>
         public static void RegisterActorToContainer(ContainerBuilder builder)
         {
-            RpcInterfaceType.ActorTypes.Value.Where(x => x.classType != null).ToList().ForEach(x => builder.RegisterType(x.classType).As(x.interfaceType));
+            RpcInterfaceType.ActorTypes.Value.Where(x => x.classType != null).ToList().ForEach(x => builder.RegisterType(x.classType).As(x.interfaceType).InstancePerDependency());
             builder.RegisterType<Mediator>().As<IMediator>().InstancePerLifetimeScope();
             builder.RegisterAssemblyTypes(typeof(ActorStateSubscriber).GetTypeInfo().Assembly).AsClosedTypesOf(typeof(INotificationHandler<>)).AsImplementedInterfaces();
             builder.Register<ServiceFactory>(ctx =>
