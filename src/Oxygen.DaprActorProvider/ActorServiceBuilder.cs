@@ -27,7 +27,6 @@ namespace Oxygen.DaprActorProvider
         /// <param name="builder"></param>
         public static void RegisterActorToContainer(ContainerBuilder builder)
         {
-            RpcInterfaceType.ActorTypes.Value.Where(x => x.classType != null).ToList().ForEach(x => builder.RegisterType(x.classType).As(x.interfaceType).InstancePerDependency());
             builder.RegisterType<Mediator>().As<IMediator>().InstancePerLifetimeScope();
             builder.RegisterAssemblyTypes(typeof(ActorStateSubscriber).GetTypeInfo().Assembly).AsClosedTypesOf(typeof(INotificationHandler<>)).AsImplementedInterfaces();
             builder.Register<ServiceFactory>(ctx =>
@@ -57,7 +56,7 @@ namespace Oxygen.DaprActorProvider
                 {
                     Func<ActorTypeInformation, ActorService> createFunc = (info) => new ActorService(info, (actorService, actorId) =>
                     {
-                        var actorInstance = container.Resolve(type.interfaceType, new TypedParameter(typeof(ActorService), actorService), new TypedParameter(typeof(ActorId), actorId), new TypedParameter(typeof(ILifetimeScope), container)) as OxygenActorBase;
+                        var actorInstance = Activator.CreateInstance(type.classType, new object[] { actorService, actorId }) as OxygenActorBase;
                         actorInstance.AutoSave = type.autoSave;
                         return actorInstance;
                     });
