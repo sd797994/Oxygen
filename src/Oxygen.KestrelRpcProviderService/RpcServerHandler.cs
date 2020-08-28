@@ -39,19 +39,30 @@ namespace Oxygen.KestrelRpcProviderService
             {
                 var messageobj = await protocolMessageBuilder.GetReceiveMessage(http);
                 var localHanderResult = await _localProxyGenerator.Invoke(messageobj);
-                if (localHanderResult != null)
+                if (localHanderResult.Message != null)
                 {
-                    byte[] json = _serialize.Serializes(localHanderResult);
-                    await http.Response.Body.WriteAsync(json, 0, json.Length);
+                    byte[] json = default;
+                    if (http.Request.ContentType != "application/json")
+                    {
+                        json = _serialize.Serializes(localHanderResult);
+                        await http.Response.Body.WriteAsync(json, 0, json.Length);
+                    }
+                    else
+                    {
+                        http.Response.ContentType = "application/json";
+                        await http.Response.WriteAsync(_serialize.SerializesJson(localHanderResult.Message));
+                    }
                 }
                 else
                 {
+                    http.Response.StatusCode = 404;
                     await http.Response.Body.WriteAsync(new byte[] { }, 0, 0);
                 }
             }
             catch (Exception e)
             {
                 _logger.LogError("服务端消息处理异常: " + e.Message);
+                http.Response.StatusCode = 502;
                 await http.Response.Body.WriteAsync(new byte[] { }, 0, 0);
             }
         }

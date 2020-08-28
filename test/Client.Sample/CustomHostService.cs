@@ -42,7 +42,7 @@ namespace Client.Sample
                 fail = 0;
                 await fortest(1, callCount, async i =>
                 {
-                    var userserver = _proxyFactory.CreateProxy<IUserActorService>();
+                    var userserver = _proxyFactory.CreateProxy<IUserLoginUseCase>();
                     var result1 = await userserver.Register(new RegisterInput() { UserName = "admin" });
                     //var remoteProxy = _proxyFactory.CreateProxy("/api/serversample/UserLoginUseCase/register");
                     //var result1 = await remoteProxy.SendAsync(new RegisterInput() { UserName = "admin" });
@@ -57,14 +57,10 @@ namespace Client.Sample
                     if (fail + succ == callCount)
                     {
                         _event.Set();
+                        sw.Stop();
                     }
                 });
-                while (true)
-                {
-                    _event.WaitOne();
-                    break;
-                }
-                sw.Stop();
+                _event.WaitOne();
                 Console.WriteLine($"RPC调用{callCount}次,成功{succ}次，失败{fail}次，累计耗时{sw.ElapsedMilliseconds}ms");
                 Console.WriteLine("按任意键继续按q退出....");
                 var returncode = Console.ReadLine();

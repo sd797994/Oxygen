@@ -13,6 +13,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -56,13 +57,44 @@ namespace Oxygen.DaprActorProvider
                 {
                     Func<ActorTypeInformation, ActorService> createFunc = (info) => new ActorService(info, (actorService, actorId) =>
                     {
-                        var actorInstance = Activator.CreateInstance(type.classType, new object[] { actorService, actorId }) as OxygenActorBase;
+                        var actorInstance = ActorDelegateDir[type.classType](new object[] { actorService, actorId, container }) as OxygenActorBase;
                         actorInstance.AutoSave = type.autoSave;
                         return actorInstance;
                     });
+                    ActorDelegateDir.Add(type.classType, GetActorDelegate(type.classType));
                     typeof(ActorRuntime).GetMethod("RegisterActor").MakeGenericMethod(type.classType).Invoke(runtime, new object[] { createFunc });
                 }
             }
         }
+        #region actor委托字典创建actor对象
+        static Dictionary<Type, Func<object[], object>> ActorDelegateDir = new Dictionary<Type, Func<object[], object>>();
+        static Func<object[], object> GetActorDelegate(Type type)
+        {
+            var ctor = type.GetConstructors()[0];
+            ParameterInfo[] paramsInfo = ctor.GetParameters();
+            ParameterExpression param =
+                Expression.Parameter(typeof(object[]), "args");
+
+            Expression[] argsExp =
+                new Expression[paramsInfo.Length];
+            for (int i = 0; i < paramsInfo.Length; i++)
+            {
+                Expression index = Expression.Constant(i);
+                Type paramType = paramsInfo[i].ParameterType;
+
+                Expression paramAccessorExp =
+                    Expression.ArrayIndex(param, index);
+
+                Expression paramCastExp =
+                    Expression.Convert(paramAccessorExp, paramType);
+
+                argsExp[i] = paramCastExp;
+            }
+            NewExpression newExp = Expression.New(ctor, argsExp);
+            var lambda =
+                Expression.Lambda<Func<object[], object>>(newExp, param);
+            return lambda.Compile();
+        }
+        #endregion
     }
 }

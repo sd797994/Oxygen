@@ -67,7 +67,7 @@ namespace Oxygen.ServerProxyFactory
         /// <returns></returns>
         public async Task<object> ExcutePath(string pathname, byte[] input, Dictionary<string, string> traceHeaders)
         {
-            if (InstanceDictionary.TryGetValue(pathname, out ILocalMethodDelegate methodDelegate))
+            if (InstanceDictionary.TryGetValue(pathname.ToLower(), out ILocalMethodDelegate methodDelegate))
             {
                 OxygenIocContainer.Resolve<CustomerInfo>().SetTraceHeader(traceHeaders);
                 methodDelegate.Build(OxygenIocContainer.Resolve(methodDelegate.Type));
@@ -87,7 +87,7 @@ namespace Oxygen.ServerProxyFactory
                 foreach(var method in type.GetMethods())
                 {
                     var delegateObj = CreateMethodDelegate(type, method, out string key);
-                    InstanceDictionary.TryAdd(key, delegateObj);
+                    InstanceDictionary.TryAdd(key.ToLower(), delegateObj);
                 }
             }
         }
@@ -96,9 +96,9 @@ namespace Oxygen.ServerProxyFactory
         /// 创建本地方法委托
         /// </summary>
         /// <returns></returns>
-        private static ILocalMethodDelegate CreateMethodDelegate(Type localType,MethodInfo method,out string pathname)
+        private static ILocalMethodDelegate CreateMethodDelegate(Type localType, MethodInfo method, out string pathname)
         {
-            pathname = localType.Name + "/" + method.Name;
+            pathname = "/" + localType.Name + "/" + method.Name;
             return (ILocalMethodDelegate)Activator.CreateInstance(typeof(LocalMethodDelegate<,>).MakeGenericType(method.GetParameters()[0].ParameterType, method.ReturnType.GetGenericArguments().FirstOrDefault()), method, localType);
         }
     }

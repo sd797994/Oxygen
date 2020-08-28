@@ -29,7 +29,7 @@ namespace Oxygen.ServerProxyFactory
                 var tmpmod = new MethodDelegateInfo()
                 {
                     ServiceName = serviceName,
-                    PathName = $"{type.Name}/{method.Name}",
+                    PathName = $"/{type.Name}/{method.Name}",
                     MethodInfo = typeof(IRemoteProxyGenerator).GetMethod("SendAsync").MakeGenericMethod(method.GetParameters()[0].ParameterType, method.ReturnParameter.ParameterType.GenericTypeArguments[0])
                 };
                 if (!Remotemethods.TryAdd($"{tmpmod.PathName}", tmpmod))

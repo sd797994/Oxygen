@@ -75,7 +75,15 @@ namespace Oxygen.KestrelRpcProviderService
                 await message.Request.Body.CopyToAsync(buffer);
                 byte[] bytes = buffer.ToArray();
                 buffer.Write(bytes, 0, Convert.ToInt32(buffer.Length));
-                var result = _serialize.Deserializes<RpcGlobalMessageBase<object>>(bytes);
+                var result = new RpcGlobalMessageBase<object>();
+                //根据header contenttype选择是反序列化json还是反序列化byte
+                if (message.Request.ContentType != "application/json")
+                    result = _serialize.Deserializes<RpcGlobalMessageBase<object>>(bytes);
+                else
+                {
+                    result.Path = message.Request.Path.Value;
+                    result.Message = _serialize.DeserializesJson<object>(Encoding.Default.GetString(bytes));
+                }
                 Dictionary<string, string> traceHeaders = default;
                 if (message.Request.Headers.Any())
                 {
