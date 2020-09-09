@@ -1,5 +1,6 @@
 ﻿using Oxygen.IProxyClientBuilder;
 using Oxygen.IServerProxyFactory;
+using Oxygen.ServerProxyFactory;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -13,13 +14,13 @@ namespace Oxygen.IProxyClientBuilder
     /// </summary>
     /// <typeparam name="Tin"></typeparam>
     /// <typeparam name="Tout"></typeparam>
-    public class LocalMethodDelegate<Tin, Tout> : ILocalMethodDelegate
+    public class LocalMethodDelegate<Tin, Tout> : ILocalMethodDelegate where Tout : class
     {
         private Func<Tin, Task<Tout>> localfunc;
         public Type Type { get; set; }
         public Type ParmterType { get; set; }
         public MethodInfo Method { get; set; }
-        public LocalMethodDelegate(MethodInfo method,Type type)
+        public LocalMethodDelegate(MethodInfo method, Type type)
         {
             Method = method;
             Type = type;
@@ -31,7 +32,7 @@ namespace Oxygen.IProxyClientBuilder
         }
         public async Task<object> Excute(object val)
         {
-            return await localfunc((Tin)val);
+            return await LocalMethodAopProvider.UsePipelineHandler((Tin)val, localfunc);
         }
     }
 }

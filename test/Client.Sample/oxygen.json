@@ -4,12 +4,12 @@
     "Mesh": {
       //不采用任何mesh
       "None": {
-        "Open": false, //只能打开一种mesh模式，同时需要yaml文件配合，同时确保所有host采用的mesh一致
-        "ProtocolType": 2 //0 = tcp模式 1 = http1.1模式 2 = http/2模式
+        "Open": true, //只能打开一种mesh模式，同时需要yaml文件配合，同时确保所有host采用的mesh一致
+        "ProtocolType": 1 //0 = tcp模式 1 = http1.1模式 2 = http/2模式
       },
       //基于dapr的mesh
       "Dapr": {
-        "Open": true,
+        "Open": false,
         "ProtocolType": 1, //仅支持http1.1
         "OpenActor": true //开启actor模式，需要提前准备dapr-state-store
       },

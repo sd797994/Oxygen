@@ -73,6 +73,10 @@ namespace Oxygen.ServerProxyFactory
                 methodDelegate.Build(OxygenIocContainer.Resolve(methodDelegate.Type));
                 return await methodDelegate.Excute(_serialize.Deserializes(methodDelegate.ParmterType, input));
             }
+            else
+            {
+                _logger.LogError($"没有找到目标地址:{pathname.ToLower()}");
+            }
             return null;
         }
         /// <summary>

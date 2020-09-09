@@ -4,7 +4,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Oxygen.CommonTool;
+using Oxygen.IRpcProviderService;
+using Oxygen.ServerProxyFactory;
 using System;
+using System.Threading.Tasks;
 
 namespace Oxygen
 {
@@ -84,6 +87,12 @@ namespace Oxygen
                 //注入Client启动类
                 services.AddHostedService<OxygenClientService>();
             }
+            return services;
+        }
+        //注入方法前、方法后、异常的处理程序
+        public static IServiceCollection RegisterPipelineHandler(this IServiceCollection services, Func<object, Task> beforeFunc = null, Func<object, Task> afterFunc = null, Func<Exception, Task<object>> exceptionFunc = null)
+        {
+            LocalMethodAopProvider.RegisterPipelineHandler(beforeFunc, afterFunc, exceptionFunc);
             return services;
         }
         /// <summary>

@@ -55,7 +55,7 @@ namespace Oxygen.KestrelRpcProviderService
             switch (OxygenSetting.MeshType)
             {
                 case EnumMeshType.Dapr:
-                    url = $"http://localhost:3500/v1.0/invoke/{serverName}/method/{pathName}";
+                    url = $"http://localhost:3500/v1.0/invoke/{serverName}/method{pathName}";
                     break;
                 default:
                     url = $"http://{serverName}:{OxygenSetting.ServerPort}";

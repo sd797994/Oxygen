@@ -22,7 +22,8 @@ namespace Oxygen.ServerProxyFactory
         }
         protected override object Invoke(MethodInfo targetMethod, object[] args)
         {
-            return GetProxy($"{targetMethod.DeclaringType.Name}/{targetMethod.Name}", out string ServiceName, out string PathName).Excute(args[0], ServiceName, PathName);
+            return GetProxy($"/{targetMethod.DeclaringType.Name}/{targetMethod.Name}", out string ServiceName, out string PathName).Excute(args[0], ServiceName, PathName);
+
         }
     }
 }
